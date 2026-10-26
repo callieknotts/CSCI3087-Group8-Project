@@ -1,0 +1,36 @@
+.btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn:focus-visible {
+  outline: 3px solid #93b4ff;
+  outline-offset: 2px;
+}
+
+.btn-type1 {    /* Replace with real type later */
+  background: #2f5bea;
+  color: #fff;
+}
+.btn-type1:hover:not(:disabled) { /* Replace with real type later */
+  background: #2449c4;
+}
+
+.btn-type2 { /* Replace with real type later */
+  background: transparent;
+  color: #2f5bea;
+  border-color: #2f5bea;
+}
+.btn-type2:hover:not(:disabled) { /* Replace with real type later */
+  background: #eef2ff;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

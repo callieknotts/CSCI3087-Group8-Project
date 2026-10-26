@@ -1,0 +1,33 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.field input {
+  font: inherit;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #b8bfcc;
+  border-radius: 8px;
+}
+
+.field input:focus-visible {
+  outline: 3px solid #93b4ff;
+  outline-offset: 1px;
+  border-color: #2f5bea;
+}
+
+.field input.has-error {
+  border-color: #c62828;
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #c62828;
+}
