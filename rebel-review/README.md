@@ -1,70 +1,96 @@
-# Getting Started with Create React App
+# RebelReview
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+RebelReview is a web-based spaced-repetition flashcard app. Users create decks of front/back flashcards, study them, and rate how well they recalled each card (Again, Hard, Good, Easy). The app uses those ratings to decide when each card should come back: cards you know well return less often, and cards you struggle with return sooner.
 
-## Available Scripts
+**Course:** CSCI 3087, Team 8
+**Team:** Callie Knotts, Colton Crane, Dylan Bleck, Lavanya Negi
 
-In the project directory, you can run:
+## Project status
 
-### `npm start`
+This is an in-progress MVP. The core study loop is defined in the project requirements document: create a deck, add cards, study, rate recall, and schedule the next review.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Feature | Status |
+|---|---|
+| Create and list decks | Done |
+| Create cards and view a deck's cards | Done |
+| Data persists after a page refresh | Done (browser `localStorage`) |
+| Review scheduler (Again/Hard/Good/Easy) with unit tests | Done |
+| Edit and delete cards | Not started |
+| Study session (flip card, rate recall) | Not started |
+| Due-card review | Not started |
+| Backend, registration, email verification, login | Not started |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**Current limitation:** there is no backend yet. Decks and cards are saved in your browser's `localStorage`, so they stay on the browser and device where you created them. Clearing site data erases them.
 
-### `npm test`
+## Getting started
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
 
-### `npm run build`
+- [Node.js](https://nodejs.org/) and npm
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Install and run
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The React app is in the `rebel-review` folder. Run all commands from inside it.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+git clone https://github.com/callieknotts/CSCI3087-Group8-Project.git
+cd CSCI3087-Group8-Project/rebel-review
+npm install
+npm start
+```
 
-### `npm run eject`
+`npm start` opens the app in your browser, usually at `http://localhost:3000`. If that port is busy, the terminal will offer another one.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Run the tests
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm test
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+This starts Jest in watch mode. Press `a` to run all tests and `q` to quit. For a single run:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+CI=true npm test
+```
 
-## Learn More
+(On Windows PowerShell, use `$env:CI="true"; npm test`.)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Architecture
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The code follows an onion architecture, where each layer depends only on the layers inside it.
 
-### Code Splitting
+```
+src/
+├── domain/           Core rules. No React, no storage.
+│   ├── deck.js         validate and create decks
+│   ├── card.js         validate and create cards
+│   └── scheduler.js    spaced-repetition scheduling logic
+├── application/      Coordinates actions using domain rules.
+│   ├── deckService.js
+│   └── cardService.js
+├── infrastructure/   Talks to storage.
+│   ├── localDeckRepository.js   localStorage (temporary)
+│   ├── localCardRepository.js   localStorage (temporary)
+│   └── deckAPI.js               placeholder for the future backend
+├── ui/               React components and pages.
+│   ├── components/     CreateDeck, CreateCard
+│   └── pages/          DeckPage
+├── compositionRoot.js   Wires repositories into services (the one place that knows both).
+└── App.js               Routes and the deck list page.
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Services receive their repository as a parameter instead of importing it. When the backend is ready, the `localStorage` repositories can be replaced with API-backed ones by changing the imports in `compositionRoot.js`. Nothing in `domain/`, `application/`, or `ui/` needs to change.
 
-### Analyzing the Bundle Size
+## How scheduling works
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+`src/domain/scheduler.js` is an SM-2-style scheduler.
 
-### Making a Progressive Web App
+- New and Learning cards move through short minute-based steps and graduate to Review when rated Good or Easy.
+- Review cards get day-based intervals that grow with the card's ease factor.
+- Again sends a Review card back to Learning and lowers its ease. Hard and Easy adjust the ease down and up.
+- The scheduler is a pure function: the same card, rating, and time always give the same result. It rejects invalid input with clear errors.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Documentation
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Requirements: see the Project Requirements Document (Milestone 2) for goals, user stories, the ERD, and scope.
+- AI use: AI-assisted code on this project is reviewed and tested by team members before it is treated as final.
