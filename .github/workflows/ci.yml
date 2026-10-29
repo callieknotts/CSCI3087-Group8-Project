@@ -5,6 +5,7 @@ on:
     branches: [classactivity]
   pull_request:
     branches: [classactivity]
+  workflow_dispatch:
 
 jobs:
   backend:
