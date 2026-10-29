@@ -7,7 +7,7 @@ export function createCardService(cardRepository){
             const result = validateCard(untrimmedFront, untrimmedBack);
 
             if(!result.valid){
-                throw new Error(result.error);
+                throw new Error(result.error;
             }
             
             return cardRepository.save(createCard(deckId, result.front, result.back));
