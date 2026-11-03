@@ -1,5 +1,5 @@
 # from sqlalchemy.sql import func
-from backend.infrastructure.database import Base
+from infrastructure.database import Base
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 import uuid
 from sqlalchemy import UUID, text

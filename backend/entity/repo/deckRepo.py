@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from backend.entity.deck import Deck
+from entity.deck import Deck
 class DeckRepository(ABC):
     @abstractmethod
     def save(self, deck: Deck):

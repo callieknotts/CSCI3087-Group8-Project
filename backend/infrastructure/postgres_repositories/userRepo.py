@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
-from backend.entity.user import User
+from entity.user import User
 from sqlalchemy import select
 #explain select
-from backend.entity.repo.userRepo import UserRepository
-from backend.infrastructure.models.usermodel import UserModel
+from entity.repo.userRepo import UserRepository
+from infrastructure.models.usermodel import UserModel
 from uuid import UUID
 class PostgresUserRepository(UserRepository):
     def __init__(self, session: Session):

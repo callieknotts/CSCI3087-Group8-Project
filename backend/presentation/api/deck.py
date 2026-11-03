@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from backend.presentation.schemas.deck import DeckSchema, DeckUpdateSchema
-from backend.use_case.deck.create_deck import CreateDeck
-from backend.use_case.deck.read_deck import ReadDeck
-from backend.use_case.deck.delete_deck import DeleteDeck
-from backend.use_case.deck.update_deck import UpdateDeck
-# from backend.use_case.login import LoginUser
+from presentation.schemas.deck import DeckSchema, DeckUpdateSchema
+from use_case.deck.create_deck import CreateDeck
+from use_case.deck.read_deck import ReadDeck
+from use_case.deck.delete_deck import DeleteDeck
+from use_case.deck.update_deck import UpdateDeck
+# from use_case.login import LoginUser
 # from uuid import UUID
-from backend.presentation.dependencies import get_deck_repository
-from backend.presentation.auth import get_current_user
+from presentation.dependencies import get_deck_repository
+from presentation.auth import get_current_user
 from uuid import UUID
 
 

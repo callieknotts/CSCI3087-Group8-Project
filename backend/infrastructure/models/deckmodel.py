@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import UUID as SQLAlchemyUUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.infrastructure.database import Base
+from infrastructure.database import Base
 
 
 class DeckModel(Base):
