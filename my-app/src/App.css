@@ -1,15 +1,16 @@
 .counter {
   font-size: 16px;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 0;
   color: var(--accent);
   background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
+  border: 2px solid var(--accent-border);
+  transition: background 0.2s, color 0.2s;
   margin-bottom: 24px;
 
   &:hover {
-    border-color: var(--accent-border);
+    background: var(--accent);
+    color: var(--accent-bg);
   }
   &:focus-visible {
     outline: 2px solid var(--accent);
@@ -19,6 +20,10 @@
 
 .hero {
   position: relative;
+
+  img {
+    filter: grayscale(1);
+  }
 
   .base,
   .framework,
@@ -118,8 +123,9 @@
   a {
     color: var(--text-h);
     font-size: 16px;
-    border-radius: 6px;
+    border-radius: 0;
     background: var(--social-bg);
+    border: 1px solid var(--border);
     display: flex;
     padding: 6px 12px;
     align-items: center;
