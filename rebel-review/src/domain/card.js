@@ -22,3 +22,13 @@ export function createCard(deckId, front, back, now= new Date()){
         ...newCardSchedule(now)
     }
 }
+// Returns a copy of the card with new front/back text. Everything else (id, deck, schedule) 
+// stays the same. So changing a card's text never resets its review schedule or moves it 
+// to another deck.
+export function updateCardContent(card, front, back){
+    return {
+        ...card,
+        front,
+        back
+    }
+}

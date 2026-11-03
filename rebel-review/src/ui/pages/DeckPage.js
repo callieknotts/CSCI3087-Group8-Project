@@ -1,6 +1,11 @@
+// The screen for a single deck. It loads the deck
+// through cardService. It shows the deck's name, the CreateCard form, 
+// and a list of cardItem rows, each with its own edit and delete buttons.
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import CreateCard from "../components/CreateCard";
+import CardItem from "../components/CardItem";
 import { cardService } from "../../compositionRoot";
 
 function DeckPage({ decks }) {
@@ -36,9 +41,15 @@ function DeckPage({ decks }) {
       <h2>Cards ({cards.length})</h2>
       <ul>
         {cards.map((card) => (
-          <li key={card.id}>
-            {card.front} → {card.back}
-          </li>
+          <CardItem
+            key={card.id}
+            card={card}
+            cardService={cardService}
+            onCardUpdated={(updated) =>
+              setCards(cards.map((c) => (c.id === updated.id ? updated : c)))
+            }
+            onCardDeleted={(id) => setCards(cards.filter((c) => c.id !== id))}
+          />
         ))}
       </ul>
     </div>
