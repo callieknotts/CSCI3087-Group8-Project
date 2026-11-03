@@ -7,27 +7,33 @@
 .field label {
   font-weight: 600;
   font-size: 0.9rem;
+  color: var(--text-h);
 }
 
 .field input {
   font: inherit;
   padding: 0.65rem 0.8rem;
-  border: 1px solid #b8bfcc;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--text-h);
 }
 
 .field input:focus-visible {
-  outline: 3px solid #93b4ff;
+  outline: 3px solid var(--accent);
   outline-offset: 1px;
-  border-color: #2f5bea;
+  border-color: var(--accent);
 }
 
 .field input.has-error {
-  border-color: #c62828;
+  border-style: dashed;
+  border-width: 2px;
+  padding: calc(0.65rem - 1px) calc(0.8rem - 1px);
 }
 
 .field-error {
   margin: 0;
   font-size: 0.85rem;
-  color: #c62828;
+  font-weight: 600;
+  color: var(--text-h);
 }
