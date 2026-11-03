@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from backend.entity.user import User
+from entity.user import User
 class UserRepository(ABC):
     @abstractmethod
     def save(self, user):
@@ -30,9 +30,9 @@ class UserRepository(ABC):
 
 
 # from sqlalchemy.orm import Session
-# from backend.entity.user import User
-# from backend.entity.repo.userRepo import UserRepository
-# from backend.infrastructure.usermodel import UserModel
+# from entity.user import User
+# from entity.repo.userRepo import UserRepository
+# from infrastructure.usermodel import UserModel
 # from uuid import UUID
 # class UserRepo(UserRepository):
 #     def __init__(self, session: Session):

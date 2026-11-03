@@ -1,6 +1,6 @@
 from uuid import UUID
-from backend.entity.repo.deckRepo import DeckRepository
-from backend.entity.deck import Deck
+from entity.repo.deckRepo import DeckRepository
+from entity.deck import Deck
 class CreateDeck:
     def __init__(self, deck_repo: DeckRepository):
         self.deck_repo=deck_repo

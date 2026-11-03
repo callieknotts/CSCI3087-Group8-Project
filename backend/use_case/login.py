@@ -1,7 +1,7 @@
-from backend.entity.user import User
+from entity.user import User
 # from ..infrastructure.repositories.userRepo import UserRepository
-from backend.entity.repo.userRepo import UserRepository
-from backend.infrastructure.security.password_hasher import HashPassword
+from entity.repo.userRepo import UserRepository
+from infrastructure.security.password_hasher import HashPassword
 
 class LoginUser:
     def __init__(self, user_repo: UserRepository):

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
-from backend.presentation.api.user import router as signup_router
-from backend.presentation.api.deck import router as deck_router
+from presentation.api.user import router as signup_router
+from presentation.api.deck import router as deck_router
 
-from backend.infrastructure.database import Base, engine
+from infrastructure.database import Base, engine
 from starlette.middleware.sessions import SessionMiddleware
 import os
 app = FastAPI()

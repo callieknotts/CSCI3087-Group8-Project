@@ -1,9 +1,9 @@
 # dependencies.py
 
-from backend.infrastructure.postgres_repositories.userRepo import PostgresUserRepository
-from backend.infrastructure.database import SessionLocal
+from infrastructure.postgres_repositories.userRepo import PostgresUserRepository
+from infrastructure.database import SessionLocal
 
-from backend.infrastructure.postgres_repositories.deckRepo import PostgresDeckRepository
+from infrastructure.postgres_repositories.deckRepo import PostgresDeckRepository
 def get_user_repository():
     # explain why sessionlocal needs parathesizes
     #we are passing the session factory and not the object which causes it to...

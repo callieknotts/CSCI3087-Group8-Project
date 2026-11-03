@@ -1,6 +1,6 @@
-from backend.infrastructure.models.deckmodel import DeckModel
-from backend.entity.repo.deckRepo import DeckRepository
-from backend.entity.deck import Deck
+from infrastructure.models.deckmodel import DeckModel
+from entity.repo.deckRepo import DeckRepository
+from entity.deck import Deck
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 
