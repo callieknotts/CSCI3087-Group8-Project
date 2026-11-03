@@ -28,12 +28,12 @@
   background: none;
   border: none;
   padding: 0;
-  color: #2f5bea;
+  color: var(--text-h);
   text-decoration: underline;
   cursor: pointer;
 }
 
 .link-button:focus-visible {
-  outline: 3px solid #93b4ff;
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
