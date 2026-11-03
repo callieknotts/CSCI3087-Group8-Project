@@ -2,32 +2,35 @@
   font: inherit;
   font-weight: 600;
   padding: 0.7rem 1.25rem;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .btn:focus-visible {
-  outline: 3px solid #93b4ff;
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
 .btn-type1 {    /* Replace with real type later */
-  background: #2f5bea;
-  color: #fff;
+  background: var(--text-h);
+  color: var(--bg);
+  border-color: var(--text-h);
 }
 .btn-type1:hover:not(:disabled) { /* Replace with real type later */
-  background: #2449c4;
+  background: var(--bg);
+  color: var(--text-h);
 }
 
 .btn-type2 { /* Replace with real type later */
   background: transparent;
-  color: #2f5bea;
-  border-color: #2f5bea;
+  color: var(--text-h);
+  border-color: var(--text-h);
 }
 .btn-type2:hover:not(:disabled) { /* Replace with real type later */
-  background: #eef2ff;
+  background: var(--text-h);
+  color: var(--bg);
 }
 
 .btn:disabled {
