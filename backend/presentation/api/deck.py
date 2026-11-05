@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from backend.presentation.schemas.deck import DeckSchema, DeckUpdateSchema
-from backend.use_case.deck.create_deck import CreateDeck
-from backend.use_case.deck.read_deck import ReadDeck
-from backend.use_case.deck.delete_deck import DeleteDeck
-from backend.use_case.deck.update_deck import UpdateDeck
-# from backend.use_case.login import LoginUser
+from presentation.schemas.deck import DeckSchema, DeckUpdateSchema
+from use_case.deck.create_deck import CreateDeck
+from use_case.deck.read_deck import ReadDeck
+from use_case.deck.delete_deck import DeleteDeck
+from use_case.deck.update_deck import UpdateDeck
+# from use_case.login import LoginUser
 # from uuid import UUID
-from backend.presentation.dependencies import get_deck_repository
-from backend.presentation.auth import get_current_user
+from presentation.dependencies import get_deck_repository
+from presentation.auth import get_current_user
 from uuid import UUID
 
 
@@ -20,7 +20,7 @@ def addDeck(
     ):
 
     return CreateDeck(repo).execute(user_id=current_user.id,deckname=data.deckname, description=data.description)
-@router.get("/read")
+@router.get("/")
 def getDecks(
     repo=Depends(get_deck_repository),
     current_user=Depends(get_current_user)
@@ -49,11 +49,22 @@ def updateDeck(
             status_code=400,
             detail="Provide at least one field to update",
         )
-    result= UpdateDeck(repo).execute(new_deck_name=data.deckname,new_description=data.description,deck_id=deck_id,user_id=current_user.id)
-    if not result:
-        raise HTTPException(status_code=404, detail="Deck not found")
+    
+    # if not result:
+    #     raise HTTPException(status_code=404, detail="Deck not found")
 
-    return result
+    # return result
+    try:
+        result= UpdateDeck(repo).execute(new_deck_name=data.deckname,new_description=data.description,deck_id=deck_id,user_id=current_user.id,fields_set=data.model_fields_set)
+
+
+        return result
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
 # @router.patch("/decks/{deck_id}")
 
 

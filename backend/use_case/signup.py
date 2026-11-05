@@ -1,6 +1,6 @@
-from backend.entity.user import User
-from backend.entity.repo.userRepo import UserRepository
-from backend.infrastructure.security.password_hasher import HashPassword
+from entity.user import User
+from entity.repo.userRepo import UserRepository
+from infrastructure.security.password_hasher import HashPassword
 class CreateUser:
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo

@@ -1,10 +1,10 @@
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Request
-from backend.infrastructure.postgres_repositories.userRepo import (
+from infrastructure.postgres_repositories.userRepo import (
     PostgresUserRepository,
 )
-from backend.presentation.dependencies import get_user_repository
+from presentation.dependencies import get_user_repository
 
 
 def get_current_user(

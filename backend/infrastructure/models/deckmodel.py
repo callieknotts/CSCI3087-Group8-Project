@@ -1,31 +1,39 @@
+
 import uuid
 from datetime import datetime
 
-from sqlalchemy import UUID as SQLAlchemyUUID, ForeignKey
+from sqlalchemy import String, DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.infrastructure.database import Base
+from infrastructure.database import Base
 
 
 class DeckModel(Base):
     __tablename__ = "decks"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        SQLAlchemyUUID(as_uuid=True),
         primary_key=True,
-        nullable=False,
+        default=uuid.uuid4,
+        nullable=False
     )
 
-    deckname: Mapped[str] = mapped_column(nullable=False)
+    deckname: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
 
-    description: Mapped[str | None] = mapped_column(nullable=True)
+    description: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        SQLAlchemyUUID(as_uuid=True),
-        ForeignKey("users.id"),  # Verify the actual table name
-        nullable=False,
+        ForeignKey("users.id"),
+        nullable=False
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False    
-        )
+        DateTime,
+        server_default=func.now(),
+        nullable=False
+    )

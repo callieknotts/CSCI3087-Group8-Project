@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
-from backend.entity.user import User
+from entity.user import User
 from sqlalchemy import select
 #explain select
-from backend.entity.repo.userRepo import UserRepository
-from backend.infrastructure.models.usermodel import UserModel
+from entity.repo.userRepo import UserRepository
+from infrastructure.models.usermodel import UserModel
 from uuid import UUID
 class PostgresUserRepository(UserRepository):
     def __init__(self, session: Session):
@@ -45,7 +45,7 @@ class PostgresUserRepository(UserRepository):
         model.email = user.email
         model.name = user.name
         model.username = user.username
-        model.password = user.password
+        model.password = user.password_hash
         model.updated_at = user.updated_at
         
         self.session.commit()
@@ -53,6 +53,8 @@ class PostgresUserRepository(UserRepository):
 
     def get_all(self):
         models = self.session.query(UserModel).all()
+        if not models:
+            return None
         return [
             self._to_domain(m) for m in models
         ]
@@ -86,14 +88,22 @@ class PostgresUserRepository(UserRepository):
         stmt = select(UserModel).where(
                     UserModel.username == username
                 )
-        
-        return self._to_domain(self.session.scalar(stmt))
+        model = self.session.scalar(stmt)
+
+        if model is None:
+            return None
+
+        return self._to_domain(model)
     def get_by_email(self, email:str)-> User| None:
         stmt = select(UserModel).where(
                     UserModel.email == email
                 )
+        model = self.session.scalar(stmt)
         
-        return self._to_domain(self.session.scalar(stmt))
+        if model is None:
+            return None
+        
+        return self._to_domain(model)
     
     # def get_by_id(self, user_id: int) -> User | None:
 

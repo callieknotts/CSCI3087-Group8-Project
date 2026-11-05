@@ -1,6 +1,5 @@
 from uuid import UUID
-from backend.entity.repo.deckRepo import DeckRepository
-from backend.entity.deck import Deck
+from entity.repo.deckRepo import DeckRepository
 class ReadDeck:
     def __init__(self, deck_repo: DeckRepository):
         self.deck_repo=deck_repo
@@ -8,8 +7,8 @@ class ReadDeck:
                 user_id:UUID
                 ):
             result= self.deck_repo.get_all(user_id=user_id)
-            if not result:
-                raise ValueError("No decks I guess")
+            # if not result:
+            #     raise ValueError("No decks I guess")
             return result
         
         
