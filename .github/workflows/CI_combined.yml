@@ -38,7 +38,7 @@ jobs:
         run: npm run lint --if-present
 
       - name: Run frontend tests
-        run: npx vitest run ../test/frontend-tests/
+        run: npx vitest run --root .. test/frontend-tests/   
         
       - name: Build frontend
         run: npm run build --if-present
