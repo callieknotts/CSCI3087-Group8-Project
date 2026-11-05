@@ -40,9 +40,6 @@ jobs:
       - name: Lint frontend
         run: npm run lint --if-present
 
-      - name: Debug config files (temporary)
-        run: ls -la
-
       - name: Run frontend tests
         run: npx vitest run test/frontend-tests/
 
