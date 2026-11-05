@@ -1,5 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+
+// repo root (one level above my-app), resolved from this file's location
+const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
@@ -13,9 +17,10 @@ export default defineConfig({
     },
   },
   test: {
+    root: repoRoot,
     environment: 'jsdom',
     globals: true,
-    include: ['../test/frontend-tests/**/*.test.jsx'],
-    setupFiles: '../test/frontend-tests/setup.js',
+    include: ['test/frontend-tests/**/*.test.{js,jsx}'],
+    setupFiles: [fileURLToPath(new URL('../test/frontend-tests/setup.js', import.meta.url))],
   },
 });
