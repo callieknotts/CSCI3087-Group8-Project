@@ -1,6 +1,6 @@
 import './LoginPage.css';
 import './HomePage.css';
- 
+//need to add logout here later
 export default function HomePage({ user }) {
   return (
     <main className="login-page home-page">
