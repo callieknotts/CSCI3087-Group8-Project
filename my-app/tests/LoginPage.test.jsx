@@ -8,6 +8,9 @@ afterEach(() => {
     vi.restoreallMocks();    
 });
 
+
+
+//happy path test
 test('Login page shows the heading, both fields, and the Log in button.', () => {
     render(<LoginPage />);
 
@@ -18,6 +21,8 @@ test('Login page shows the heading, both fields, and the Log in button.', () => 
 });
 
 
+
+//happy path test
 test('Typing in the fields updates what is shown in the text boxes.', async () => {      //async bc the test uses await
     const user = userEvent.setup();
     render(<LoginPage />);
@@ -32,6 +37,9 @@ test('Typing in the fields updates what is shown in the text boxes.', async () =
     expect(screen.getByLabelText('Password')).toHaveValue('MyPassword#!');
 });
 
+
+
+//Edge case test
 //Wrong password is used and the server throws an error message
 test('Wrong password shows the error message from the server', async () => {      //async bc the test uses await
   const user = userEvent.setup();
@@ -52,6 +60,9 @@ test('Wrong password shows the error message from the server', async () => {    
   expect(await screen.findByRole('alert')).toHaveTextContent('Invalid credentials');
 });
 
+
+
+//Edge case test
 //Fakes a network failure
 test('Unreachable server shows "Could not reach the server"', async () => {   //async bc the test uses await
   const user = userEvent.setup();

@@ -9,6 +9,8 @@ afterEach(() => {
 });
 
 
+
+//happy path test
 // the page shows everything a person needs to sign up
 test('signup page shows the heading, all four fields, and the Create account button', () => {
   render(<SignupPage />);
@@ -25,6 +27,8 @@ test('signup page shows the heading, all four fields, and the Create account but
 });
 
 
+
+//edge case test
 //the server rejects one field, and the message appears by that field
 test('a server validation error appears under the password field', async () => {
   const user = userEvent.setup();
@@ -63,6 +67,7 @@ test('a server validation error appears under the password field', async () => {
 
 
 
+//happy path test
 //a successful signup shows the "Account created" screen
 test('a successful signup shows "Account created"', async () => {
   const user = userEvent.setup();
