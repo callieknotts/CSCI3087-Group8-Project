@@ -5,7 +5,7 @@ import {vi, afterEach} from 'vitest';
 
 //undos fake fetches so tests don't affect each other
 afterEach(() => {
-    vi.restoreallMocks();    
+    vi.restoreAllMocks();    
 });
 
 
