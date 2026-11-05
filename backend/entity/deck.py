@@ -13,7 +13,7 @@ class Deck:
     def create(cls,
                user_id: UUID,
                deckname: str,
-               description: str | None)->Deck:
+               description: str | None)->"Deck":
         return(cls(
             id= uuid4(),
             user_id=user_id,
