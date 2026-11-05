@@ -1,7 +1,38 @@
+import { useState } from 'react';
+import Button from '../components/Button';
 import './LoginPage.css';
 import './HomePage.css';
-//need to add logout here later
-export default function HomePage({ user }) {
+
+const LOGOUT_URL = '/api/users/logout';
+
+export default function HomePage({ user, onLogout }) {
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleLogout() {
+    setFormError('');
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(LOGOUT_URL, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      // 401 :session is already gone (treats it as logged out too)
+      if (!res.ok && res.status !== 401) {
+        setFormError('Could not log out. Try again.');
+        return;
+      }
+
+      onLogout();
+    } catch {
+      setFormError('Could not reach the server. Try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <main className="login-page home-page">
       <header className="top-bar">
@@ -25,12 +56,22 @@ export default function HomePage({ user }) {
           </svg>
         </div>
       </header>
- 
+
       <div className="login-form">
         <h2 className="app-title">Rebel Review</h2>
- 
+
         <h1>Welcome, {user.name}</h1>
         <p>You're logged in as {user.username}.</p>
+
+        {formError && (
+          <p className="form-error" role="alert">
+            {formError}
+          </p>
+        )}
+
+        <Button type="button" onClick={handleLogout} disabled={submitting}>
+          {submitting ? 'Logging out…' : 'Log out'}
+        </Button>
       </div>
     </main>
   );
