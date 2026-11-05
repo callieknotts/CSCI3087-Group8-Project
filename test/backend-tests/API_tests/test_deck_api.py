@@ -68,6 +68,7 @@ def create_deck(client: TestClient):
 # AUTHENTICATION
 # --------------------------------------------------
 
+#if user isn't logged in, throws 401 error and doesn't let them use the decks
 def test_get_decks_without_login(client):
     response = client.get("/decks/")
 
