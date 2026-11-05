@@ -28,5 +28,3 @@ class SignupRequest(BaseModel):
 class LoginSchema(BaseModel):
     login: str
     password: str = Field(min_length=8)
-
-

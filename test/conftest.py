@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
@@ -25,6 +24,11 @@ sys.path.insert(0, str(BACKEND_ROOT))
 # --------------------------------------------------
 # 2. Load environment variables
 # --------------------------------------------------
+from backend.main import app
+# from infrastructure.models.subdeckmodel import SubDeckModel
+# from infrastructure.models.deckmodel import DeckModel
+# from infrastructure.models.usermodel import UserModel
+from infrastructure.database import Base, get_db
 
 
 load_dotenv(PROJECT_ROOT / ".env")
@@ -40,14 +44,9 @@ os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 # 3. Import backend modules
 # --------------------------------------------------
 
-from infrastructure.database import Base, get_db
 
 # Import models so SQLAlchemy registers their tables.
-from infrastructure.models.usermodel import UserModel
-from infrastructure.models.deckmodel import DeckModel
-from infrastructure.models.subdeckmodel import SubDeckModel
 
-from backend.main import app
 
 # --------------------------------------------------
 # 4. Configure test database
@@ -68,6 +67,7 @@ TestingSessionLocal = sessionmaker(
 # 5. Create and remove test database tables
 # --------------------------------------------------
 
+
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     Base.metadata.create_all(bind=test_engine)
@@ -80,6 +80,7 @@ def setup_test_database():
 # --------------------------------------------------
 # 6. Database session fixture
 # --------------------------------------------------
+
 
 @pytest.fixture
 def db_session(setup_test_database):
@@ -101,6 +102,7 @@ def db_session(setup_test_database):
 # --------------------------------------------------
 # 7. FastAPI test client fixture
 # --------------------------------------------------
+
 
 @pytest.fixture
 def client(db_session):

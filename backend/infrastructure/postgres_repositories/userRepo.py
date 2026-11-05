@@ -1,15 +1,17 @@
 from sqlalchemy.orm import Session
 from entity.user import User
 from sqlalchemy import select
-#explain select
+# explain select
 from entity.repo.userRepo import UserRepository
 from infrastructure.models.usermodel import UserModel
 from uuid import UUID
+
+
 class PostgresUserRepository(UserRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def _to_domain(self,model:UserModel)->User:
+    def _to_domain(self, model: UserModel) -> User:
         return User(
             id=model.id,
             email=model.email,
@@ -19,7 +21,8 @@ class PostgresUserRepository(UserRepository):
             created_at=model.created_at,
             updated_at=model.updated_at
         )
-    def _to_model(self, user:User)->UserModel:
+
+    def _to_model(self, user: User) -> UserModel:
         return UserModel(
             id=user.id,
             email=user.email,
@@ -41,13 +44,13 @@ class PostgresUserRepository(UserRepository):
         model = self.session.get(UserModel, user.id)
         if not model:
             raise ValueError(f"User with id {user.id} not found for update.")
-        
+
         model.email = user.email
         model.name = user.name
         model.username = user.username
         model.password = user.password_hash
         model.updated_at = user.updated_at
-        
+
         self.session.commit()
         return user
 
@@ -84,27 +87,29 @@ class PostgresUserRepository(UserRepository):
         )
 
         return self.session.scalar(stmt) is not None
-    def get_by_username(self, username:str)-> User| None:
+
+    def get_by_username(self, username: str) -> User | None:
         stmt = select(UserModel).where(
-                    UserModel.username == username
-                )
+            UserModel.username == username
+        )
         model = self.session.scalar(stmt)
 
         if model is None:
             return None
 
         return self._to_domain(model)
-    def get_by_email(self, email:str)-> User| None:
+
+    def get_by_email(self, email: str) -> User | None:
         stmt = select(UserModel).where(
-                    UserModel.email == email
-                )
+            UserModel.email == email
+        )
         model = self.session.scalar(stmt)
-        
+
         if model is None:
             return None
-        
+
         return self._to_domain(model)
-    
+
     # def get_by_id(self, user_id: int) -> User | None:
 
     #     return (
@@ -112,5 +117,3 @@ class PostgresUserRepository(UserRepository):
     #         .filter(User.id == user_id)
     #         .first()
     #     )
-    
-

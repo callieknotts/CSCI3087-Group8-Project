@@ -1,32 +1,40 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+# from typing import List, Optional
 from entity.user import User
+
+
 class UserRepository(ABC):
     @abstractmethod
     def save(self, user):
         pass
+
     @abstractmethod
     def add(user: User):
         pass
+
     @abstractmethod
-    def get(self,user_id):
+    def get(self, user_id):
         pass
+
     @abstractmethod
     def get_all(self):
         pass
+
     @abstractmethod
-    def exists_by_username(self, username:str):
-        pass
-    @abstractmethod
-    def exists_by_email(self, email:str):
-        pass
-    @abstractmethod
-    def get_by_username(self, username:str):
-        pass
-    @abstractmethod
-    def get_by_email(self, email:str):
+    def exists_by_username(self, username: str):
         pass
 
+    @abstractmethod
+    def exists_by_email(self, email: str):
+        pass
+
+    @abstractmethod
+    def get_by_username(self, username: str):
+        pass
+
+    @abstractmethod
+    def get_by_email(self, email: str):
+        pass
 
 
 # from sqlalchemy.orm import Session
@@ -70,13 +78,13 @@ class UserRepository(ABC):
 #         model = self.session.get(UserModel, user.id)
 #         if not model:
 #             raise ValueError(f"User with id {user.id} not found for update.")
-        
+
 #         model.email = user.email
 #         model.name = user.name
 #         model.username = user.username
 #         model.password = user.password
 #         model.updated_at = user.updated_at
-        
+
 #         self.session.commit()
 #         return user
 
@@ -101,6 +109,3 @@ class UserRepository(ABC):
 #         if not model:
 #             return None
 #         return self._to_domain(model)
-    
-    
-

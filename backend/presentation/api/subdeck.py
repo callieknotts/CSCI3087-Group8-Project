@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
-from presentation.schemas.subdeck import SubDeckSchema, SubDeckUpdateSchema
+from fastapi import APIRouter, Depends
+from presentation.schemas.subdeck import SubDeckSchema
 from use_case.subdeck.create_sub_deck import CreateSubDeck
 from use_case.subdeck.read_sub_deck import ReadSubDeck
 from use_case.subdeck.delete_sub_deck import DeleteSubDeck
@@ -12,23 +12,29 @@ from uuid import UUID
 
 
 router = APIRouter(prefix="/decks/{deck_id}/subdecks", tags=["subdecks"])
+
+
 @router.post("/")
 def addSubDeck(
     deck_id: UUID,
-    data:SubDeckSchema,
+    data: SubDeckSchema,
     repo=Depends(get_sub_deck_repository),
     current_user=Depends(get_current_user)
-    ):
+):
 
-    return CreateSubDeck(repo).execute(deck_id=deck_id,user_id=current_user.id,subdeckname=data.subdeckname)
+    return CreateSubDeck(repo).execute(
+        deck_id=deck_id, user_id=current_user.id, subdeckname=data.subdeckname)
+
+
 @router.get("/")
 def getSubDecks(
     deck_id: UUID,
     repo=Depends(get_sub_deck_repository),
     current_user=Depends(get_current_user)
-    ):
+):
 
-    return ReadSubDeck(repo).execute(user_id=current_user.id,deck_id=deck_id)
+    return ReadSubDeck(repo).execute(user_id=current_user.id, deck_id=deck_id)
+
 
 @router.delete("/{subdeck_id}")
 def deleteSubDeck(
@@ -37,7 +43,8 @@ def deleteSubDeck(
     repo=Depends(get_sub_deck_repository),
     current_user=Depends(get_current_user)
 ):
-    return DeleteSubDeck(repo).execute(deck_id=deck_id,user_id=current_user.id,subdeck_id=subdeck_id)
+    return DeleteSubDeck(repo).execute(
+        deck_id=deck_id, user_id=current_user.id, subdeck_id=subdeck_id)
 
 # @router.patch("/{subdeck_id}")
 # def updateSubDeck(
@@ -59,10 +66,3 @@ def deleteSubDeck(
 
 #     return result
 # @router.patch("/subdecks/{subdeck_id}")
-
-
-
-
-
-
-

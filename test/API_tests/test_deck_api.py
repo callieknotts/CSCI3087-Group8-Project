@@ -2,7 +2,6 @@
 
 import uuid
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -53,6 +52,7 @@ def setup_authenticated_user(client: TestClient):
     print("LOGIN RESPONSE:", login_response.json())
 
     assert login_response.status_code == 200
+
 
 def create_deck(client: TestClient):
     return client.post(

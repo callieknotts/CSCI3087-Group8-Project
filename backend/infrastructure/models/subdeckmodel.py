@@ -17,8 +17,8 @@ class SubDeckModel(Base):
     )
     deck_id: Mapped[uuid.UUID] = mapped_column(
         SQLAlchemyUUID(as_uuid=True),
-                ForeignKey("decks.id"),  # Verify the actual table name
-                nullable=False,
+        ForeignKey("decks.id"),  # Verify the actual table name
+        nullable=False,
     )
     # user_id: Mapped[uuid.UUID] = mapped_column(
     #     SQLAlchemyUUID(as_uuid=True),
@@ -37,5 +37,5 @@ class SubDeckModel(Base):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False    
-        )
+        nullable=False
+    )

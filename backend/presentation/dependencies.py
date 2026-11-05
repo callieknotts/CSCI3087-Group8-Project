@@ -11,7 +11,8 @@ from sqlalchemy.orm import Session
 
 def get_user_repository(db: Session = Depends(get_db)):
     # explain why sessionlocal needs parathesizes
-    #we are passing the session factory and not the object which causes it to...
+    # we are passing the session factory and not the object which causes it
+    # to...
     return PostgresUserRepository(db)
 
 def get_deck_repository(db: Session = Depends(get_db)):
@@ -21,4 +22,3 @@ def get_deck_repository(db: Session = Depends(get_db)):
 def get_sub_deck_repository(db: Session = Depends(get_db)):
 
     return PostgresSubDeckRepository(db)
-

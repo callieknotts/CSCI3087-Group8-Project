@@ -12,24 +12,21 @@ from datetime import datetime
 class Deck:
     id: UUID
     user_id: UUID
-    deckname:str
+    deckname: str
     description: str | None
     created_at: datetime
     # last_opened_at: datetime
     # visibility: Visibility
 
-
-
-
     @classmethod
     def create(cls,
                user_id: UUID,
                deckname: str,
-               description: str | None)->"Deck":
-        return(cls(
-            id= uuid4(),
+               description: str | None) -> "Deck":
+        return (cls(
+            id=uuid4(),
             user_id=user_id,
             deckname=deckname,
             description=description,
             created_at=datetime.now()
-            ))
+        ))

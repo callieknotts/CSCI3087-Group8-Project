@@ -7,7 +7,8 @@ from infrastructure.database import Base, engine
 from starlette.middleware.sessions import SessionMiddleware
 import os
 app = FastAPI()
-# for devolpment i need the table to be created but this does not need to exist in the final
+# for devolpment i need the table to be created but this does not need to
+# exist in the final
 Base.metadata.create_all(bind=engine)
 
 app.add_middleware(

@@ -7,4 +7,3 @@ class SubDeckSchema(BaseModel):
 class SubDeckUpdateSchema(BaseModel):
     subdeckname: str | None = None
     # description: str | None = None
-

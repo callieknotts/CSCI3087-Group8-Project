@@ -35,19 +35,19 @@ from datetime import datetime
 #     def __init__(self, value: str):
 #             if "@" not in value:
 #                 raise ValueError("Invalid email")
-    
+
 #             self.value = value
+
 
 @dataclass
 class User:
     id: UUID
     username: str
-    name:str
+    name: str
     email: str
     password_hash: str
     created_at: datetime
     updated_at: datetime
-
 
     @classmethod
     def create(cls,
@@ -55,27 +55,18 @@ class User:
                email: str,
                password_hash: str,
                name: str
-               )-> "User":
-        return(cls(
+               ) -> "User":
+        return (cls(
             id=uuid4(),
             username=username,
             email=email,
             name=name,
             password_hash=password_hash,
             created_at=datetime.now(),
-            # wht does it need parathesizes? explain later 
+            # wht does it need parathesizes? explain later
             updated_at=datetime.now()
-            ))
-
-
+        ))
 
     # def set_username(self, username: str):
     #     self.username=username
     # def changeemail(self, new_email:str)->None:
-
-    
-        
-        
-        
-    
-
