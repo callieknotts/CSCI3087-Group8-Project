@@ -7,31 +7,36 @@ on:
     branches: [main]
 
 jobs:
-  frontend-tests:
-    name: Frontend tests (my-app/tests)
+  frontend:
+    name: Frontend tests
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: my-app
 
     steps:
-      - name: Check out code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: my-app/package-lock.json
 
+      # Works around the Arborist "edgesOut" crash in npm 10.8.2
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run tests in the tests folder
-        run: npx vitest run tests/
+      - name: Lint
+        run: npm run lint --if-present
 
-      - name: Dump npm logs on failure
-        if: failure()
-        run: cat /home/runner/.npm/_logs/*.log
+      - name: Run tests
+        run: npx vitest run
 
+      - name: Build
+        run: npm run build --if-present
