@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
-from backend.presentation.schemas.user import SignupRequest, LoginSchema
-from backend.entity.repo.userRepo import UserRepository
-from backend.use_case.signup import CreateUser
-from backend.use_case.login import LoginUser
+from presentation.schemas.user import SignupRequest, LoginSchema
+from entity.repo.userRepo import UserRepository
+from use_case.signup import CreateUser
+from use_case.login import LoginUser
 from uuid import UUID
-from backend.presentation.dependencies import get_user_repository
-from backend.presentation.auth import get_current_user
+from presentation.dependencies import get_user_repository
+from presentation.auth import get_current_user
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -78,7 +78,22 @@ def get_me(
         "email": user.email,
         "name": user.name
     }
+
+@router.delete("/logout")
+def logout(request: Request):
+    if not request.session.get("user_id"):
+        raise HTTPException(
+            status_code=401,
+            detail="Not logged in"
+        )
+
+    request.session.clear()
+
+    return {"message": "Logged out successfully"}
+
     
+
+
 
 
 
