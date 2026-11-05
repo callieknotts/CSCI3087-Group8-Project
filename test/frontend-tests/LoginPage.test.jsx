@@ -1,5 +1,5 @@
 import {render, screen} from '@testing-library/react';
-import LoginPage from '../src/pages/LoginPage';
+import LoginPage from '../../my-app/src/pages/LoginPage';
 import userEvent from '@testing-library/user-event';
 import {vi, afterEach, test, expect} from 'vitest';
 

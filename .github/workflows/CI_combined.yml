@@ -2,9 +2,9 @@ name: CI_combined
 
 on:
   push:
-    branches: [main]
+    branches: [tests]
   pull_request:
-    branches: [main]
+    branches: [tests]
 
 jobs:
 
@@ -28,18 +28,23 @@ jobs:
           cache: npm
           cache-dependency-path: my-app/package-lock.json
 
-      # Works around the Arborist "edgesOut" crash in npm 10.8.2
       - name: Upgrade npm
         run: npm install -g npm@latest
 
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Make frontend dependencies available to tests
+        run: ln -s my-app/node_modules ../node_modules
+
       - name: Lint frontend
         run: npm run lint --if-present
 
+      - name: Debug config files (temporary)
+        run: ls -la
+
       - name: Run frontend tests
-        run: npx vitest run
+        run: npx vitest run test/frontend-tests/
 
       - name: Build frontend
         run: npm run build --if-present
@@ -90,7 +95,7 @@ jobs:
 
       - name: Lint backend and tests
         run: |
-          flake8 backend test --count \
+          flake8 backend test/backend-tests --count \
             --select=E9,F63,F7,F82 \
             --show-source --statistics \
             --exclude=node_modules,venv,.venv
@@ -99,4 +104,4 @@ jobs:
         run: python -c "from backend.main import app"
 
       - name: Run backend tests
-        run: python -m pytest test/ -v
+        run: python -m pytest test/backend-tests/ -v
