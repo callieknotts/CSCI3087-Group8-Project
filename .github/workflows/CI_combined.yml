@@ -41,8 +41,8 @@ jobs:
         run: npm run lint --if-present
 
       - name: Run frontend tests
-        run: npx vitest run --root .. --config my-app/vitest.config.js test/frontend-tests/
-
+        run: npx vitest run --config vitest.config.js test/frontend-tests/
+        
       - name: Build frontend
         run: npm run build --if-present
 
