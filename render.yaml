@@ -1,4 +1,3 @@
-
 databases:
   - name: my-postgres
     plan: free
@@ -41,14 +40,12 @@ services:
     rootDir: my-app
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-
     envVars:
       - key: VITE_API_URL
         fromService:
           type: web
           name: my-backend
           envVarKey: RENDER_EXTERNAL_URL
-
     routes:
       - type: rewrite
         source: /*
