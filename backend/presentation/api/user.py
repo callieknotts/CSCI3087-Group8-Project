@@ -78,7 +78,22 @@ def get_me(
         "email": user.email,
         "name": user.name
     }
+
+@router.delete("/logout")
+def logout(request: Request):
+    if not request.session.get("user_id"):
+        raise HTTPException(
+            status_code=401,
+            detail="Not logged in"
+        )
+
+    request.session.clear()
+
+    return {"message": "Logged out successfully"}
+
     
+
+
 
 
 
