@@ -1,7 +1,7 @@
 import {render, screen} from '@testing-library/react';
 import LoginPage from '../src/pages/LoginPage';
 import userEvent from '@testing-library/user-event';
-import {vi, afterEach} from 'vitest';
+import {vi, afterEach, test, expect} from 'vitest';
 
 //undos fake fetches so tests don't affect each other
 afterEach(() => {
@@ -73,8 +73,8 @@ test('Unreachable server shows "Could not reach the server"', async () => {   //
 
   await user.type(screen.getByLabelText('Email or username'), 'myUser4');
   await user.type(screen.getByLabelText('Password'), 'MyPassword#!');
-  await user.click(screen.getByRole('button', {name: 'Log in'})).
-
+  await user.click(screen.getByRole('button', {name: 'Log in'}));
+    
   //expects an error banner to appear 
   expect(await screen.findByRole('alert')).toHaveTextContent(
     'Could not reach the server. Try again.'
