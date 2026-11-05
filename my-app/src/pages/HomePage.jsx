@@ -14,7 +14,6 @@ export default function HomePage({ user, onLogout }) {
     setSubmitting(true);
  
     try {
-      // ASSUMED route: ask your teammate for the real logout path.
       const res = await fetch('/api/users/auth/logout', { method: 'POST' });
  
       if (!res.ok) {
