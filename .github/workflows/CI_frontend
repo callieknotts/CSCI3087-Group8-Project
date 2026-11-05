@@ -1,11 +1,11 @@
 name: CI
-
+ 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
+ 
 jobs:
   frontend-tests:
     name: Frontend tests (my-app/tests)
@@ -13,20 +13,20 @@ jobs:
     defaults:
       run:
         working-directory: my-app
-
+ 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
+ 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: my-app/package-lock.json
-
+ 
       - name: Install dependencies
-        run: npm ci
-
+        run: npm install
+ 
       - name: Run tests in the tests folder
         run: npx vitest run tests/
