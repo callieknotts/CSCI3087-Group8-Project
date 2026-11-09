@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import HomePage from './pages/HomePage';
+import StudyPage from './pages/StudyPage';
 import './pages/LoginPage.css'; // for the loading screen's layout
 
 export default function App() {
@@ -26,6 +27,10 @@ export default function App() {
         </div>
       </main>
     );
+  }
+
+  if (user && window.location.pathname === '/study') {
+    return <StudyPage />;
   }
 
   if (user) {
