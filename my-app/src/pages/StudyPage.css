@@ -1,0 +1,80 @@
+.study {
+  width: 100%;
+  max-width: 560px;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.study__header {
+  display: grid;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.study__header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.study__counter {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.study__progress {
+  height: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.study__progress-bar {
+  height: 100%;
+  background: var(--text-h);
+  transition: width 0.2s;
+}
+
+.study__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.study__controls--secondary {
+  gap: 0.5rem;
+}
+
+.study__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .study__controls .btn {
+    flex: 1 1 auto;
+  }
+}
+
+.study__upload {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+}
+
+.study__file-input {
+  display: none;
+}
+
+.study__status {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.study__home-link {
+  justify-self: center;
+  font-size: 0.9rem;
+}
