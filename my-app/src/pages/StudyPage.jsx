@@ -104,9 +104,10 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
   const goPrev = () => goTo(Math.max(index - 1, 0));
   const flip = () => setFlipped((f) => !f);
 
+  // Keeps the current card (and everything before it) where it is,
+  // and only shuffles the cards that come after it.
   function handleShuffle() {
-    setDeck(shuffled(deck));
-    goTo(0);
+    setDeck([...deck.slice(0, index + 1), ...shuffled(deck.slice(index + 1))]);
   }
 
   function handleRestart() {
@@ -221,7 +222,9 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
         </div>
 
         <div className="study__controls study__controls--secondary">
-          <Button variant="type2" onClick={handleShuffle}>Shuffle</Button>
+          <Button variant="type2" onClick={handleShuffle} disabled={index >= total - 1}>
+            Shuffle
+          </Button>
           <Button variant="type2" onClick={handleRestart}>Restart</Button>
         </div>
 
