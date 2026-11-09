@@ -69,6 +69,10 @@ export default function HomePage({ user, onLogout }) {
           </p>
         )}
 
+        <a href="/study" className="link-button">
+          Study flashcards
+        </a>
+
         <Button type="button" onClick={handleLogout} disabled={submitting}>
           {submitting ? 'Logging out…' : 'Log out'}
         </Button>
