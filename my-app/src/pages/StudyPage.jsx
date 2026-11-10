@@ -104,10 +104,11 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
   const goPrev = () => goTo(Math.max(index - 1, 0));
   const flip = () => setFlipped((f) => !f);
 
-  // Keeps the current card (and everything before it) where it is,
-  // and only shuffles the cards that come after it.
+  // Cards before the current position stay put. The current card and
+  // everything after it get shuffled, so the current card can change too.
   function handleShuffle() {
-    setDeck([...deck.slice(0, index + 1), ...shuffled(deck.slice(index + 1))]);
+    setDeck([...deck.slice(0, index), ...shuffled(deck.slice(index))]);
+    setFlipped(false);
   }
 
   function handleRestart() {
