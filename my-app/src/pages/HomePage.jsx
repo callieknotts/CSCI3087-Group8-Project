@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Button from '../components/Button';
+import DeckList from '../components/DeckList';
 import './LoginPage.css';
 import './HomePage.css';
 
@@ -55,13 +56,14 @@ export default function HomePage({ user, onLogout }) {
             <path d="M5.6 18.4c1.6-2.4 3.9-3.6 6.4-3.6s4.8 1.2 6.4 3.6" />
           </svg>
         </div>
+        <Button variant="type2" onClick={handleLogout} disabled={submitting}>
+          {submitting ? 'Logging out…' : 'Log out'}
+        </Button>
       </header>
 
-      <div className="login-form">
+      <div className="home-content">
         <h2 className="app-title">Rebel Review</h2>
-
-        <h1>Welcome, {user.name}</h1>
-        <p>You're logged in as {user.username}.</p>
+        <h1>Your decks</h1>
 
         {formError && (
           <p className="form-error" role="alert">
@@ -69,9 +71,8 @@ export default function HomePage({ user, onLogout }) {
           </p>
         )}
 
-        <Button type="button" onClick={handleLogout} disabled={submitting}>
-          {submitting ? 'Logging out…' : 'Log out'}
-        </Button>
+        {/* If the server says the session ended, treat it like a logout. */}
+        <DeckList onUnauthorized={onLogout} />
       </div>
     </main>
   );

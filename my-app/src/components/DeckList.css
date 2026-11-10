@@ -1,0 +1,74 @@
+.deck-list {
+  width: 100%;
+  display: grid;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.deck-form {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+}
+
+.deck-form h2 {
+  margin: 0;
+}
+
+.deck-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.deck-item {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.25rem;
+}
+
+.deck-item__name {
+  margin: 0;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.deck-item__description {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.deck-edit {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.deck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deck-actions .btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.deck-empty {
+  text-align: center;
+}
+
+.deck-list .form-error,
+.deck-item .form-error,
+.home-content .form-error {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
