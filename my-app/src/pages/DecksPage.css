@@ -1,0 +1,34 @@
+/* The login page centers one small card. The decks screen is a longer list,
+   so it starts at the top instead. */
+.login-page.decks-page {
+  display: block;
+  padding-top: 5rem;
+}
+
+.decks-page .top-bar {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.decks-page .top-bar .btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.home-content {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.home-content h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  letter-spacing: normal;
+}
+
+.home-content .app-title {
+  margin: 0 0 0.5rem;
+}

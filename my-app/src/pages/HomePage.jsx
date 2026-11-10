@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from '../components/Button';
-import DeckList from '../components/DeckList';
+import DecksPage from './DecksPage';
 import './LoginPage.css';
 import './HomePage.css';
 
@@ -9,6 +9,7 @@ const LOGOUT_URL = '/api/users/logout';
 export default function HomePage({ user, onLogout }) {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [view, setView] = useState('home'); // 'home' or 'decks'
 
   async function handleLogout() {
     setFormError('');
@@ -34,6 +35,16 @@ export default function HomePage({ user, onLogout }) {
     }
   }
 
+  if (view === 'decks') {
+    return (
+      <DecksPage
+        user={user}
+        onBack={() => setView('home')}
+        onLogout={onLogout}
+      />
+    );
+  }
+
   return (
     <main className="login-page home-page">
       <header className="top-bar">
@@ -56,14 +67,13 @@ export default function HomePage({ user, onLogout }) {
             <path d="M5.6 18.4c1.6-2.4 3.9-3.6 6.4-3.6s4.8 1.2 6.4 3.6" />
           </svg>
         </div>
-        <Button variant="type2" onClick={handleLogout} disabled={submitting}>
-          {submitting ? 'Logging out…' : 'Log out'}
-        </Button>
       </header>
 
-      <div className="home-content">
+      <div className="login-form">
         <h2 className="app-title">Rebel Review</h2>
-        <h1>Your decks</h1>
+
+        <h1>Welcome, {user.name}</h1>
+        <p>You're logged in as {user.username}.</p>
 
         {formError && (
           <p className="form-error" role="alert">
@@ -71,8 +81,13 @@ export default function HomePage({ user, onLogout }) {
           </p>
         )}
 
-        {/* If the server says the session ended, treat it like a logout. */}
-        <DeckList onUnauthorized={onLogout} />
+        <Button type="button" onClick={() => setView('decks')}>
+          Your decks
+        </Button>
+
+        <Button type="button" onClick={handleLogout} disabled={submitting}>
+          {submitting ? 'Logging out…' : 'Log out'}
+        </Button>
       </div>
     </main>
   );
