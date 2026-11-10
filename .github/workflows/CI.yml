@@ -50,7 +50,7 @@ jobs:
   # BACKEND CI
   backend:
     name: Backend Tests (FastAPI / PostgreSQL)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
