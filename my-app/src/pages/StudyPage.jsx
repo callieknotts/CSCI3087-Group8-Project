@@ -90,6 +90,7 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
   const [flipped, setFlipped] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [uploadError, setUploadError] = useState('');
+  const [shuffleNote, setShuffleNote] = useState('');
   const fileInput = useRef(null);
 
   const total = deck.length;
@@ -97,6 +98,7 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
 
   function goTo(nextIndex) {
     setFlipped(false);
+    setShuffleNote('');
     setIndex(nextIndex);
   }
 
@@ -104,11 +106,19 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
   const goPrev = () => goTo(Math.max(index - 1, 0));
   const flip = () => setFlipped((f) => !f);
 
-  // Cards before the current position stay put. The current card and
-  // everything after it get shuffled, so the current card can change too.
+  // Shuffles the whole deck but keeps your position number, so "Card 3 of 5"
+  // stays 3 of 5 with a different card in it. The current card is guaranteed
+  // to change (as long as the deck has 2+ cards).
   function handleShuffle() {
-    setDeck([...deck.slice(0, index), ...shuffled(deck.slice(index))]);
+    if (total < 2) return;
+    const next = shuffled(deck);
+    if (next[index] === deck[index]) {
+      const other = (index + 1) % total;
+      [next[index], next[other]] = [next[other], next[index]];
+    }
+    setDeck(next);
     setFlipped(false);
+    setShuffleNote('Deck shuffled.');
   }
 
   function handleRestart() {
@@ -223,11 +233,13 @@ export default function StudyPage({ cards = SAMPLE_CARDS, title = 'Study' }) {
         </div>
 
         <div className="study__controls study__controls--secondary">
-          <Button variant="type2" onClick={handleShuffle} disabled={index >= total - 1}>
+          <Button variant="type2" onClick={handleShuffle} disabled={total < 2}>
             Shuffle
           </Button>
           <Button variant="type2" onClick={handleRestart}>Restart</Button>
         </div>
+
+        {shuffleNote && <p className="study__status" role="status">{shuffleNote}</p>}
 
         {upload}
 
