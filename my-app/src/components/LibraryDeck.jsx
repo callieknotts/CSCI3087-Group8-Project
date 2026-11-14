@@ -1,0 +1,71 @@
+import { Link } from 'react-router-dom';
+import { pseudoCounts } from '../pseudo/pseudoCounts';
+import { paths } from '../routes';
+import './Button.css';
+
+// New / Due / Review numbers. PSEUDO values for now (see pseudo/pseudoCounts.js).
+function Counts({ counts }) {
+  return (
+    <div className="counts" title="Placeholder numbers - not connected to the backend yet">
+      <div className="count">
+        <b>{counts.new}</b>
+        <span>New</span>
+      </div>
+      <div className="count">
+        <b>{counts.due}</b>
+        <span>Due</span>
+      </div>
+      <div className="count">
+        <b>{counts.review}</b>
+        <span>Review</span>
+      </div>
+    </div>
+  );
+}
+
+// One deck row. If the deck has subdecks it gets an arrow that shows / hides them.
+export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
+  const hasSubdecks = subdecks.length > 0;
+  const listId = `subdecks-${deck.id}`;
+
+  return (
+    <li className="library-group">
+      <div className="library-row library-row--deck">
+        {hasSubdecks ? (
+          <button
+            type="button"
+            className="expand-btn"
+            aria-expanded={open}
+            aria-controls={listId}
+            aria-label={`${open ? 'Hide' : 'Show'} subdecks of ${deck.deckname}`}
+            onClick={onToggle}
+          >
+            {open ? '↑' : '↓'}
+          </button>
+        ) : (
+          <span className="expand-spacer" aria-hidden="true" />
+        )}
+
+        <h2 className="library-name">{deck.deckname}</h2>
+        <Counts counts={pseudoCounts(deck.id)} />
+        <Link className="btn btn-type2" to={paths.deck(deck.id)}>
+          See Deck
+        </Link>
+      </div>
+
+      {hasSubdecks && open && (
+        <ul id={listId} className="library-subs">
+          {subdecks.map((sub) => (
+            <li key={sub.id} className="library-row library-row--sub">
+              <span className="library-name library-name--sub">– {sub.subdeckname}</span>
+              <Counts counts={pseudoCounts(sub.id)} />
+              <Link className="btn btn-type2" to={paths.subdeck(deck.id, sub.id)}>
+                See Subdeck
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}

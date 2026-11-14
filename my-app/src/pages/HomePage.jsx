@@ -1,94 +1,170 @@
-import { useState } from 'react';
-import Button from '../components/Button';
-import DecksPage from './DecksPage';
-import './LoginPage.css';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { listDecks, listSubdecks } from '../api/decksApi';
+import { sortDecks, sortSubdecks } from '../utils/sortDecks';
+import LibraryDeck from '../components/LibraryDeck';
 import './HomePage.css';
 
-const LOGOUT_URL = '/api/users/logout';
+const SORT_OPTIONS = [
+  { value: 'created_at', label: 'Created at' },
+  { value: 'opened_at', label: 'Opened at' },
+  { value: 'deckname', label: 'Deck name' },
+];
 
-export default function HomePage({ user, onLogout }) {
-  const [formError, setFormError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [view, setView] = useState('home'); // 'home' or 'decks'
+// Loads the user's decks, then the subdecks of each deck.
+// The backend answers "this deck has no subdecks" with an error (HTTP 500) instead of an
+// empty list, so a 500 here is treated as "no subdecks". Anything else is a real error.
+async function loadLibrary() {
+  const decks = await listDecks();
 
-  async function handleLogout() {
-    setFormError('');
-    setSubmitting(true);
+  return Promise.all(
+    decks.map(async (deck) => {
+      try {
+        const subdecks = await listSubdecks(deck.id);
+        return { ...deck, subdecks: sortSubdecks(subdecks) };
+      } catch (err) {
+        if (err.status === 500) {
+          return { ...deck, subdecks: [] };
+        }
+        throw err;
+      }
+    }),
+  );
+}
 
-    try {
-      const res = await fetch(LOGOUT_URL, {
-        method: 'DELETE',
-        credentials: 'include',
+// The page shown right after login: the user's library of decks.
+export default function HomePage() {
+  const { onUnauthorized } = useOutletContext();
+
+  const [library, setLibrary] = useState(null); // null = still loading
+  const [loadError, setLoadError] = useState('');
+  const [attempt, setAttempt] = useState(0);
+
+  // PLACEHOLDER: "Search your decks" can be typed in, but nothing uses the text yet.
+  // The backend has no search for decks and subdecks. TODO: connect it when it exists.
+  const [searchText, setSearchText] = useState('');
+
+  const [sortKey, setSortKey] = useState('created_at');
+  const [order, setOrder] = useState('asc');
+  const [openIds, setOpenIds] = useState(() => new Set());
+
+  // Keep the latest onUnauthorized without making the loading effect depend on it.
+  const onUnauthorizedRef = useRef(onUnauthorized);
+  useEffect(() => {
+    onUnauthorizedRef.current = onUnauthorized;
+  }, [onUnauthorized]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    loadLibrary()
+      .then((result) => {
+        if (!ignore) setLibrary(result);
+      })
+      .catch((err) => {
+        if (ignore) return;
+        if (err.status === 401) {
+          onUnauthorizedRef.current();
+          return;
+        }
+        setLoadError(err.message);
       });
 
-      // 401 :session is already gone (treats it as logged out too)
-      if (!res.ok && res.status !== 401) {
-        setFormError('Could not log out. Try again.');
-        return;
-      }
+    return () => {
+      ignore = true;
+    };
+  }, [attempt]);
 
-      onLogout();
-    } catch {
-      setFormError('Could not reach the server. Try again.');
-    } finally {
-      setSubmitting(false);
-    }
+  function retryLoad() {
+    setLoadError('');
+    setLibrary(null);
+    setAttempt((n) => n + 1);
   }
 
-  if (view === 'decks') {
-    return (
-      <DecksPage
-        user={user}
-        onBack={() => setView('home')}
-        onLogout={onLogout}
-      />
-    );
+  function toggleDeck(deckId) {
+    setOpenIds((current) => {
+      const next = new Set(current);
+      if (next.has(deckId)) next.delete(deckId);
+      else next.add(deckId);
+      return next;
+    });
   }
+
+  const sortedDecks = useMemo(
+    () => (library ? sortDecks(library, sortKey, order) : []),
+    [library, sortKey, order],
+  );
 
   return (
-    <main className="login-page home-page">
-      <header className="top-bar">
-        <div className="user-badge">
-          <span className="user-badge__name">{user.name}</span>
-          <svg
-            className="user-badge__icon"
-            viewBox="0 0 24 24"
-            width="32"
-            height="32"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="10" r="3.2" />
-            <path d="M5.6 18.4c1.6-2.4 3.9-3.6 6.4-3.6s4.8 1.2 6.4 3.6" />
-          </svg>
-        </div>
-      </header>
+    <main className="library">
+      <div className="library-head">
+        <h1>Library</h1>
 
-      <div className="login-form">
-        <h2 className="app-title">Rebel Review</h2>
+        <input
+          type="search"
+          className="library-control library-search"
+          placeholder="Search your decks"
+          aria-label="Search your decks"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
 
-        <h1>Welcome, {user.name}</h1>
-        <p>You're logged in as {user.username}.</p>
+        <select
+          className="library-control"
+          aria-label="Sort by"
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value)}
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
 
-        {formError && (
-          <p className="form-error" role="alert">
-            {formError}
-          </p>
-        )}
-
-        <Button type="button" onClick={() => setView('decks')}>
-          Your decks
-        </Button>
-
-        <Button type="button" onClick={handleLogout} disabled={submitting}>
-          {submitting ? 'Logging out…' : 'Log out'}
-        </Button>
+        <select
+          className="library-control"
+          aria-label="Order"
+          value={order}
+          onChange={(e) => setOrder(e.target.value)}
+        >
+          <option value="asc">Asc</option>
+          <option value="desc">Desc</option>
+        </select>
       </div>
+
+      {loadError && (
+        <div className="library-message" role="alert">
+          <p>{loadError}</p>
+          <button type="button" className="link-button" onClick={retryLoad}>
+            Try again
+          </button>
+        </div>
+      )}
+
+      {!loadError && library === null && (
+        <p className="library-message">Loading your library…</p>
+      )}
+
+      {!loadError && library !== null && library.length === 0 && (
+        <p className="library-message">
+          You don't have any decks yet. Use the + button at the top to create one.
+        </p>
+      )}
+
+      {!loadError && library !== null && library.length > 0 && (
+        <ul className="library-list">
+          {sortedDecks.map((deck) => (
+            <LibraryDeck
+              key={deck.id}
+              deck={deck}
+              subdecks={deck.subdecks}
+              open={openIds.has(deck.id)}
+              onToggle={() => toggleDeck(deck.id)}
+            />
+          ))}
+        </ul>
+      )}
     </main>
   );
 }
