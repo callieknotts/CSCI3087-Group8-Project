@@ -1,0 +1,7 @@
+.layout-error {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-h);
+  font-weight: 600;
+}

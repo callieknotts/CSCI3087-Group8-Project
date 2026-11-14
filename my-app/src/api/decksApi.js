@@ -70,6 +70,12 @@ export function updateDeck(deckId, fields) {
   });
 }
 
+// Subdecks of one deck. NOTE: the backend raises an error (HTTP 500) when a deck has no
+// subdecks yet, instead of returning an empty list, so callers must treat that case as "none".
+export function listSubdecks(deckId) {
+  return request(`${DECKS_URL}${deckId}/subdecks/`);
+}
+
 export function deleteDeck(deckId) {
   return request(`${DECKS_URL}${deckId}`, { method: 'DELETE' });
 }
