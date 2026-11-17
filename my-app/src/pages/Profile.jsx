@@ -89,51 +89,59 @@ export default function Profile() {
     }
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setSaving(true);
-    setStatus({ type: "", message: "" });
+  
+async function handleSubmit(e) {
+  e.preventDefault();
 
-    try {
-      const res = await fetch("/api/profile/", {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+  const confirmed = window.confirm(
+    "Are you sure you want to update your account details?"
+  );
 
-      const body = await res.json().catch(() => ({}));
+  if (!confirmed) return;
 
-      if (!res.ok) {
-        setStatus({
-          type: "error",
-          message: readError(body, res.status),
-        });
-        return;
-      }
+  setSaving(true);
+  setStatus({ type: "", message: "" });
 
-      const values = {
-        name: body.name,
-        username: body.username,
-        email: body.email,
-      };
+  try {
+    const res = await fetch("/api/profile/", {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
 
-      setSaved(values);
-      setForm(values);
+    const body = await res.json().catch(() => ({}));
 
-      setStatus({
-        type: "success",
-        message: "Changes saved successfully.",
-      });
-    } catch {
+    if (!res.ok) {
       setStatus({
         type: "error",
-        message: "Could not reach the server. Check your connection.",
+        message: readError(body, res.status),
       });
-    } finally {
-      setSaving(false);
+      return;
     }
+
+    const values = {
+      name: body.name,
+      username: body.username,
+      email: body.email,
+    };
+
+    setSaved(values);
+    setForm(values);
+
+    setStatus({
+      type: "success",
+      message: "Changes saved successfully.",
+    });
+  } catch {
+    setStatus({
+      type: "error",
+      message: "Could not reach the server. Check your connection.",
+    });
+  } finally {
+    setSaving(false);
   }
+}
 
   function handleReset() {
     setForm(saved);
