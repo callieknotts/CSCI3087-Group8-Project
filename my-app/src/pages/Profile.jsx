@@ -146,16 +146,16 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <main className="profile">
-        <p className="profile-note">Loading your profile...</p>
+      <main className="profile-page">
+        <p className="profile-loading">Loading your profile...</p>
       </main>
     );
   }
 
   if (loadError) {
     return (
-      <main className="profile">
-        <p className="profile-note profile-note--error" role="alert">
+      <main className="profile-page">
+        <p className="profile-error" role="alert">
           {loadError}
         </p>
       </main>
@@ -163,76 +163,80 @@ export default function Profile() {
   }
 
   return (
-    <main className="profile">
-      <header className="profile-header">
-        <div className="profile-avatar" aria-hidden="true">
-          {getInitials(saved.name)}
-        </div>
-
-        <div className="profile-identity">
-          <h1>{saved.name}</h1>
-          <p className="profile-handle">@{saved.username}</p>
-
-          {memberSince && (
-            <p className="profile-since">
-              Member since{" "}
-              {new Date(memberSince).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          )}
-        </div>
-      </header>
-
-      {stats && (
-        <section className="profile-stats" aria-label="Your stats">
-          <dl>
-            <div className="profile-stat">
-              <dt>{stats.total_decks === 1 ? "Deck" : "Decks"}</dt>
-              <dd>{stats.total_decks}</dd>
+    <main className="profile-page">
+      <div className="profile-container">
+        {/* Left card: who you are + stats */}
+        <aside className="profile-card profile-summary">
+          <header className="profile-header">
+            <div className="profile-avatar" aria-hidden="true">
+              {getInitials(saved.name)}
             </div>
-          </dl>
-        </section>
-      )}
+            <h1>{saved.name}</h1>
+            <p className="profile-handle">@{saved.username}</p>
 
-      <section aria-labelledby="edit-heading">
-        <h2 id="edit-heading">Account details</h2>
+            {memberSince && (
+              <p className="profile-since">
+                Member since{" "}
+                {new Date(memberSince).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            )}
+          </header>
 
-        <form className="profile-form" onSubmit={handleSubmit}>
-          <label htmlFor="name">Name</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
+          {stats && (
+            <section className="profile-stats" aria-label="Your stats">
+              <div className="profile-stat">
+                <span className="profile-stat-label">
+                  {stats.total_decks === 1 ? "Deck" : "Decks"}
+                </span>
+                <span className="profile-stat-value">{stats.total_decks}</span>
+              </div>
+            </section>
+          )}
+        </aside>
 
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            autoComplete="username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
+        {/* Right card: edit account details */}
+        <form className="profile-card profile-form" onSubmit={handleSubmit}>
+          <h2>Account details</h2>
 
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+          <label>
+            Name
+            <input
+              name="name"
+              type="text"
+              autoComplete="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label>
+            Username
+            <input
+              name="username"
+              type="text"
+              autoComplete="username"
+              value={form.username}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label>
+            Email
+            <input
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </label>
 
           <div className="profile-actions">
             <button type="submit" disabled={!isDirty || saving}>
@@ -241,7 +245,6 @@ export default function Profile() {
 
             <button
               type="button"
-              className="profile-secondary"
               onClick={handleReset}
               disabled={!isDirty || saving}
             >
@@ -250,14 +253,14 @@ export default function Profile() {
           </div>
 
           <p
-            className={`profile-status profile-status--${status.type}`}
+            className={`profile-status ${status.type}`}
             role="status"
             aria-live="polite"
           >
             {status.message}
           </p>
         </form>
-      </section>
+      </div>
     </main>
   );
 }
