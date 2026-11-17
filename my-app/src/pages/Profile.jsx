@@ -9,6 +9,14 @@ function readError(body, status) {
   return "Something went wrong. Try again.";
 }
 
+function getInitials(name) {
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const first = parts[0][0];
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
+
 export default function Profile() {
   const [saved, setSaved] = useState(EMPTY_FORM);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -139,7 +147,7 @@ export default function Profile() {
   if (loading) {
     return (
       <main className="profile">
-        <p className="profile-note">Loading your profile…</p>
+        <p className="profile-note">Loading your profile...</p>
       </main>
     );
   }
@@ -157,27 +165,33 @@ export default function Profile() {
   return (
     <main className="profile">
       <header className="profile-header">
-        <h1>{saved.name}</h1>
-        <p className="profile-handle">@{saved.username}</p>
+        <div className="profile-avatar" aria-hidden="true">
+          {getInitials(saved.name)}
+        </div>
 
-        {memberSince && (
-          <p className="profile-since">
-            Member since{" "}
-            {new Date(memberSince).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        )}
+        <div className="profile-identity">
+          <h1>{saved.name}</h1>
+          <p className="profile-handle">@{saved.username}</p>
+
+          {memberSince && (
+            <p className="profile-since">
+              Member since{" "}
+              {new Date(memberSince).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          )}
+        </div>
       </header>
 
       {stats && (
         <section className="profile-stats" aria-label="Your stats">
           <dl>
             <div className="profile-stat">
-              <dd>{stats.total_decks}</dd>
               <dt>{stats.total_decks === 1 ? "Deck" : "Decks"}</dt>
+              <dd>{stats.total_decks}</dd>
             </div>
           </dl>
         </section>
@@ -222,7 +236,7 @@ export default function Profile() {
 
           <div className="profile-actions">
             <button type="submit" disabled={!isDirty || saving}>
-              {saving ? "Saving…" : "Save changes"}
+              {saving ? "Saving..." : "Save changes"}
             </button>
 
             <button
