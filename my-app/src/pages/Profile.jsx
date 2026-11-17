@@ -168,11 +168,7 @@ export default function Profile() {
 
         {/* Page heading */}
         <div className="profile-page-heading">
-          <div>
-            <p className="profile-eyebrow">YOUR ACCOUNT</p>
-            <h1>My Profile</h1>
-            <p>Manage your personal information and account settings.</p>
-          </div>
+          <p className="profile-eyebrow"><strong>YOUR ACCOUNT</strong></p>
         </div>
 
         {/* Profile overview */}
@@ -196,11 +192,6 @@ export default function Profile() {
                 })}
               </p>
             )}
-          </div>
-
-          <div className="profile-member-badge">
-            <span className="profile-status-dot" />
-            Active member
           </div>
 
         </section>
