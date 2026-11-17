@@ -1,123 +1,74 @@
 
-/* ================================
-   PROFILE PAGE
-================================ */
-
 .profile-page {
   min-height: 100vh;
-  width: 100%;
-  background: #f7f7f7;
-  color: var(--text-h, #171717);
-  padding: 3rem 2rem 5rem;
+  padding: 2rem;
 }
 
 .profile-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
+  display: grid;
+  gap: 2rem;
 }
 
-/* ================================
-   PAGE HEADING
-================================ */
-
+/* Page heading */
 .profile-page-heading {
-  margin-bottom: 2rem;
-}
-
-.profile-eyebrow {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  color: #888;
-  margin: 0 0 0.5rem;
+  display: grid;
+  gap: 0.5rem;
 }
 
 .profile-page-heading h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  letter-spacing: -0.04em;
+  margin: 0;
+  font-size: 1.75rem;
 }
 
-.profile-page-heading > div > p:last-child {
-  color: #777;
-  font-size: 0.95rem;
+.profile-page-heading p {
   margin: 0;
 }
 
-/* ================================
-   PROFILE OVERVIEW
-================================ */
-
+/* Profile overview */
 .profile-overview {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
-  background: white;
-  border: 1px solid #e9e9e9;
-  border-radius: 14px;
-  padding: 2rem;
-  margin-bottom: 2.5rem;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 
 .profile-avatar {
-  width: 76px;
-  height: 76px;
-  min-width: 76px;
-  border-radius: 50%;
-  background: #171717;
-  color: white;
+  width: 65px;
+  height: 65px;
+  min-width: 65px;
   display: grid;
   place-items: center;
-  font-size: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 1.4rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+}
+
+.profile-identity {
+  flex: 1;
 }
 
 .profile-identity h2 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0 0 0.3rem;
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
 }
 
-.profile-handle {
-  color: #777;
-  font-size: 0.9rem;
-  margin: 0 0 0.45rem;
-}
-
+.profile-handle,
 .profile-since {
-  color: #999;
-  font-size: 0.8rem;
-  margin: 0;
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
 }
 
 .profile-member-badge {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.85rem;
-  background: #f5f5f5;
-  border-radius: 30px;
-  color: #555;
-  font-size: 0.8rem;
-  font-weight: 500;
-  white-space: nowrap;
+  font-size: 0.85rem;
 }
 
-.profile-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #45a36b;
-}
-
-/* ================================
-   CONTENT LAYOUT
-================================ */
-
+/* Content layout */
 .profile-content {
   display: grid;
   grid-template-columns: 0.8fr 1.5fr;
@@ -126,263 +77,141 @@
 }
 
 .profile-section-heading {
+  display: grid;
+  gap: 0.5rem;
   margin-bottom: 1.25rem;
 }
 
 .profile-section-heading h2 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0 0 0.4rem;
+  margin: 0;
+  font-size: 1.25rem;
 }
 
 .profile-section-heading p {
-  font-size: 0.85rem;
-  color: #888;
   margin: 0;
-  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
-/* ================================
-   STATISTICS
-================================ */
-
+/* Statistics */
 .profile-stats {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
 .profile-stat-card {
-  background: white;
-  border: 1px solid #e9e9e9;
-  border-radius: 12px;
-  padding: 1.4rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: border-color 0.2s ease,
-              transform 0.2s ease;
-}
-
-.profile-stat-card:hover {
-  border-color: #bbb;
-  transform: translateY(-2px);
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 
 .profile-stat-icon {
-  width: 44px;
-  height: 44px;
-  background: #f2f2f2;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  font-size: 1.35rem;
-  color: #333;
+  font-size: 1.5rem;
 }
 
 .profile-stat-label {
-  font-size: 0.8rem;
-  color: #888;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
 }
 
 .profile-stat-value {
-  font-size: 1.6rem;
-  font-weight: 700;
   margin: 0;
-  letter-spacing: -0.04em;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
-/* ================================
-   ACCOUNT SETTINGS
-================================ */
-
+/* Account details */
 .profile-settings {
-  background: white;
-  border: 1px solid #e9e9e9;
-  border-radius: 14px;
-  padding: 2rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.profile-settings form {
+  display: grid;
+  gap: 1.1rem;
 }
 
 .profile-fields {
   display: grid;
-  gap: 1.3rem;
-  margin-top: 1.75rem;
+  gap: 1.1rem;
 }
 
 .profile-field {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 
 .profile-field span {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 0.9rem;
 }
 
 .profile-field input {
   width: 100%;
   box-sizing: border-box;
-  padding: 0.85rem 1rem;
-  border: 1px solid #dedede;
-  border-radius: 8px;
-  background: #fff;
-  color: #171717;
-  font: inherit;
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.2s ease,
-              box-shadow 0.2s ease;
 }
 
-.profile-field input::placeholder {
-  color: #aaa;
-}
-
-.profile-field input:hover {
-  border-color: #aaa;
-}
-
-.profile-field input:focus {
-  border-color: var(--accent, #171717);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
-}
-
-/* ================================
-   BUTTONS
-================================ */
-
+/* Buttons */
 .profile-actions {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
   gap: 0.75rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #eee;
+  margin-top: 0.5rem;
 }
 
 .profile-actions button {
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
   font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease,
-              border-color 0.2s ease,
-              opacity 0.2s ease;
-}
-
-.profile-save-button {
-  background: #171717;
-  color: white;
-  border: 1px solid #171717;
-}
-
-.profile-save-button:hover:not(:disabled) {
-  background: #383838;
-}
-
-.profile-reset-button {
-  background: white;
-  color: #555;
-  border: 1px solid #ddd;
-}
-
-.profile-reset-button:hover:not(:disabled) {
-  background: #f5f5f5;
-  border-color: #aaa;
 }
 
 .profile-actions button:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.profile-actions button:focus-visible {
-  outline: 3px solid #888;
-  outline-offset: 3px;
-}
-
-/* ================================
-   STATUS MESSAGES
-================================ */
-
+/* Status */
 .profile-status {
-  font-size: 0.85rem;
-  margin: 1rem 0 0;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .profile-status.success {
-  color: #27834b;
+  color: var(--accent);
 }
 
 .profile-status.error,
 .profile-error {
-  color: #c0392b;
+  color: var(--error);
 }
 
 .profile-loading,
 .profile-error {
   text-align: center;
-  padding: 4rem 1rem;
-  font-size: 0.95rem;
 }
 
-/* ================================
-   RESPONSIVE DESIGN
-================================ */
-
+/* Responsive */
 @media (max-width: 700px) {
   .profile-page {
-    padding: 2rem 1rem 4rem;
-  }
-
-  .profile-page-heading h1 {
-    font-size: 1.7rem;
-  }
-
-  .profile-overview {
-    padding: 1.4rem;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .profile-avatar {
-    width: 62px;
-    height: 62px;
-    min-width: 62px;
-    font-size: 1.2rem;
-  }
-
-  .profile-member-badge {
-    margin-left: 0;
-    width: fit-content;
+    padding: 1.5rem;
   }
 
   .profile-content {
     grid-template-columns: 1fr;
-    gap: 2rem;
   }
 
-  .profile-settings {
-    padding: 1.4rem;
+  .profile-overview {
+    flex-wrap: wrap;
+  }
+
+  .profile-member-badge {
+    width: 100%;
   }
 }
 
 @media (max-width: 420px) {
-  .profile-overview {
-    align-items: flex-start;
-  }
-
   .profile-actions {
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-
-  .profile-actions button {
-    width: 100%;
+    flex-direction: column;
   }
 }
