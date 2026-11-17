@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import "./Profile.css";
 
@@ -12,8 +13,10 @@ function readError(body, status) {
 function getInitials(name) {
   const parts = (name || "").trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
+
   const first = parts[0][0];
   const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+
   return (first + last).toUpperCase();
 }
 
@@ -28,7 +31,6 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
-  // Load the logged-in user's profile
   useEffect(() => {
     let cancelled = false;
 
@@ -61,13 +63,9 @@ export default function Profile() {
         setStats(data.stats || null);
         setMemberSince(data.member_since || null);
       } catch (err) {
-        if (!cancelled) {
-          setLoadError(err.message);
-        }
+        if (!cancelled) setLoadError(err.message);
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -91,7 +89,6 @@ export default function Profile() {
     }
   }
 
-  // Save updated profile information
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
@@ -126,7 +123,7 @@ export default function Profile() {
 
       setStatus({
         type: "success",
-        message: "Changes saved.",
+        message: "Changes saved successfully.",
       });
     } catch {
       setStatus({
@@ -138,7 +135,6 @@ export default function Profile() {
     }
   }
 
-  // Discard unsaved changes
   function handleReset() {
     setForm(saved);
     setStatus({ type: "", message: "" });
@@ -147,7 +143,9 @@ export default function Profile() {
   if (loading) {
     return (
       <main className="profile-page">
-        <p className="profile-loading">Loading your profile...</p>
+        <div className="profile-container">
+          <p className="profile-loading">Loading your profile...</p>
+        </div>
       </main>
     );
   }
@@ -155,9 +153,11 @@ export default function Profile() {
   if (loadError) {
     return (
       <main className="profile-page">
-        <p className="profile-error" role="alert">
-          {loadError}
-        </p>
+        <div className="profile-container">
+          <p className="profile-error" role="alert">
+            {loadError}
+          </p>
+        </div>
       </main>
     );
   }
@@ -165,13 +165,25 @@ export default function Profile() {
   return (
     <main className="profile-page">
       <div className="profile-container">
-        {/* Left card: who you are + stats */}
-        <aside className="profile-card profile-summary">
-          <header className="profile-header">
-            <div className="profile-avatar" aria-hidden="true">
-              {getInitials(saved.name)}
-            </div>
-            <h1>{saved.name}</h1>
+
+        {/* Page heading */}
+        <div className="profile-page-heading">
+          <div>
+            <p className="profile-eyebrow">YOUR ACCOUNT</p>
+            <h1>My Profile</h1>
+            <p>Manage your personal information and account settings.</p>
+          </div>
+        </div>
+
+        {/* Profile overview */}
+        <section className="profile-overview">
+
+          <div className="profile-avatar">
+            {getInitials(saved.name)}
+          </div>
+
+          <div className="profile-identity">
+            <h2>{saved.name}</h2>
             <p className="profile-handle">@{saved.username}</p>
 
             {memberSince && (
@@ -184,82 +196,123 @@ export default function Profile() {
                 })}
               </p>
             )}
-          </header>
-
-          {stats && (
-            <section className="profile-stats" aria-label="Your stats">
-              <div className="profile-stat">
-                <span className="profile-stat-label">
-                  {stats.total_decks === 1 ? "Deck" : "Decks"}
-                </span>
-                <span className="profile-stat-value">{stats.total_decks}</span>
-              </div>
-            </section>
-          )}
-        </aside>
-
-        {/* Right card: edit account details */}
-        <form className="profile-card profile-form" onSubmit={handleSubmit}>
-          <h2>Account details</h2>
-
-          <label>
-            Name
-            <input
-              name="name"
-              type="text"
-              autoComplete="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <label>
-            Username
-            <input
-              name="username"
-              type="text"
-              autoComplete="username"
-              value={form.username}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <label>
-            Email
-            <input
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <div className="profile-actions">
-            <button type="submit" disabled={!isDirty || saving}>
-              {saving ? "Saving..." : "Save changes"}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={!isDirty || saving}
-            >
-              Discard changes
-            </button>
           </div>
 
-          <p
-            className={`profile-status ${status.type}`}
-            role="status"
-            aria-live="polite"
-          >
-            {status.message}
-          </p>
-        </form>
+          <div className="profile-member-badge">
+            <span className="profile-status-dot" />
+            Active member
+          </div>
+
+        </section>
+
+        {/* Dashboard content */}
+        <div className="profile-content">
+
+          {/* Statistics */}
+          <section className="profile-stats-section">
+            <div className="profile-section-heading">
+              <h2>Overview</h2>
+              <p>Your activity at a glance.</p>
+            </div>
+
+            <div className="profile-stats">
+              <div className="profile-stat-card">
+                <div className="profile-stat-icon">▤</div>
+                <div>
+                  <p className="profile-stat-label">Total decks</p>
+                  <p className="profile-stat-value">
+                    {stats?.total_decks ?? 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Account settings */}
+          <section className="profile-settings">
+            <div className="profile-section-heading">
+              <h2>Account details</h2>
+              <p>Update the information associated with your account.</p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+
+              <div className="profile-fields">
+
+                <label className="profile-field">
+                  <span>Full name</span>
+                  <input
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    placeholder="Enter your name"
+                    required
+                  />
+                </label>
+
+                <label className="profile-field">
+                  <span>Username</span>
+                  <input
+                    name="username"
+                    type="text"
+                    autoComplete="username"
+                    value={form.username}
+                    onChange={handleChange}
+                    placeholder="Enter your username"
+                    required
+                  />
+                </label>
+
+                <label className="profile-field">
+                  <span>Email address</span>
+                  <input
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </label>
+
+              </div>
+
+              {status.message && (
+                <p
+                  className={`profile-status ${status.type}`}
+                  role="status"
+                  aria-live="polite"
+                >
+                  {status.message}
+                </p>
+              )}
+
+              <div className="profile-actions">
+                <button
+                  type="button"
+                  className="profile-reset-button"
+                  onClick={handleReset}
+                  disabled={!isDirty || saving}
+                >
+                  Discard changes
+                </button>
+
+                <button
+                  type="submit"
+                  className="profile-save-button"
+                  disabled={!isDirty || saving}
+                >
+                  {saving ? "Saving..." : "Save changes"}
+                </button>
+              </div>
+
+            </form>
+          </section>
+
+        </div>
       </div>
     </main>
   );
