@@ -1,0 +1,186 @@
+/* styling for the Library */
+
+/* the page's main box: centered, no wider than 960px, with space around it */
+.library {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 1.5rem 1rem 4rem;
+  text-align: left;
+}
+
+/* the top row (heading, search and dropdowns): sits in a line and wraps on small screens */
+.library-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* the "Library" heading: its right margin of "auto" pushes the controls to the right edge */
+.library-head h1 {
+  margin: 0 auto 0 0;
+  font-size: 1.8rem;
+  letter-spacing: normal;
+}
+
+/* the look shared by the search box and both dropdowns: square, with a thin border */
+.library-control {
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+/* a visible outline so keyboard users can see which control is selected */
+.library-control:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* the search box: it grows to fill space but stops at 320px wide */
+.library-search {
+  flex: 1 1 200px;
+  max-width: 320px;
+}
+
+/* the centered messages: "Loading...", "no decks yet" and the error */
+.library-message {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+/* the deck list and subdeck list: remove the default bullets and spacing */
+.library-list,
+.library-subs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* the box around one deck and its subdecks, with a border and a solid shadow */
+.library-group {
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* one row (a deck or a subdeck): arrow, name, counts and button in a line */
+.library-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+/* a subdeck row: indented, with a line separating it from the row above */
+.library-row--sub {
+  padding-left: 3.5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* the deck name: takes the free space, and long names are cut off with "..." */
+.library-name {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+/* the subdeck name: a little smaller and lighter than a deck name */
+.library-name--sub {
+  color: var(--text-h);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* the arrow button, and the empty space that lines names up when a deck has no arrow */
+.expand-btn,
+.expand-spacer {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+/* the arrow button itself: a round outlined button */
+.expand-btn {
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* when the mouse is over the arrow, swap the background and text colors */
+.expand-btn:hover {
+  background: var(--text-h);
+  color: var(--bg);
+}
+
+/* outline for keyboard users when the arrow is selected */
+.expand-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* the New / Due / Review group: three counts side by side, centered, with aligned digits */
+.counts {
+  display: flex;
+  gap: 1rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* the number in each count: on its own line, bold, in the heading color */
+.count b {
+  display: block;
+  color: var(--text-h);
+  font-size: 1.05rem;
+}
+
+/* the label under each number ("NEW", "DUE", "REVIEW"): small, uppercase and spaced out */
+.count span {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* the "See Deck" / "See Subdeck" buttons: smaller than normal, no underline, one line */
+.library-row .btn {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* rules that only apply on narrow screens (phones, 560px wide or less) */
+@media (max-width: 560px) {
+  /* less indent for subdecks to save space */
+  .library-row--sub {
+    padding-left: 1.25rem;
+  }
+
+  /* narrow screens: the name gets its own line, then the counts and the button */
+  .library-name {
+    flex: 1 1 8rem;
+    white-space: normal;
+  }
+
+  /* tighter spacing between the three counts */
+  .counts {
+    gap: 0.5rem;
+  }
+}
