@@ -1,3 +1,7 @@
+//is one row in the deck list on the deck manager screen. 
+// It shows a single deck’s name and description
+
+// React's useState hook, the shared Button/TextField components, and the deck API calls.
 import { useState } from 'react';
 import Button from './Button';
 import TextField from './TextField';
@@ -11,12 +15,15 @@ export default function DeckItem({
   onDeleted,
   onUnauthorized,
 }) {
+  // What this deck is currently showing, plus the text boxes used while editing.
   const [mode, setMode] = useState('view'); // 'view' | 'edit' | 'confirmDelete'
   const [name, setName] = useState(deck.deckname);
   const [description, setDescription] = useState(deck.description ?? '');
+  // Error message to show on this deck, and whether a request is in progress (disables buttons).
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // Switch into edit mode, starting the text boxes from the deck's saved values.
   function startEdit() {
     setName(deck.deckname);
     setDescription(deck.description ?? '');
@@ -24,6 +31,7 @@ export default function DeckItem({
     setMode('edit');
   }
 
+  // Leave edit/delete mode without saving and clear any error.
   function cancel() {
     setError('');
     setMode('view');
@@ -47,11 +55,14 @@ export default function DeckItem({
     }
   }
 
+  // Runs when the Edit form is submitted: check the input, work out what changed, then save.
   async function handleSave(e) {
     e.preventDefault();
+    // Clean up the typed values (empty description becomes null).
     const newName = name.trim();
     const newDescription = description.trim() || null;
 
+    // Stop early if the name is blank or already used by another deck.
     if (!newName) {
       setError('Deck name is required.');
       return;
@@ -69,11 +80,13 @@ export default function DeckItem({
     if (newDescription !== (deck.description || null)) {
       changes.description = newDescription;
     }
+    // Nothing changed, so skip the request and go back to view mode.
     if (Object.keys(changes).length === 0) {
       setMode('view');
       return;
     }
 
+    // Send the update; on success tell the parent list and return to view mode.
     await perform(
       () => updateDeck(deck.id, changes),
       (updated) => {
@@ -83,6 +96,7 @@ export default function DeckItem({
     );
   }
 
+  // Runs when the person confirms the delete; tells the parent list to remove this deck.
   async function handleDelete() {
     await perform(
       () => deleteDeck(deck.id),
@@ -90,9 +104,11 @@ export default function DeckItem({
     );
   }
 
+  // What shows on screen: an edit form, or the deck's text with Edit/Delete buttons.
   return (
     <li className="deck-item">
       {mode === 'edit' ? (
+        // Edit mode: name and description boxes with Save and Cancel.
         <form className="deck-edit" onSubmit={handleSave} noValidate>
           <TextField
             label="Deck name"
@@ -115,6 +131,7 @@ export default function DeckItem({
         </form>
       ) : (
         <>
+          {/* View mode: the deck's name and (if it has one) its description. */}
           <div className="deck-item__text">
             <h2 className="deck-item__name">{deck.deckname}</h2>
             {deck.description && (
@@ -122,6 +139,7 @@ export default function DeckItem({
             )}
           </div>
 
+          {/* Delete mode shows a confirm question; otherwise show Edit and Delete buttons. */}
           {mode === 'confirmDelete' ? (
             <div className="deck-actions" role="group" aria-label="Confirm delete">
               <span>Delete this deck?</span>
@@ -145,6 +163,7 @@ export default function DeckItem({
         </>
       )}
 
+      {/* Shows any error message for this deck. */}
       {error && (
         <p className="form-error" role="alert">
           {error}
