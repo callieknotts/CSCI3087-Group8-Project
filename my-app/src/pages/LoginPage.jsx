@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import TextField from '../components/TextField';
 import Button from '../components/Button';
 import './LoginPage.css';
-import './Header.css'; //for the light/dark toggle
+import '../components/Header.css'; //for the light/dark toggle
 
 export default function LoginPage({ onLogin, onSwitchToSignup }) {
   const [login, setLogin] = useState('');
