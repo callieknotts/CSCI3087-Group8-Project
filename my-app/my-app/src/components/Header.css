@@ -1,4 +1,4 @@
-/* styling for the website header */
+/* styling for the website header*/
 
 /* the header bar itself: stays at the top while scrolling, with a line underneath */
 .site-header {
@@ -25,36 +25,48 @@
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent-border);
   border-radius: 50%;
-  background: var(--bg);
-  color: var(--text-h);
+  background: var(--accent-bg);
+  color: var(--accent);
   font: inherit;
   font-size: 1.4rem;
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
 }
 
-/* on hover the round buttons swap their colors; the house button (filled) starts that way */
-.icon-btn:hover,
+/* on hover, fill the round buttons with the accent color */
+.icon-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* slight movement when a button is clicked */
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+/* the filled house button starts with the accent color */
 .icon-btn--filled {
-  background: var(--text-h);
+  background: var(--accent);
   color: var(--bg);
 }
 
 /* the filled house button swaps back to the normal colors on hover */
 .icon-btn--filled:hover {
-  background: var(--bg);
-  color: var(--text-h);
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
 /* a visible outline so keyboard users can see which button or menu item is selected */
 .icon-btn:focus-visible,
-.profile-menu__item:focus-visible {
-  outline: 3px solid var(--accent);
+.profile-menu__item:focus-visible,
+.site-search input:focus-visible {
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+  border-color: var(--accent-border);
 }
 
 /* the house and person icons: drawn as thin lines in the button's text color */
@@ -72,24 +84,20 @@
 .site-search {
   flex: 1;
   min-width: 0;
+  max-width: 480px;
 }
 
-/* the search box: full width, with fully rounded ends */
+/* the search box: rounded, with a thin border */
 .site-search input {
   width: 100%;
   box-sizing: border-box;
-  padding: 0.5rem 1rem;
+  padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--bg);
   color: var(--text-h);
   font: inherit;
-}
-
-/* outline for keyboard users when the search box is selected */
-.site-search input:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  transition: border-color 0.2s;
 }
 
 /* the profile button's wrapper: lets the drop-down list be placed relative to it */
@@ -98,8 +106,7 @@
   flex: none;
 }
 
-/* the drop-down list: floats just below the profile button, lined up with its right edge,
-   with a border and a solid shadow */
+/* the drop-down list: floats just below the profile button, lined up with its right edge */
 .profile-menu__list {
   position: absolute;
   right: 0;
@@ -109,35 +116,59 @@
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
+  border-radius: 10px;
   box-shadow: var(--shadow);
   text-align: left;
 }
 
-/* each menu option ("Profile" and "Logout"): full-width, plain text with no button styling */
+/* each menu option ("Profile" and "Logout"): full-width, plain text */
 .profile-menu__item {
   display: block;
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
   border: 0;
+  border-radius: 6px;
   background: none;
   color: var(--text-h);
   font: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
-/* when the mouse is over an option, swap its colors (but not while it's disabled) */
+/* when the mouse is over an option, use the accent colors */
 .profile-menu__item:hover:not(:disabled) {
-  background: var(--text-h);
-  color: var(--bg);
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
-/* a disabled option (for example, Logout while logging out): faded, with a "not allowed" cursor */
+/* a disabled option (for example, Logout while logging out) */
 .profile-menu__item:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* rules that only apply on narrow screens (phones, 560px wide or less) */
+@media (max-width: 560px) {
+  .site-header__bar {
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .icon-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .site-search {
+    max-width: none;
+  }
+
+  .site-search input {
+    padding: 10px;
+  }
 }
