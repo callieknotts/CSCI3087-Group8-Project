@@ -17,23 +17,27 @@
 
 .library-head h1 {
   margin: 0 auto 0 0;
-  font-size: 1.8rem;
-  letter-spacing: normal;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
 }
 
 .library-control {
   box-sizing: border-box;
-  padding: 0.5rem 0.75rem;
+  padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: 10px;
   background: var(--bg);
   color: var(--text-h);
   font: inherit;
-}
+  transition: border-color 0.2s;
 
-.library-control:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent-border);
+  }
 }
 
 .library-search {
@@ -55,8 +59,11 @@
 
 .library-group {
   margin-bottom: 1.25rem;
+  background: var(--surface);
   border: 1px solid var(--border);
+  border-radius: 16px;
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 .library-row {
@@ -79,13 +86,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text-h);
   font-size: 1.1rem;
   line-height: 1.3;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .library-name--sub {
-  color: var(--text-h);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -98,22 +106,27 @@
 }
 
 .expand-btn {
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent-border);
   border-radius: 50%;
-  background: var(--bg);
-  color: var(--text-h);
+  background: var(--accent-bg);
+  color: var(--accent);
   font: inherit;
   cursor: pointer;
-}
+  transition: background 0.2s, color 0.2s, transform 0.1s;
 
-.expand-btn:hover {
-  background: var(--text-h);
-  color: var(--bg);
-}
+  &:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
 
-.expand-btn:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 .counts {
@@ -137,10 +150,30 @@
 }
 
 .library-row .btn {
-  padding: 0.35rem 0.9rem;
-  font-size: 0.9rem;
+  font: 500 14px var(--sans);
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.1s;
+
+  &:hover {
+    box-shadow: var(--shadow);
+    border-color: var(--accent-border);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -148,7 +181,6 @@
     padding-left: 1.25rem;
   }
 
-  /* narrow screens: the name gets its own line, then the counts and the button */
   .library-name {
     flex: 1 1 8rem;
     white-space: normal;
