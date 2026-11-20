@@ -18,8 +18,8 @@
   padding: 0.75rem 1rem;
 }
 
-/* pushes everything after the first item (home button) to the right edge */
-.site-header__bar > :first-child {
+/* pushes the green home button to the far left and everything else to the right */
+.site-header__bar .icon-btn--filled {
   margin-right: auto;
 }
 
