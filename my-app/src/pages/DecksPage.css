@@ -10,8 +10,9 @@
   align-items: center;
 }
 
+/* Size only; the pill look comes from the shared .btn */
 .decks-page .top-bar .btn {
-  padding: 0.4rem 0.9rem;
+  padding: 8px 16px;
   font-size: 0.9rem;
 }
 
@@ -26,7 +27,9 @@
 .home-content h1 {
   margin: 0;
   font-size: 1.75rem;
-  letter-spacing: normal;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
 }
 
 .home-content .app-title {
