@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--bg);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 
@@ -21,64 +21,76 @@
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent-border);
   border-radius: 50%;
-  background: var(--bg);
-  color: var(--text-h);
+  background: var(--accent-bg);
+  color: var(--accent);
   font: inherit;
   font-size: 1.4rem;
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+
+  &:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 }
 
-.icon-btn:hover,
+/* filled variant: solid accent, softens on hover */
 .icon-btn--filled {
-  background: var(--text-h);
+  background: var(--accent);
   color: var(--bg);
-}
+  border-color: transparent;
 
-.icon-btn--filled:hover {
-  background: var(--bg);
-  color: var(--text-h);
-}
-
-.icon-btn:focus-visible,
-.profile-menu__item:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.icon-btn svg {
-  width: 1.15rem;
-  height: 1.15rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  &:hover {
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-color: var(--accent-border);
+  }
 }
 
 .site-search {
   flex: 1;
   min-width: 0;
-}
 
-.site-search input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg);
-  color: var(--text-h);
-  font: inherit;
-}
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--text-h);
+    font: inherit;
+    transition: border-color 0.2s;
 
-.site-search input:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--accent-border);
+    }
+  }
 }
 
 .profile-menu {
@@ -95,8 +107,9 @@
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: var(--bg);
+  background: var(--surface);
   border: 1px solid var(--border);
+  border-radius: 12px;
   box-shadow: var(--shadow);
   text-align: left;
 }
@@ -107,20 +120,27 @@
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
   border: 0;
+  border-radius: 8px;
   background: none;
   color: var(--text-h);
   font: inherit;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-}
+  transition: background-color 0.2s, color 0.2s;
 
-.profile-menu__item:hover:not(:disabled) {
-  background: var(--text-h);
-  color: var(--bg);
-}
+  &:hover:not(:disabled) {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
 
-.profile-menu__item:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
