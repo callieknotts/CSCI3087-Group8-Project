@@ -1,7 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* Light theme (default) */
+:root {
+  --text: #4b5565;
+  --text-h: #101828;
+  --bg: #f6f7f9;
+  --surface: #fff;
+  --border: #e3e6eb;
+  --code-bg: #e4f4f1;
+  --accent: #0f766e;
+  --accent-bg: #e4f4f1;
+  --accent-border: #a3d6cf;
+  --error: #b42318;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06),
+    0 6px 16px -4px rgba(16, 24, 40, 0.12);
+
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  font: 16px/1.6 var(--sans);
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark theme: follows the system setting */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #a3acba;
+    --text-h: #f2f4f7;
+    --bg: #0e1116;
+    --surface: #161b22;
+    --border: #272e38;
+    --code-bg: #10302d;
+    --accent: #5eead4;
+    --accent-bg: #10302d;
+    --accent-border: #1f5c55;
+    --error: #f97066;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+      0 6px 16px -4px rgba(0, 0, 0, 0.6);
+  }
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(
+      900px 380px at 50% -100px,
+      var(--accent-bg),
+      transparent
+    )
+    no-repeat var(--bg);
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  color: var(--text-h);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+/* Page */
 .profile-page {
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 2rem;
+  box-sizing: border-box;
 }
 
 .profile-container {
@@ -19,12 +101,20 @@
 }
 
 .profile-page-heading h1 {
-  margin: 0;
   font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
 }
 
-.profile-page-heading p {
-  margin: 0;
+/* Shared card look */
+.profile-overview,
+.profile-stat-card,
+.profile-settings {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
 /* Profile overview */
@@ -33,8 +123,6 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
 }
 
 .profile-avatar {
@@ -43,7 +131,9 @@
   min-width: 65px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
   border-radius: 50%;
   font-size: 1.4rem;
   font-weight: 600;
@@ -56,6 +146,7 @@
 .profile-identity h2 {
   margin: 0 0 0.4rem;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .profile-handle,
@@ -66,6 +157,12 @@
 
 .profile-member-badge {
   font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  padding: 4px 12px;
 }
 
 /* Content layout */
@@ -83,12 +180,11 @@
 }
 
 .profile-section-heading h2 {
-  margin: 0;
   font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .profile-section-heading p {
-  margin: 0;
   font-size: 0.9rem;
 }
 
@@ -103,12 +199,16 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
 }
 
 .profile-stat-icon {
-  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  background: var(--accent-bg);
+  border-radius: 50%;
 }
 
 .profile-stat-label {
@@ -120,13 +220,14 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 /* Account details */
 .profile-settings {
   padding: 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
 }
 
 .profile-settings form {
@@ -146,11 +247,33 @@
 
 .profile-field span {
   font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-h);
 }
 
-.profile-field input {
+.profile-field input,
+.profile-field textarea {
   width: 100%;
   box-sizing: border-box;
+  font: inherit;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.profile-field textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.profile-field input:focus-visible,
+.profile-field textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent-border);
 }
 
 /* Buttons */
@@ -162,19 +285,46 @@
 }
 
 .profile-actions button {
-  font: inherit;
+  font: 500 15px var(--sans);
   cursor: pointer;
-}
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+  transition: background 0.2s, color 0.2s, transform 0.1s, box-shadow 0.2s,
+    filter 0.2s;
 
-.profile-actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  &[type='submit'] {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: transparent;
+  }
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.12);
+    box-shadow: var(--shadow);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 /* Status */
 .profile-status {
-  margin: 0;
   font-size: 0.9rem;
+  min-height: 1.4em;
 }
 
 .profile-status.success {
@@ -207,6 +357,8 @@
 
   .profile-member-badge {
     width: 100%;
+    box-sizing: border-box;
+    text-align: center;
   }
 }
 
