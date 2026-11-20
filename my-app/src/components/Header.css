@@ -9,10 +9,11 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* the row inside the header: puts the buttons and search box side by side */
+/* the row inside the header: puts the buttons and search box side by side on the left */
 .site-header__bar {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
 }
@@ -102,11 +103,11 @@
   right: 1.25rem;
 }
 
-/* the search form: takes all the space left between the buttons */
+/* the search form: sized to sit cleanly beside the buttons on the left */
 .site-search {
-  flex: 1;
-  min-width: 0;
-  max-width: 480px;
+  flex: 0 1 320px;
+  min-width: 140px;
+  max-width: 360px;
 }
 
 /* the search box: rounded, with a thin border */
@@ -199,6 +200,8 @@
   }
 
   .site-search {
+    flex: 1 1 auto;
+    min-width: 0;
     max-width: none;
   }
 
