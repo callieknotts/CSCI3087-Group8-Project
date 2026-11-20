@@ -5,15 +5,24 @@
   text-align: left;
 }
 
+.deck-form,
+.deck-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
 .deck-form {
   display: grid;
   gap: 0.9rem;
-  border: 1px solid var(--border);
   padding: 1.25rem;
 }
 
 .deck-form h2 {
   margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .deck-items {
@@ -27,14 +36,15 @@
 .deck-item {
   display: grid;
   gap: 0.75rem;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
   padding: 1rem 1.25rem;
 }
 
 .deck-item__name {
   margin: 0;
+  color: var(--text-h);
   font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   overflow-wrap: anywhere;
 }
 
@@ -53,11 +63,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-}
 
-.deck-actions .btn {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.9rem;
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
 }
 
 .deck-empty {
@@ -70,5 +80,5 @@
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-h);
+  color: var(--error);
 }
