@@ -9,11 +9,11 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* the row inside the header: puts the buttons and search box side by side on the left */
+/* the row inside the header: puts the buttons and search box side by side on the right */
 .site-header__bar {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
 }
