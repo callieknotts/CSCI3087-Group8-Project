@@ -9,13 +9,18 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* the row inside the header: puts the buttons and search box side by side on the right */
+/* the row inside the header: home button on the left, everything else grouped on the right */
 .site-header__bar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
+}
+
+/* pushes everything after the first item (home button) to the right edge */
+.site-header__bar > :first-child {
+  margin-right: auto;
 }
 
 /* round buttons: home, "+", profile, and floating action buttons */
@@ -103,7 +108,7 @@
   right: 1.25rem;
 }
 
-/* the search form: sized to sit cleanly beside the buttons on the left */
+/* the search form: sized to sit cleanly beside the trailing buttons on the right */
 .site-search {
   flex: 0 1 320px;
   min-width: 140px;
