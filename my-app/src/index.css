@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* Light theme (default) */
-:root {
+:root,
+:root[data-theme='light'] {
   --text: #4b5565;
   --text-h: #101828;
   --bg: #f6f7f9;
@@ -14,24 +15,29 @@
   --social-bg: #fff;
   --shadow: 0 1px 2px rgba(16, 24, 40, 0.06),
     0 6px 16px -4px rgba(16, 24, 40, 0.12);
-
-  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-
-  font: 16px/1.6 var(--sans);
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
 }
 
-/* Dark theme: follows the system setting */
+/* Dark theme variables */
+:root[data-theme='dark'] {
+  --text: #a3acba;
+  --text-h: #f2f4f7;
+  --bg: #0e1116;
+  --surface: #161b22;
+  --border: #272e38;
+  --code-bg: #10302d;
+  --accent: #5eead4;
+  --accent-bg: #10302d;
+  --accent-border: #1f5c55;
+  --social-bg: #161b22;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 6px 16px -4px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+/* Dark theme: follows system setting when no explicit theme override is set */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
     --text: #a3acba;
     --text-h: #f2f4f7;
     --bg: #0e1116;
@@ -44,11 +50,30 @@
     --social-bg: #161b22;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
       0 6px 16px -4px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
   }
 
-  #social .button-icon {
+  :root:not([data-theme='light']):not([data-theme='dark']) #social .button-icon {
     filter: invert(1) brightness(2);
   }
+}
+
+:root[data-theme='dark'] #social .button-icon {
+  filter: invert(1) brightness(2);
+}
+
+:root {
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  font: 16px/1.6 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -93,7 +118,10 @@ h1 {
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.035em;
-  @media (max-width: 1024px) {
+}
+
+@media (max-width: 1024px) {
+  h1 {
     font-size: 36px;
   }
 }
