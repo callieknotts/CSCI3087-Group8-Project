@@ -1,4 +1,6 @@
-/* the whole deck screen: stacks the form and the deck list with space between them */
+/* styling for the deck screen (design tokens live in index.css) */
+
+/* the whole deck screen: stacks the form and deck list with space between them */
 .deck-list {
   width: 100%;
   display: grid;
@@ -6,17 +8,43 @@
   text-align: left;
 }
 
-/* the "New deck" form: its fields stacked in a bordered box */
+/* the "New deck" form */
 .deck-form {
   display: grid;
   gap: 0.9rem;
-  border: 1px solid var(--border);
   padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
-/* the "New deck" heading: no extra margin */
+/* the "New deck" heading */
 .deck-form h2 {
   margin: 0;
+  color: var(--text-h);
+}
+
+/* shared styling for form inputs and textareas */
+.deck-form input,
+.deck-form textarea,
+.deck-edit input,
+.deck-edit textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  transition: border-color 0.2s;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent-border);
+  }
 }
 
 /* the list of decks: no bullets, with space between decks */
@@ -28,34 +56,41 @@
   gap: 1rem;
 }
 
-/* one deck: a bordered box with a solid shadow, its contents stacked */
+/* one deck: a rounded card with a soft shadow */
 .deck-item {
   display: grid;
   gap: 0.75rem;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
   padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
-/* a deck's name and description: long text wraps instead of running off the box */
+/* a deck's name */
 .deck-item__name {
   margin: 0;
+  color: var(--text-h);
   font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   overflow-wrap: anywhere;
 }
 
+/* a deck's description */
 .deck-item__description {
   margin: 0.25rem 0 0;
+  color: var(--text);
   overflow-wrap: anywhere;
 }
 
-/* the edit form that replaces a deck's text: its fields stacked */
+/* the edit form that replaces a deck's text */
 .deck-edit {
   display: grid;
   gap: 0.9rem;
 }
 
-/* a row of buttons (Edit / Delete, Save / Cancel): side by side, wrapping if needed */
+/* a row of buttons (Edit / Delete, Save / Cancel) */
 .deck-actions {
   display: flex;
   flex-wrap: wrap;
@@ -67,19 +102,41 @@
 .deck-actions .btn {
   padding: 0.4rem 0.9rem;
   font-size: 0.9rem;
+  text-decoration: none;
 }
 
-/* the "no decks yet" and "Loading" messages: centered */
+/* the "no decks yet" and "Loading" messages */
 .deck-empty {
+  margin: 2rem 0;
   text-align: center;
+  color: var(--text);
 }
 
-/* error messages in the deck screen: small, bold and in the heading color */
+/* error messages in the deck screen */
 .deck-list .form-error,
 .deck-item .form-error,
 .home-content .form-error {
   margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  background: var(--accent-bg);
+  color: var(--accent);
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-h);
+}
+
+/* responsive styling for smaller screens */
+@media (max-width: 560px) {
+  .deck-form {
+    padding: 1rem;
+  }
+
+  .deck-item {
+    padding: 0.9rem 1rem;
+  }
+
+  .deck-actions {
+    gap: 0.4rem;
+  }
 }
