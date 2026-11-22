@@ -1,41 +1,38 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4, UUID
-from enum import Enum
-
-
-class CardType(str, Enum):
-    BASIC = "basic"
-    # CLOZE = "cloze"
-    # MATH = "math"
-    # LANGUAGE = "language"
-    # IMAGE_OCCLUSION = "image_occlusion"
-    # MULTIPLE_CHOICE = "multiple_choice"
-
+from entity.cardcontent import CardContent
 
 @dataclass
 class Card:
     id: UUID
     deck_id: UUID
     subdeck_id: UUID | None
-    card_type: CardType
-    content: dict
+    content: CardContent
+    position: int
     created_at: datetime
     updated_at: datetime
 
     @classmethod
-    def create(cls,
-               deck_id: UUID,
-               subdeck_id: UUID | None,
-               card_type: CardType,
-               content: dict
-               ) -> "Card":
-        return (cls(
+    def create(
+        cls,
+        deck_id: UUID,
+        content: CardContent,
+        position: int,
+        subdeck_id: UUID | None = None
+    ) -> "Card":
+
+        now = datetime.now(timezone.utc)
+
+        if position < 0:
+            raise ValueError("Position cannot be negative")
+
+        return cls(
             id=uuid4(),
             deck_id=deck_id,
             subdeck_id=subdeck_id,
-            card_type=card_type,
             content=content,
-            created_at=datetime.now(),
-            updated_at=datetime.now()
-        ))
+            position=position,
+            created_at=now,
+            updated_at=now
+        )

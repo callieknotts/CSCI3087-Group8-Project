@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from presentation.schemas.deck import DeckSchema, DeckUpdateSchema
 from use_case.deck.create_deck import CreateDeck
-from use_case.deck.read_deck import ReadDeck
+from use_case.deck.read_deck import ReadDeck, GetDeck
 from use_case.deck.delete_deck import DeleteDeck
 from use_case.deck.update_deck import UpdateDeck
 # from use_case.login import LoginUser
@@ -22,17 +22,22 @@ def addDeck(
 ):
 
     return CreateDeck(repo).execute(user_id=current_user.id,
-                                    deckname=data.deckname, description=data.description)
+                                    deckname=data.deckname, description=data.description,
+                                    visibility=data.visibility)
 
 
 @router.get("/")
-def getDecks(
+def get_all_decks(
+    sort: str = "created_at",
+    order: str = "desc",
     repo=Depends(get_deck_repository),
     current_user=Depends(get_current_user)
 ):
-
-    return ReadDeck(repo).execute(user_id=current_user.id)
-
+    return ReadDeck(repo).execute(
+        user_id=current_user.id,
+        sort=sort,
+        order=order
+    )
 
 @router.delete("/{deck_id}")
 def deleteDeck(
@@ -67,6 +72,7 @@ def updateDeck(
             new_description=data.description,
             deck_id=deck_id,
             user_id=current_user.id,
+            new_visibility=data.visibility,
             fields_set=data.model_fields_set)
 
         return result
@@ -77,3 +83,25 @@ def updateDeck(
             detail=str(e)
         )
 # @router.patch("/decks/{deck_id}")
+
+@router.get("/{deck_id}")
+def getDeck(
+    deck_id: UUID,  
+    repo=Depends(get_deck_repository),
+    current_user=Depends(get_current_user)
+    ):
+    try:
+        result = GetDeck(repo).execute(
+                deck_id=deck_id,
+                user_id=current_user.id
+        )
+
+        return result
+    
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+

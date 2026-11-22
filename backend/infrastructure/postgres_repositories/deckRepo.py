@@ -3,7 +3,7 @@ from entity.repo.deckRepo import DeckRepository
 from entity.deck import Deck
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
-
+from datetime import datetime, timezone
 
 class PostgresDeckRepository(DeckRepository):
     def __init__(self, session: Session):
@@ -15,7 +15,9 @@ class PostgresDeckRepository(DeckRepository):
             user_id=deck.user_id,
             description=deck.description,
             deckname=deck.deckname,
-            created_at=deck.created_at
+            created_at=deck.created_at,
+            last_opened_at=deck.last_opened_at,
+            visibility=deck.visibility
         )
 
     def _to_domain(self, deck: DeckModel):
@@ -24,7 +26,9 @@ class PostgresDeckRepository(DeckRepository):
             user_id=deck.user_id,
             description=deck.description,
             deckname=deck.deckname,
-            created_at=deck.created_at
+            created_at=deck.created_at,
+            last_opened_at=deck.last_opened_at,
+            visibility=deck.visibility
         )
 
     def add(self, deck: Deck):
@@ -36,13 +40,21 @@ class PostgresDeckRepository(DeckRepository):
     def get(self, user_id, deck_id) -> Deck | None:
         stmt = (
             select(DeckModel)
-            .where(DeckModel.id == deck_id)
             .where(DeckModel.user_id == user_id)
+            .where(DeckModel.id == deck_id)
         )
         model = self.session.scalar(stmt)
-
         if model is None:
             return None
+        # makes this not into just a get function!
+        #currently this implementation is fine unless otherwise
+        #----------------------------------------------------
+        model.last_opened_at = datetime.now(timezone.utc)
+
+        self.session.commit()
+        self.session.refresh(model)
+        #----------------------------------------------------
+
         return self._to_domain(model)
     # def get_all(self, user_id):
     #         models = self.session.select(DeckModel).where()
@@ -50,15 +62,39 @@ class PostgresDeckRepository(DeckRepository):
     #             self._to_domain(m) for m in models
     #         ]
 
-    def get_all(self, user_id):
-        # 1. Create a decoupled SQL statement
-        stmt = select(DeckModel).where(DeckModel.user_id == user_id)
+    
+    def get_all(self, user_id, sort="last_opened_at", order="desc"):
 
-        # 2. scalars().all() extracts the DeckModel objects directly from the
-        # rows
+        allowed_sorts = {
+            "created_at": DeckModel.created_at,
+            "deckname": DeckModel.deckname,
+            "last_opened_at": DeckModel.last_opened_at
+        }
+
+        sort_column = allowed_sorts.get(sort)
+
+        if sort_column is None:
+            raise ValueError("Invalid sort field")
+
+        if order not in ("asc", "desc"):
+            raise ValueError("Invalid sort order")
+
+        stmt = select(DeckModel).where(
+            DeckModel.user_id == user_id
+        )
+
+        sort_expression = (
+            sort_column.asc() if order == "asc"
+            else sort_column.desc()
+        )
+
+        stmt = stmt.order_by(
+            sort_expression,
+            DeckModel.id.asc()
+        )
+
         models = self.session.scalars(stmt).all()
-        if models is None:
-            return None
+
         return [self._to_domain(m) for m in models]
 
     def save(self, deck: Deck) -> Deck:
@@ -79,7 +115,7 @@ class PostgresDeckRepository(DeckRepository):
 
         model.description = deck.description
         model.created_at = deck.created_at
-        # model.updated_at = deck.updated_at
+        model.last_opened_at = datetime.now(timezone.utc)
         self.session.commit()
         return self._to_domain(model)
 

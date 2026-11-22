@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from presentation.api.user import router as signup_router
 from presentation.api.deck import router as deck_router
 from presentation.api.subdeck import router as sub_deck_router
+from presentation.api.card import router as card_router
 from infrastructure.database import Base, engine
 from starlette.middleware.sessions import SessionMiddleware
 import os
@@ -22,3 +23,5 @@ app.add_middleware(
 app.include_router(signup_router)
 app.include_router(deck_router)
 app.include_router(sub_deck_router)
+app.include_router(card_router)
+

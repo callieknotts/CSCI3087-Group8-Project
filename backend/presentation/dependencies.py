@@ -3,7 +3,7 @@
 from infrastructure.postgres_repositories.userRepo import PostgresUserRepository
 from infrastructure.postgres_repositories.deckRepo import PostgresDeckRepository
 from infrastructure.postgres_repositories.subdeckRepo import PostgresSubDeckRepository
-
+from infrastructure.postgres_repositories.cardRepo import PostgresCardRepository
 from infrastructure.database import get_db
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -22,3 +22,6 @@ def get_deck_repository(db: Session = Depends(get_db)):
 def get_sub_deck_repository(db: Session = Depends(get_db)):
 
     return PostgresSubDeckRepository(db)
+def get_card_repository(db: Session = Depends(get_db)):
+
+    return PostgresCardRepository(db)

@@ -45,7 +45,10 @@ class PostgresSubDeckRepository(SubDeckRepository):
                    ).where(SubDeckModel.deck_id == deck_id
                            ).where(SubDeckModel.id == subdeck_id)
         )
-        return self.session.scalar(stmt)
+        model = self.session.scalar(stmt)        
+        if model is None:
+            return None
+        return self._to_domain(model)
     # def get_all(self, user_id):
     #         models = self.session.select(DeckModel).where()
     #         return [
@@ -59,7 +62,12 @@ class PostgresSubDeckRepository(SubDeckRepository):
             SubDeckModel.deck_id == deck_id)
 
         # 2. scalars().all() extracts the DeckModel objects directly from the
-        # rows
+        sort_column=SubDeckModel.subdeckname
+        sort_expression = sort_column.asc()
+        stmt = stmt.order_by(
+            sort_expression,
+            SubDeckModel.id.asc()
+        )
         models = self.session.scalars(stmt).all()
 
         return [self._to_domain(m) for m in models]
@@ -75,7 +83,6 @@ class PostgresSubDeckRepository(SubDeckRepository):
         model.id = subdeck.id
         model.user_id = subdeck.user_id
         model.subdeckname = subdeck.subdeckname
-        model.description = subdeck.description
         model.created_at = subdeck.created_at
         # model.updated_at = deck.updated_at
         self.session.commit()

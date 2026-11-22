@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
 # class Username:
 #     def __init__(self, value: str):
@@ -62,9 +62,9 @@ class User:
             email=email,
             name=name,
             password_hash=password_hash,
-            created_at=datetime.now(),
+            created_at=datetime.now(timezone),
             # wht does it need parathesizes? explain later
-            updated_at=datetime.now()
+            updated_at=datetime.now(timezone)
         ))
 
     # def set_username(self, username: str):

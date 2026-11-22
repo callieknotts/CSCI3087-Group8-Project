@@ -17,7 +17,7 @@ class SubDeckModel(Base):
     )
     deck_id: Mapped[uuid.UUID] = mapped_column(
         SQLAlchemyUUID(as_uuid=True),
-        ForeignKey("decks.id"),  # Verify the actual table name
+        ForeignKey("decks.id",ondelete="CASCADE"),  # very important! need cascade to delete all cards when deleted
         nullable=False,
     )
     # user_id: Mapped[uuid.UUID] = mapped_column(

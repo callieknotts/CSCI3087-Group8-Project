@@ -1,6 +1,6 @@
 from uuid import UUID
 from entity.repo.deckRepo import DeckRepository
-from entity.deck import Deck
+from entity.deck import Deck, Visibility
 
 
 class UpdateDeck:
@@ -12,6 +12,7 @@ class UpdateDeck:
                 user_id: UUID,
                 new_deck_name: str | None = None,
                 new_description: str | None = None,
+                new_visibility: Visibility | None=None,
                 fields_set: set[str] = set(),
 
                 ):
@@ -27,6 +28,9 @@ class UpdateDeck:
             if "description" in fields_set
             else result.description
         )
+        new_visibility= (
+            new_visibility if "visibility" in fields_set else result.visibility)
+        
         if new_deck_name != result.deckname and self.deck_repo.exists_by_name(
                 user_id=result.user_id, deckname=new_deck_name):
             raise ValueError("can't have the same name")
@@ -35,6 +39,9 @@ class UpdateDeck:
             created_at=result.created_at,
             user_id=user_id,
             deckname=new_deck_name,
-            description=new_description)
+            description=new_description,
+            visibility=new_visibility,
+            last_opened_at=result.last_opened_at
+            )
         self.deck_repo.save(deck)
         return deck

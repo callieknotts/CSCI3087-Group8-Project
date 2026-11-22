@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime,timezone
 
 
 @dataclass
@@ -22,5 +22,5 @@ class SubDeck:
             user_id=user_id,
             deck_id=deck_id,
             subdeckname=subdeckname,
-            created_at=datetime.now()
+            created_at=datetime.now(timezone.utc)
         ))

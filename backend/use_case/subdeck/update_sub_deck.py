@@ -3,7 +3,7 @@ from entity.repo.subdeckRepo import SubDeckRepository
 from entity.subdeck import SubDeck
 
 
-class UpdateDeck:
+class UpdateSubDeck:
     def __init__(self, sub_deck_repo: SubDeckRepository):
         self.sub_deck_repo = sub_deck_repo
 
@@ -11,8 +11,8 @@ class UpdateDeck:
                 deck_id: UUID,
                 sub_deck_id: UUID,
                 user_id: UUID,
-                new_sub_deck_name: str,
-                new_description: str | None,
+                new_sub_deck_name: str | None=None,
+                fields_set: set[str] = set(),
                 ):
         result = self.sub_deck_repo.get(
             user_id=user_id,
@@ -20,6 +20,7 @@ class UpdateDeck:
             subdeck_id=sub_deck_id)
         if not result:
             raise ValueError("does not exist")
+        new_sub_deck_name= (new_sub_deck_name if "subdeckname" in fields_set else result.subdeckname)
         if result.user_id != user_id:
             raise ValueError("User Authentication Error")
 

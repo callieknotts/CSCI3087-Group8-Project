@@ -1,6 +1,6 @@
 from uuid import UUID
 from entity.repo.deckRepo import DeckRepository
-from entity.deck import Deck
+from entity.deck import Deck, Visibility
 
 
 class CreateDeck:
@@ -10,7 +10,8 @@ class CreateDeck:
     def execute(self,
                 user_id: UUID,
                 description: str | None,
-                deckname: str
+                deckname: str,
+                visibility: Visibility = Visibility.PRIVATE
                 ):
         if deckname is None:
             raise ValueError("needs a deckname")
@@ -19,6 +20,7 @@ class CreateDeck:
         deck = Deck.create(
             user_id=user_id,
             deckname=deckname,
-            description=description)
+            description=description,
+            visibility=visibility)
         self.deck_repo.add(deck)
         return deck
