@@ -24,6 +24,24 @@ class SignupRequest(BaseModel):
             raise ValueError("Password must contain a special character")
 
         return password
+class UpdateUserSchema(BaseModel):
+    name: str | None = Field(default=None, min_length=2)
+    email: EmailStr | None = None
+    username: str | None = Field(min_length=5)
+
+
+    # @field_validator(
+    #     "name",
+    #     "email",
+    #     "username",
+    #     "back_image",
+    #     mode="before"
+    # )
+    # @classmethod
+    # def empty_string_to_none(cls, value):
+    #     if value == "":
+    #         return None
+    #     return value
 
 class LoginSchema(BaseModel):
     login: str

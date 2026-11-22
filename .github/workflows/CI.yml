@@ -7,9 +7,50 @@ on:
     branches: [main]
 
 jobs:
+
+  # FRONTEND CI
+  frontend:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: my-app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: my-app/package-lock.json
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Make frontend dependencies available to tests
+        run: ln -s my-app/node_modules ../node_modules
+
+      - name: Lint frontend
+        run: npm run lint --if-present
+
+      - name: Run frontend tests
+        run: npx vitest run test/frontend-tests/
+
+      - name: Build frontend
+        run: npm run build --if-present
+
+
+  # BACKEND CI
   backend:
     name: Backend Tests (FastAPI / PostgreSQL)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
@@ -33,7 +74,7 @@ jobs:
       PYTHONPATH: backend
 
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -43,7 +84,7 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
@@ -51,7 +92,7 @@ jobs:
 
       - name: Lint backend and tests
         run: |
-          flake8 backend test --count \
+          flake8 backend test/backend-tests --count \
             --select=E9,F63,F7,F82 \
             --show-source --statistics \
             --exclude=node_modules,venv,.venv
@@ -60,4 +101,4 @@ jobs:
         run: python -c "from backend.main import app"
 
       - name: Run backend tests
-        run: python -m pytest test/ -v
+        run: python -m pytest test/backend-tests/ -v

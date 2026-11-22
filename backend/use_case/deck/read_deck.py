@@ -8,8 +8,8 @@ class ReadDeck:
 
     def execute(self,
                 user_id: UUID,
-                sort:str,
-                order:str
+                sort:str| None=None,
+                order:str | None=None
                 ):
         result = self.deck_repo.get_all(user_id=user_id,sort=sort,order=order)
         # if not result:

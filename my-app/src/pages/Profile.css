@@ -1,0 +1,269 @@
+/* Profile.css (profile-specific styles only).
+   Design tokens (--text, --accent, --error, etc.) live in index.css. */
+
+/* Page */
+.profile-page {
+  min-height: 100svh;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.profile-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+}
+
+/* Page heading */
+.profile-page-heading {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.profile-eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Shared card look */
+.profile-overview,
+.profile-stat-card,
+.profile-settings {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Profile overview */
+.profile-overview {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.profile-avatar {
+  width: 65px;
+  height: 65px;
+  min-width: 65px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 50%;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.profile-identity {
+  flex: 1;
+}
+
+.profile-identity h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.profile-handle,
+.profile-since {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+/* Content layout */
+.profile-content {
+  display: grid;
+  grid-template-columns: 0.8fr 1.5fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.profile-section-heading {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.profile-section-heading h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.profile-section-heading p {
+  font-size: 0.9rem;
+}
+
+/* Statistics */
+.profile-stats {
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.profile-stat-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-radius: 50%;
+}
+
+.profile-stat-label {
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
+}
+
+.profile-stat-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Account details */
+.profile-settings {
+  padding: 1.5rem;
+}
+
+.profile-settings form {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.profile-fields {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.profile-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.profile-field span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.profile-field input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent-border);
+  }
+}
+
+/* Buttons */
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.profile-actions button {
+  font: 500 15px var(--sans);
+  cursor: pointer;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+  transition: background 0.2s, color 0.2s, transform 0.1s, box-shadow 0.2s,
+    filter 0.2s;
+
+  &.profile-save-button {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: transparent;
+  }
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.12);
+    box-shadow: var(--shadow);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* Status */
+.profile-status {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.profile-status.success {
+  color: var(--accent);
+}
+
+.profile-status.error,
+.profile-error {
+  color: var(--error);
+}
+
+.profile-loading,
+.profile-error {
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .profile-page {
+    padding: 1.5rem;
+  }
+
+  .profile-content {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-overview {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .profile-actions {
+    flex-direction: column;
+  }
+}

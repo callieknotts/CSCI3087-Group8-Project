@@ -1,7 +1,7 @@
 import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {vi, afterEach} from 'vitest';
-import SignupPage from '../src/pages/SignupPage';
+import SignupPage from '../../my-app/src/pages/SignupPage';
 
 // puts real fetch back after every test
 afterEach(() => {

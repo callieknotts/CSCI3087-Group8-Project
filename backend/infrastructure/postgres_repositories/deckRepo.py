@@ -64,7 +64,8 @@ class PostgresDeckRepository(DeckRepository):
 
     
     def get_all(self, user_id, sort="last_opened_at", order="desc"):
-
+        sort = sort or "created_at"
+        order = order or "desc"
         allowed_sorts = {
             "created_at": DeckModel.created_at,
             "deckname": DeckModel.deckname,
