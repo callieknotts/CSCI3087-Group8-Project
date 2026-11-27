@@ -89,6 +89,79 @@ function getCardSideText(card, side) {
   return card.content?.[side]?.text ?? card[side] ?? '';
 }
 
+function ModalDialog({ config, onClose }) {
+  const [values, setValues] = useState(() =>
+    (config.fields || []).map((field) => field.value || ''),
+  );
+
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  function handleChange(index, nextValue) {
+    setValues((prev) =>
+      prev.map((item, idx) => (idx === index ? nextValue : item)),
+    );
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const submittedValues = [...values];
+    onClose();
+    await config.onSubmit?.(submittedValues);
+  }
+
+  return (
+    <div
+      className="ov"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <form
+        className="dlg"
+        role="dialog"
+        aria-modal="true"
+        onSubmit={handleSubmit}
+      >
+        <h2>{config.title}</h2>
+        {config.message && <p>{config.message}</p>}
+        {(config.fields || []).map((field, index) => (
+          <label key={field.label}>
+            {field.label}
+            {field.multiline ? (
+              <textarea
+                value={values[index] ?? ''}
+                onChange={(e) => handleChange(index, e.target.value)}
+              />
+            ) : (
+              <input
+                value={values[index] ?? ''}
+                onChange={(e) => handleChange(index, e.target.value)}
+              />
+            )}
+          </label>
+        ))}
+        <div className="btns">
+          <button type="button" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={config.danger ? 'danger' : 'primary'}
+          >
+            {config.ok || 'OK'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function ManagePage() {
   const { onUnauthorized } = useOutletContext();
   const onUnauthorizedRef = useRef(onUnauthorized);
@@ -109,38 +182,22 @@ export default function ManagePage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastVisible, setToastVisible] = useState(false);
-  const [dialogConfig, setDialogConfig] = useState(null);
-  const [dialogValues, setDialogValues] = useState([]);
+  const [toast, setToast] = useState({ message: '', visible: false });
+  const [dialog, setDialog] = useState(null);
 
   useEffect(() => {
     onUnauthorizedRef.current = onUnauthorized;
   }, [onUnauthorized]);
 
   useEffect(() => {
-    return () => {
-      clearTimeout(toastTimerRef.current);
-    };
+    return () => clearTimeout(toastTimerRef.current);
   }, []);
 
-  useEffect(() => {
-    if (!dialogConfig) return;
-    function onKeyDown(e) {
-      if (e.key === 'Escape') {
-        setDialogConfig(null);
-      }
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [dialogConfig]);
-
-  function showToast(msg) {
-    setToastMessage(msg);
-    setToastVisible(true);
+  function showToast(message) {
+    setToast({ message, visible: true });
     clearTimeout(toastTimerRef.current);
     toastTimerRef.current = setTimeout(() => {
-      setToastVisible(false);
+      setToast((prev) => ({ ...prev, visible: false }));
     }, 2400);
   }
 
@@ -153,62 +210,57 @@ export default function ManagePage() {
     return false;
   }
 
-  function openDialog(config) {
-    setDialogValues((config.fields || []).map((f) => f.value || ''));
-    setDialogConfig(config);
-  }
-
-  async function loadDeckTreeAndCards(preferredDeckId = null, initial = false) {
-    if (initial) setLoading(true);
+  async function loadWorkspace(preferredDeckId = null, isInitial = false) {
+    if (isInitial) setLoading(true);
     try {
       const deckList = await listDecks();
       setDecks(deckList);
 
       const subEntries = await Promise.all(
-        deckList.map(async (d) => [d.id, await listSubdecks(d.id)]),
+        deckList.map(async (deck) => [deck.id, await listSubdecks(deck.id)]),
       );
       const subMap = Object.fromEntries(subEntries);
       setSubdecksByDeck(subMap);
 
       const rootCardEntries = await Promise.all(
-        deckList.map(async (d) => [d.id, await listCards(d.id, null)]),
+        deckList.map(async (deck) => [deck.id, await listCards(deck.id, null)]),
       );
       setRootCardsByDeck(Object.fromEntries(rootCardEntries));
 
       const subCardEntries = [];
-      for (const d of deckList) {
-        for (const s of subMap[d.id] || []) {
-          subCardEntries.push([s.id, await listCards(d.id, s.id)]);
+      for (const deck of deckList) {
+        for (const sub of subMap[deck.id] || []) {
+          subCardEntries.push([sub.id, await listCards(deck.id, sub.id)]);
         }
       }
       setSubdeckCardsById(Object.fromEntries(subCardEntries));
 
       setSelectedDeckId((current) => {
         if (preferredDeckId) return preferredDeckId;
-        const allIds = [
+        const validIds = [
           ...deckList.map((d) => d.id),
           ...Object.values(subMap)
             .flat()
             .map((s) => s.id),
         ];
-        if (current && allIds.includes(current)) return current;
-        return deckList[0]?.id ?? '';
+        if (current && validIds.includes(current)) return current;
+        return '';
       });
     } catch (err) {
       handleApiError(err);
     } finally {
-      if (initial) setLoading(false);
+      if (isInitial) setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadDeckTreeAndCards(null, true);
+    loadWorkspace(null, true);
   }, []);
 
   const subdeckToParent = {};
-  for (const d of decks) {
-    for (const s of subdecksByDeck[d.id] || []) {
-      subdeckToParent[s.id] = d.id;
+  for (const deck of decks) {
+    for (const sub of subdecksByDeck[deck.id] || []) {
+      subdeckToParent[sub.id] = deck.id;
     }
   }
 
@@ -238,22 +290,21 @@ export default function ManagePage() {
     return null;
   }
 
-  function getSubdecksOf(id) {
-    if (!id || subdeckToParent[id]) return [];
-    return (subdecksByDeck[id] || []).map((s) => ({
+  function getSubdecksOf(deckId) {
+    if (!deckId || subdeckToParent[deckId]) return [];
+    return (subdecksByDeck[deckId] || []).map((s) => ({
       id: s.id,
       name: s.subdeckname,
-      parentId: id,
+      parentId: deckId,
       isSubdeck: true,
     }));
   }
 
   function getDirectCardCount(id) {
     if (!id) return 0;
-    if (subdeckToParent[id]) {
-      return (subdeckCardsById[id] || []).length;
-    }
-    return (rootCardsByDeck[id] || []).length;
+    return subdeckToParent[id]
+      ? (subdeckCardsById[id] || []).length
+      : (rootCardsByDeck[id] || []).length;
   }
 
   function getTotalCardCount(id) {
@@ -263,10 +314,14 @@ export default function ManagePage() {
     }
     const direct = (rootCardsByDeck[id] || []).length;
     const subTotal = (subdecksByDeck[id] || []).reduce(
-      (sum, s) => sum + (subdeckCardsById[s.id] || []).length,
+      (sum, sub) => sum + (subdeckCardsById[sub.id] || []).length,
       0,
     );
     return direct + subTotal;
+  }
+
+  function toggleDeckOpen(deckId) {
+    setOpenDecks((prev) => ({ ...prev, [deckId]: !prev[deckId] }));
   }
 
   async function handleCreateDeck(e) {
@@ -278,7 +333,7 @@ export default function ManagePage() {
     try {
       const created = await createDeck(trimmed, null);
       setNewDeckName('');
-      await loadDeckTreeAndCards(created.id);
+      await loadWorkspace(created.id);
       showToast('Deck created');
     } catch (err) {
       handleApiError(err);
@@ -295,7 +350,7 @@ export default function ManagePage() {
     try {
       const created = await createSubdeck(parentId, trimmed);
       setOpenDecks((prev) => ({ ...prev, [parentId]: true }));
-      await loadDeckTreeAndCards(created.id);
+      await loadWorkspace(created.id);
       showToast('Subdeck added');
     } catch (err) {
       handleApiError(err);
@@ -308,7 +363,7 @@ export default function ManagePage() {
     const item = findItem(selectedDeckId);
     if (!item) return;
 
-    openDialog({
+    setDialog({
       title: item.isSubdeck ? 'Rename subdeck' : 'Rename deck',
       fields: [{ label: 'Name', value: item.name }],
       ok: 'Save',
@@ -324,7 +379,7 @@ export default function ManagePage() {
           } else {
             await updateDeck(item.id, { deckname: trimmed });
           }
-          await loadDeckTreeAndCards(item.id);
+          await loadWorkspace(item.id);
           showToast('Renamed');
         } catch (err) {
           handleApiError(err);
@@ -342,7 +397,7 @@ export default function ManagePage() {
     const subs = item.isSubdeck ? [] : getSubdecksOf(item.id);
     const cnt = getTotalCardCount(item.id);
 
-    openDialog({
+    setDialog({
       title: item.isSubdeck ? 'Delete subdeck?' : 'Delete deck?',
       message: `This deletes ‘${item.name}’${
         !item.isSubdeck && subs.length > 0 ? ', its subdecks,' : ''
@@ -354,10 +409,10 @@ export default function ManagePage() {
         try {
           if (item.isSubdeck) {
             await deleteSubdeck(item.parentId, item.id);
-            await loadDeckTreeAndCards(item.parentId);
+            await loadWorkspace(item.parentId);
           } else {
             await deleteDeck(item.id);
-            await loadDeckTreeAndCards(null);
+            await loadWorkspace(null);
           }
           showToast(item.isSubdeck ? 'Subdeck deleted' : 'Deck deleted');
         } catch (err) {
@@ -378,7 +433,6 @@ export default function ManagePage() {
 
     const rootDeckId = item.isSubdeck ? item.parentId : item.id;
     const subdeckId = item.isSubdeck ? item.id : null;
-    const existingCount = getDirectCardCount(item.id);
 
     setSaving(true);
     try {
@@ -387,12 +441,12 @@ export default function ManagePage() {
         back_text: back,
         front_image: null,
         back_image: null,
-        position: existingCount,
+        position: getDirectCardCount(item.id),
         subdeck_id: subdeckId,
       });
       setFrontText('');
       setBackText('');
-      await loadDeckTreeAndCards(item.id);
+      await loadWorkspace(item.id);
       showToast('Card added');
     } catch (err) {
       handleApiError(err);
@@ -405,14 +459,12 @@ export default function ManagePage() {
     const item = findItem(selectedDeckId);
     if (!item) return;
     const rootDeckId = item.isSubdeck ? item.parentId : item.id;
-    const currentFront = getCardSideText(card, 'front');
-    const currentBack = getCardSideText(card, 'back');
 
-    openDialog({
+    setDialog({
       title: 'Edit card',
       fields: [
-        { label: 'Front', value: currentFront, multiline: true },
-        { label: 'Back', value: currentBack, multiline: true },
+        { label: 'Front', value: getCardSideText(card, 'front'), multiline: true },
+        { label: 'Back', value: getCardSideText(card, 'back'), multiline: true },
       ],
       ok: 'Save',
       onSubmit: async ([nextFront, nextBack]) => {
@@ -425,7 +477,7 @@ export default function ManagePage() {
             front_text: f,
             back_text: b,
           });
-          await loadDeckTreeAndCards(item.id);
+          await loadWorkspace(item.id);
           showToast('Card updated');
         } catch (err) {
           handleApiError(err);
@@ -444,7 +496,7 @@ export default function ManagePage() {
     setSaving(true);
     try {
       await deleteCard(rootDeckId, cardId);
-      await loadDeckTreeAndCards(item.id);
+      await loadWorkspace(item.id);
       showToast('Card deleted');
     } catch (err) {
       handleApiError(err);
@@ -461,8 +513,7 @@ export default function ManagePage() {
 
     setSaving(true);
     try {
-      const text = await file.text();
-      const rows = parseCSV(text);
+      const rows = parseCSV(await file.text());
       if (!rows.length) {
         showToast('That file has no rows');
         return;
@@ -496,7 +547,7 @@ export default function ManagePage() {
           }
         }
 
-        const pos = targetSubdeckId
+        const position = targetSubdeckId
           ? (subdeckCardsById[targetSubdeckId] || []).length + imported
           : (rootCardsByDeck[rootDeckId] || []).length + imported;
 
@@ -505,7 +556,7 @@ export default function ManagePage() {
           back_text: bk,
           front_image: null,
           back_image: null,
-          position: pos,
+          position,
           subdeck_id: targetSubdeckId,
         });
         imported += 1;
@@ -514,7 +565,7 @@ export default function ManagePage() {
       if (!item.isSubdeck) {
         setOpenDecks((prev) => ({ ...prev, [rootDeckId]: true }));
       }
-      await loadDeckTreeAndCards(item.id);
+      await loadWorkspace(item.id);
       showToast(
         `Imported ${imported} card${imported === 1 ? '' : 's'}${
           skipped
@@ -527,81 +578,6 @@ export default function ManagePage() {
     } finally {
       setSaving(false);
     }
-  }
-
-  function renderTreeNodes(parentId = null) {
-    if (parentId !== null) {
-      const subs = getSubdecksOf(parentId);
-      if (!subs.length) return null;
-      return (
-        <ul>
-          {subs.map((s) => (
-            <li key={s.id}>
-              <div
-                className={`node${selectedDeckId === s.id ? ' sel' : ''}`}
-                onClick={() => setSelectedDeckId(s.id)}
-              >
-                <span className="caret" />
-                <span className="name">{s.name}</span>
-                <span className="count">{getTotalCardCount(s.id)}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      );
-    }
-
-    if (!decks.length) {
-      return <p className="hint">No decks yet. Add one above.</p>;
-    }
-
-    return (
-      <ul>
-        {decks.map((d) => {
-          const subs = getSubdecksOf(d.id);
-          const hasKids = subs.length > 0;
-          const isOpen = !!openDecks[d.id];
-          return (
-            <li key={d.id}>
-              <div
-                className={`node${selectedDeckId === d.id ? ' sel' : ''}`}
-                onClick={() => setSelectedDeckId(d.id)}
-              >
-                <span
-                  className="caret"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDecks((prev) => ({ ...prev, [d.id]: !prev[d.id] }));
-                  }}
-                >
-                  {hasKids ? (isOpen ? '▾' : '▸') : ''}
-                </span>
-                <span className="name">{d.deckname}</span>
-                <span className="count">{getTotalCardCount(d.id)}</span>
-                <button
-                  type="button"
-                  className="link add"
-                  title="Add subdeck"
-                  aria-label={`Add subdeck to ${d.deckname}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openDialog({
-                      title: 'New subdeck',
-                      fields: [{ label: 'Name' }],
-                      ok: 'Add subdeck',
-                      onSubmit: ([name]) => handleAddSubdeck(d.id, name),
-                    });
-                  }}
-                >
-                  +
-                </button>
-              </div>
-              {hasKids && isOpen && renderTreeNodes(d.id)}
-            </li>
-          );
-        })}
-      </ul>
-    );
   }
 
   const selectedItem = findItem(selectedDeckId);
@@ -638,8 +614,81 @@ export default function ManagePage() {
             Add
           </button>
         </form>
+
         <div className="tree" id="tree">
-          {loading ? <p className="hint">Loading decks…</p> : renderTreeNodes(null)}
+          {loading ? (
+            <p className="hint">Loading decks…</p>
+          ) : decks.length === 0 ? (
+            <p className="hint">No decks yet. Add one above.</p>
+          ) : (
+            <ul>
+              {decks.map((deck) => {
+                const subs = getSubdecksOf(deck.id);
+                const hasKids = subs.length > 0;
+                const isOpen = !!openDecks[deck.id];
+
+                return (
+                  <li key={deck.id}>
+                    <div
+                      className={`node${selectedDeckId === deck.id ? ' sel' : ''}`}
+                      onClick={() => setSelectedDeckId(deck.id)}
+                    >
+                      <span
+                        className="caret"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDeckOpen(deck.id);
+                        }}
+                      >
+                        {hasKids ? (isOpen ? '▾' : '▸') : ''}
+                      </span>
+                      <span className="name">{deck.deckname}</span>
+                      <span className="count">{getTotalCardCount(deck.id)}</span>
+                      <button
+                        type="button"
+                        className="link add"
+                        title="Add subdeck"
+                        aria-label={`Add subdeck to ${deck.deckname}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDialog({
+                            title: 'New subdeck',
+                            fields: [{ label: 'Name' }],
+                            ok: 'Add subdeck',
+                            onSubmit: ([name]) =>
+                              handleAddSubdeck(deck.id, name),
+                          });
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {hasKids && isOpen && (
+                      <ul>
+                        {subs.map((sub) => (
+                          <li key={sub.id}>
+                            <div
+                              className={`node${
+                                selectedDeckId === sub.id ? ' sel' : ''
+                              }`}
+                              onClick={() => setSelectedDeckId(sub.id)}
+                            >
+                              <span className="caret" />
+                              <span className="name">{sub.name}</span>
+                              <span className="count">
+                                {getTotalCardCount(sub.id)}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </aside>
 
@@ -704,21 +753,21 @@ export default function ManagePage() {
                 <h3>Subdecks</h3>
                 {subdecks.length > 0 && (
                   <div>
-                    {subdecks.map((s) => (
+                    {subdecks.map((sub) => (
                       <button
                         type="button"
-                        key={s.id}
+                        key={sub.id}
                         className="sub"
                         onClick={() => {
-                          setSelectedDeckId(s.id);
+                          setSelectedDeckId(sub.id);
                           setOpenDecks((prev) => ({
                             ...prev,
                             [selectedItem.id]: true,
                           }));
                         }}
                       >
-                        {s.name}{' '}
-                        <span className="count">{getTotalCardCount(s.id)}</span>
+                        {sub.name}{' '}
+                        <span className="count">{getTotalCardCount(sub.id)}</span>
                       </button>
                     ))}
                   </div>
@@ -815,20 +864,20 @@ export default function ManagePage() {
 
             <h3>Cards</h3>
             {displayedCards.length ? (
-              displayedCards.map((c) => (
-                <div className="card" key={c.id}>
+              displayedCards.map((card) => (
+                <div className="card" key={card.id}>
                   <div className="f">
-                    {getCardSideText(c, 'front') || 'Image card'}
+                    {getCardSideText(card, 'front') || 'Image card'}
                   </div>
                   <div className="b">
-                    {getCardSideText(c, 'back') || 'Image card'}
+                    {getCardSideText(card, 'back') || 'Image card'}
                   </div>
                   <div className="row">
                     <button
                       type="button"
                       className="link"
                       disabled={saving}
-                      onClick={() => handleEditCard(c)}
+                      onClick={() => handleEditCard(card)}
                     >
                       Edit
                     </button>
@@ -836,7 +885,7 @@ export default function ManagePage() {
                       type="button"
                       className="link del"
                       disabled={saving}
-                      onClick={() => handleDeleteCard(c.id)}
+                      onClick={() => handleDeleteCard(card.id)}
                     >
                       Delete
                     </button>
@@ -860,74 +909,15 @@ export default function ManagePage() {
       />
 
       <div
-        className={`toast${toastVisible ? ' show' : ''}`}
+        className={`toast${toast.visible ? ' show' : ''}`}
         id="toast"
         role="status"
       >
-        {toastMessage}
+        {toast.message}
       </div>
 
-      {dialogConfig && (
-        <div
-          className="ov"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setDialogConfig(null);
-          }}
-        >
-          <form
-            className="dlg"
-            role="dialog"
-            aria-modal="true"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const vals = [...dialogValues];
-              const submitFn = dialogConfig.onSubmit;
-              setDialogConfig(null);
-              await submitFn?.(vals);
-            }}
-          >
-            <h2>{dialogConfig.title}</h2>
-            {dialogConfig.message && <p>{dialogConfig.message}</p>}
-            {(dialogConfig.fields || []).map((f, i) => (
-              <label key={f.label}>
-                {f.label}
-                {f.multiline ? (
-                  <textarea
-                    value={dialogValues[i] ?? ''}
-                    onChange={(e) => {
-                      const next = [...dialogValues];
-                      next[i] = e.target.value;
-                      setDialogValues(next);
-                    }}
-                  />
-                ) : (
-                  <input
-                    value={dialogValues[i] ?? ''}
-                    onChange={(e) => {
-                      const next = [...dialogValues];
-                      next[i] = e.target.value;
-                      setDialogValues(next);
-                    }}
-                  />
-                )}
-              </label>
-            ))}
-            <div className="btns">
-              <button
-                type="button"
-                onClick={() => setDialogConfig(null)}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className={dialogConfig.danger ? 'danger' : 'primary'}
-              >
-                {dialogConfig.ok || 'OK'}
-              </button>
-            </div>
-          </form>
-        </div>
+      {dialog && (
+        <ModalDialog config={dialog} onClose={() => setDialog(null)} />
       )}
     </div>
   );
