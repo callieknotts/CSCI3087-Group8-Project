@@ -16,17 +16,6 @@ import {
 } from '../api/decksApi';
 import './ManagePage.css';
 
-// The backend currently returns HTTP 500 when a deck has no subdecks.
-// For this endpoint only, treat that response as an empty list.
-async function getSubdecks(deckId) {
-  try {
-    return await listSubdecks(deckId);
-  } catch (err) {
-    if (err.status === 500) return [];
-    throw err;
-  }
-}
-
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -175,7 +164,7 @@ export default function ManagePage() {
       setDecks(deckList);
 
       const subEntries = await Promise.all(
-        deckList.map(async (d) => [d.id, await getSubdecks(d.id)]),
+        deckList.map(async (d) => [d.id, await listSubdecks(d.id)]),
       );
       const subMap = Object.fromEntries(subEntries);
       setSubdecksByDeck(subMap);
