@@ -97,7 +97,8 @@ export default function ManagePage() {
 
   const [decks, setDecks] = useState([]);
   const [subdecksByDeck, setSubdecksByDeck] = useState({});
-  const [cardsByDeck, setCardsByDeck] = useState({});
+  const [rootCardsByDeck, setRootCardsByDeck] = useState({});
+  const [subdeckCardsById, setSubdeckCardsById] = useState({});
   const [selectedDeckId, setSelectedDeckId] = useState('');
   const [openDecks, setOpenDecks] = useState({});
 
@@ -157,8 +158,8 @@ export default function ManagePage() {
     setDialogConfig(config);
   }
 
-  async function loadDeckTreeAndCards(preferredDeckId = null) {
-    setLoading(true);
+  async function loadDeckTreeAndCards(preferredDeckId = null, initial = false) {
+    if (initial) setLoading(true);
     try {
       const deckList = await listDecks();
       setDecks(deckList);
@@ -169,17 +170,18 @@ export default function ManagePage() {
       const subMap = Object.fromEntries(subEntries);
       setSubdecksByDeck(subMap);
 
-      const cardEntries = await Promise.all(
-        deckList.map(async (d) => {
-          const deckCards = await listCards(d.id, null);
-          const subs = subMap[d.id] || [];
-          const subCardsLists = await Promise.all(
-            subs.map((s) => listCards(d.id, s.id)),
-          );
-          return [d.id, [...deckCards, ...subCardsLists.flat()]];
-        }),
+      const rootCardEntries = await Promise.all(
+        deckList.map(async (d) => [d.id, await listCards(d.id, null)]),
       );
-      setCardsByDeck(Object.fromEntries(cardEntries));
+      setRootCardsByDeck(Object.fromEntries(rootCardEntries));
+
+      const subCardEntries = [];
+      for (const d of deckList) {
+        for (const s of subMap[d.id] || []) {
+          subCardEntries.push([s.id, await listCards(d.id, s.id)]);
+        }
+      }
+      setSubdeckCardsById(Object.fromEntries(subCardEntries));
 
       setSelectedDeckId((current) => {
         if (preferredDeckId) return preferredDeckId;
@@ -195,19 +197,16 @@ export default function ManagePage() {
     } catch (err) {
       handleApiError(err);
     } finally {
-      setLoading(false);
+      if (initial) setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadDeckTreeAndCards();
+    loadDeckTreeAndCards(null, true);
   }, []);
 
-  // Build unified lookup for root decks and subdecks.
   const subdeckToParent = {};
-  const subdecksByParent = {};
   for (const d of decks) {
-    subdecksByParent[d.id] = subdecksByDeck[d.id] || [];
     for (const s of subdecksByDeck[d.id] || []) {
       subdeckToParent[s.id] = d.id;
     }
@@ -222,7 +221,6 @@ export default function ManagePage() {
         name: rootDeck.deckname,
         parentId: null,
         isSubdeck: false,
-        raw: rootDeck,
       };
     }
     const parentId = subdeckToParent[id];
@@ -234,7 +232,6 @@ export default function ManagePage() {
           name: sub.subdeckname,
           parentId,
           isSubdeck: true,
-          raw: sub,
         };
       }
     }
@@ -248,19 +245,28 @@ export default function ManagePage() {
       name: s.subdeckname,
       parentId: id,
       isSubdeck: true,
-      raw: s,
     }));
   }
 
-  function getCardCount(id) {
+  function getDirectCardCount(id) {
     if (!id) return 0;
     if (subdeckToParent[id]) {
-      const parentId = subdeckToParent[id];
-      return (cardsByDeck[parentId] || []).filter(
-        (c) => (c.subdeck_id ?? c.subdeckId ?? null) === id,
-      ).length;
+      return (subdeckCardsById[id] || []).length;
     }
-    return (cardsByDeck[id] || []).length;
+    return (rootCardsByDeck[id] || []).length;
+  }
+
+  function getTotalCardCount(id) {
+    if (!id) return 0;
+    if (subdeckToParent[id]) {
+      return (subdeckCardsById[id] || []).length;
+    }
+    const direct = (rootCardsByDeck[id] || []).length;
+    const subTotal = (subdecksByDeck[id] || []).reduce(
+      (sum, s) => sum + (subdeckCardsById[s.id] || []).length,
+      0,
+    );
+    return direct + subTotal;
   }
 
   async function handleCreateDeck(e) {
@@ -334,11 +340,11 @@ export default function ManagePage() {
     if (!item) return;
 
     const subs = item.isSubdeck ? [] : getSubdecksOf(item.id);
-    const cnt = getCardCount(item.id);
+    const cnt = getTotalCardCount(item.id);
 
     openDialog({
       title: item.isSubdeck ? 'Delete subdeck?' : 'Delete deck?',
-      message: `This deletes '${item.name}'${
+      message: `This deletes ‘${item.name}’${
         !item.isSubdeck && subs.length > 0 ? ', its subdecks,' : ''
       } and ${cnt} card${cnt === 1 ? '' : 's'}. This can’t be undone.`,
       ok: 'Delete',
@@ -372,7 +378,7 @@ export default function ManagePage() {
 
     const rootDeckId = item.isSubdeck ? item.parentId : item.id;
     const subdeckId = item.isSubdeck ? item.id : null;
-    const existingCount = (cardsByDeck[rootDeckId] || []).length;
+    const existingCount = getDirectCardCount(item.id);
 
     setSaving(true);
     try {
@@ -464,7 +470,6 @@ export default function ManagePage() {
 
       const rootDeckId = item.isSubdeck ? item.parentId : item.id;
       const currentSubs = [...(subdecksByDeck[rootDeckId] || [])];
-      let positionBase = (cardsByDeck[rootDeckId] || []).length;
       let imported = 0;
       let skipped = 0;
 
@@ -491,12 +496,16 @@ export default function ManagePage() {
           }
         }
 
+        const pos = targetSubdeckId
+          ? (subdeckCardsById[targetSubdeckId] || []).length + imported
+          : (rootCardsByDeck[rootDeckId] || []).length + imported;
+
         await createCard(rootDeckId, {
           front_text: fr,
           back_text: bk,
           front_image: null,
           back_image: null,
-          position: positionBase + imported,
+          position: pos,
           subdeck_id: targetSubdeckId,
         });
         imported += 1;
@@ -534,7 +543,7 @@ export default function ManagePage() {
               >
                 <span className="caret" />
                 <span className="name">{s.name}</span>
-                <span className="count">{getCardCount(s.id)}</span>
+                <span className="count">{getTotalCardCount(s.id)}</span>
               </div>
             </li>
           ))}
@@ -568,7 +577,7 @@ export default function ManagePage() {
                   {hasKids ? (isOpen ? '▾' : '▸') : ''}
                 </span>
                 <span className="name">{d.deckname}</span>
-                <span className="count">{getCardCount(d.id)}</span>
+                <span className="count">{getTotalCardCount(d.id)}</span>
                 <button
                   type="button"
                   className="link add"
@@ -607,23 +616,16 @@ export default function ManagePage() {
       : [];
   const displayedCards = selectedItem
     ? selectedItem.isSubdeck
-      ? (cardsByDeck[selectedItem.parentId] || []).filter(
-          (c) => (c.subdeck_id ?? c.subdeckId ?? null) === selectedItem.id,
-        )
-      : cardsByDeck[selectedItem.id] || []
+      ? subdeckCardsById[selectedItem.id] || []
+      : rootCardsByDeck[selectedItem.id] || []
     : [];
-  const totalInSelection = selectedItem ? getCardCount(selectedItem.id) : 0;
+  const totalInSelection = selectedItem ? getTotalCardCount(selectedItem.id) : 0;
 
   return (
     <div className="app manage-page">
       <aside>
         <h1>Decks</h1>
-        <form
-          id="newDeck"
-          className="row"
-          style={{ marginBottom: '14px' }}
-          onSubmit={handleCreateDeck}
-        >
+        <form id="newDeck" className="row" onSubmit={handleCreateDeck}>
           <input
             id="newDeckName"
             placeholder="New deck name"
@@ -652,7 +654,9 @@ export default function ManagePage() {
             {selectedItem.isSubdeck && rootDeckItem && (
               <div className="crumbs">
                 <a
-                  onClick={() => {
+                  href={`#deck-${rootDeckItem.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
                     setSelectedDeckId(rootDeckItem.id);
                     setOpenDecks((prev) => ({
                       ...prev,
@@ -666,10 +670,7 @@ export default function ManagePage() {
               </div>
             )}
 
-            <div
-              className="row"
-              style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}
-            >
+            <div className="row main-header-row">
               <h2>{selectedItem.name}</h2>
               <div className="row">
                 <button
@@ -716,15 +717,15 @@ export default function ManagePage() {
                           }));
                         }}
                       >
-                        {s.name} <span className="count">{getCardCount(s.id)}</span>
+                        {s.name}{' '}
+                        <span className="count">{getTotalCardCount(s.id)}</span>
                       </button>
                     ))}
                   </div>
                 )}
                 <form
                   id="subForm"
-                  className="row"
-                  style={{ maxWidth: '420px', marginTop: '6px' }}
+                  className="row subdeck-form"
                   onSubmit={async (e) => {
                     e.preventDefault();
                     await handleAddSubdeck(selectedItem.id, subdeckName);
@@ -747,7 +748,7 @@ export default function ManagePage() {
             )}
 
             <h3>Add a card</h3>
-            <p className="hint" style={{ margin: '0 0 10px' }}>
+            <p className="hint card-target-hint">
               Deck: <strong>{rootDeckItem?.name}</strong>
               {selectedItem.isSubdeck && (
                 <>
@@ -788,7 +789,7 @@ export default function ManagePage() {
 
             <h3>Import from CSV</h3>
             <div className="panel">
-              <div className="row" style={{ flexWrap: 'wrap' }}>
+              <div className="row csv-row">
                 <button
                   type="button"
                   id="pick"
@@ -797,7 +798,7 @@ export default function ManagePage() {
                 >
                   Choose CSV file
                 </button>
-                <span className="hint" style={{ margin: 0 }}>
+                <span className="hint csv-target-hint">
                   Cards go into ‘{selectedItem.name}’.
                 </span>
               </div>
