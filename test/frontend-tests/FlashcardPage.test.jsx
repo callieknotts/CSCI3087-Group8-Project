@@ -57,9 +57,9 @@ function renderAt(address) {
     );
 }
 
-// the text currently on the card
+// the text on the face of the card that is showing (the other face is turned away, aria-hidden)
 function cardText() {
-    return document.querySelector('.flash-text').textContent;
+    return document.querySelector('.flash-face[aria-hidden="false"] .flash-text').textContent;
 }
 
 test('Starts on the front of the first card', async () => {
@@ -68,7 +68,42 @@ test('Starts on the front of the first card', async () => {
 
     expect(await screen.findByText('Front one')).toBeInTheDocument();
     expect(screen.getByText('1 / 3')).toBeInTheDocument();
-    expect(screen.queryByText('Back one')).not.toBeInTheDocument();
+    // both faces are on the card, but the back is turned away and hidden from screen readers
+    expect(document.querySelector('.flash-face--front')).toHaveAttribute('aria-hidden', 'false');
+    expect(document.querySelector('.flash-face--back')).toHaveAttribute('aria-hidden', 'true');
+});
+
+test('Flipping turns the card around (it spins) and flipping again turns it back', async () => {
+    const user = userEvent.setup();
+    fakeBackend();
+    renderAt('/decks/b/flashcards');
+    await screen.findByText('Front one');
+    const spinningCard = document.querySelector('.flash-card');
+
+    expect(spinningCard).not.toHaveClass('flash-card--flipped');
+    await user.keyboard(' ');
+    expect(spinningCard).toHaveClass('flash-card--flipped');
+    expect(document.querySelector('.flash-face--back')).toHaveAttribute('aria-hidden', 'false');
+    expect(document.querySelector('.flash-face--front')).toHaveAttribute('aria-hidden', 'true');
+
+    await user.keyboard(' ');
+    expect(spinningCard).not.toHaveClass('flash-card--flipped');
+});
+
+test('Moving to the next card shows its front without playing the flip animation', async () => {
+    const user = userEvent.setup();
+    fakeBackend();
+    renderAt('/decks/b/flashcards');
+    await screen.findByText('Front one');
+    const spinningCard = document.querySelector('.flash-card');
+
+    await user.keyboard(' '); // flipped to the back of card 1
+    await user.keyboard('{ArrowRight}');
+
+    // otherwise the next card's answer would be seen spinning past
+    expect(spinningCard).toHaveClass('flash-card--instant');
+    expect(spinningCard).not.toHaveClass('flash-card--flipped');
+    await waitFor(() => expect(spinningCard).not.toHaveClass('flash-card--instant'));
 });
 
 test('Space flips to the back and flips back again', async () => {
@@ -168,6 +203,24 @@ test('Starring a card is remembered and does not flip the card', async () => {
 
     await user.click(screen.getByRole('button', {name: 'Remove star from this card'}));
     expect(JSON.parse(localStorage.getItem('rebelreview:starred:u1'))).toEqual([]);
+});
+
+test('After clicking the star or a nav button, the space bar still flips the card', async () => {
+    const user = userEvent.setup();
+    fakeBackend();
+    renderAt('/decks/b/flashcards');
+    await screen.findByText('Front one');
+
+    await user.click(screen.getByRole('button', {name: 'Star this card'}));
+    await user.keyboard(' ');
+
+    // it flipped, and did not un-star the card
+    expect(cardText()).toBe('Back one');
+    expect(screen.getByRole('button', {name: 'Remove star from this card'})).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', {name: 'Next card'}));
+    await user.keyboard(' ');
+    expect(cardText()).toBe('Back two');
 });
 
 test('A whole deck asks the backend for every card, with no subdeck filter', async () => {

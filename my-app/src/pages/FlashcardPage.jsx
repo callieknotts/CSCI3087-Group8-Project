@@ -111,6 +111,7 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
   const [index, setIndex] = useState(0); // which card is showing
   const [flipped, setFlipped] = useState(false); // false = front, true = back
   const [starred, setStarred] = useState(() => loadStarred(userId));
+  const [instant, setInstant] = useState(false); // true for one frame: change cards without the flip animation
 
   const card = cards[index];
   const last = cards.length - 1;
@@ -124,11 +125,19 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
     (step) => {
       const target = index + step;
       if (target < 0 || target > last) return;
+      setInstant(true); // a new card appears on its front straight away, without spinning
       setIndex(target);
       setFlipped(false);
     },
     [index, last],
   );
+
+  // Turn the flip animation back on after the new card has been drawn.
+  useEffect(() => {
+    if (!instant) return undefined;
+    const frame = requestAnimationFrame(() => setInstant(false));
+    return () => cancelAnimationFrame(frame);
+  }, [instant]);
 
   // Star or un-star the current card, and remember it.
   function toggleStar() {
@@ -137,6 +146,14 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
     else next.add(card.id);
     setStarred(next);
     saveStarred(userId, next);
+  }
+
+  // After a mouse click on a button, take focus off it. Otherwise the space bar would press
+  // that same button again (for example un-star the card) instead of flipping the card.
+  // A click made with the keyboard (detail 0) keeps its focus, so keyboard users can still
+  // press buttons with space or Enter.
+  function releaseFocusAfterMouseClick(event) {
+    if (event.detail > 0) event.currentTarget.blur();
   }
 
   // Keyboard: space or up arrow flips, right arrow is next, left arrow is previous.
@@ -169,11 +186,14 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [flip, go]);
 
-  const side = flipped ? card.content?.back : card.content?.front;
-
   return (
     <main className="flash">
-      {/* thin bar across the top showing how far through the cards you are */}
+      <Link className="flash-back" to={backTo}>
+        ← {backLabel}
+      </Link>
+      <h1 className="flash-title">{title}</h1>
+
+      {/* bar showing how far through the cards you are */}
       <div
         className="flash-progress"
         role="progressbar"
@@ -185,64 +205,69 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
         <span style={{ width: `${((index + 1) / cards.length) * 100}%` }} />
       </div>
 
-      <div className="flash-top">
-        <Link className="flash-back" to={backTo}>
-          ← {backLabel}
-        </Link>
-        <h1 className="flash-title">{title}</h1>
-      </div>
-
-      {/* the card: click it to flip. The star sits on it but does not flip it. */}
-      <div
-        className="flash-card"
-        role="button"
-        tabIndex={0}
-        aria-label={`Card ${index + 1} of ${cards.length}, showing the ${flipped ? 'back' : 'front'}. Click to flip.`}
-        onClick={flip}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') flip();
-        }}
-      >
-        <div className="flash-card-head">
-          <span className="flash-side">{flipped ? 'Back' : 'Front'}</span>
-          <span className="flash-count">
-            {index + 1} / {cards.length}
-          </span>
-          <button
-            type="button"
-            className={`flash-star${isStarred ? ' flash-star--on' : ''}`}
-            aria-pressed={isStarred}
-            aria-label={isStarred ? 'Remove star from this card' : 'Star this card'}
-            onClick={(event) => {
-              event.stopPropagation();
-              toggleStar();
-            }}
-          >
-            {isStarred ? '★' : '☆'}
-          </button>
+      {/* the stage holds the 3D space the card spins in, and the star on top of it */}
+      <div className="flash-stage">
+        {/* the card: click it to flip. It has two faces, and flipping spins it around. */}
+        <div
+          className={`flash-card${flipped ? ' flash-card--flipped' : ''}${instant ? ' flash-card--instant' : ''}`}
+          role="button"
+          tabIndex={0}
+          aria-label={`Card ${index + 1} of ${cards.length}, showing the ${flipped ? 'back' : 'front'}. Click to flip.`}
+          onClick={flip}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') flip();
+          }}
+        >
+          <div className="flash-face flash-face--front" aria-hidden={flipped}>
+            <span className="flash-side">Front</span>
+            <p className="flash-text">{sideText(card.content?.front)}</p>
+          </div>
+          <div className="flash-face flash-face--back" aria-hidden={!flipped}>
+            <span className="flash-side">Back</span>
+            <p className="flash-text">{sideText(card.content?.back)}</p>
+          </div>
         </div>
 
-        <p className="flash-text" aria-live="polite">
-          {sideText(side)}
-        </p>
+        {/* the star sits on the card's corner but is not part of the spinning card */}
+        <button
+          type="button"
+          className={`flash-star${isStarred ? ' flash-star--on' : ''}`}
+          aria-pressed={isStarred}
+          aria-label={isStarred ? 'Remove star from this card' : 'Star this card'}
+          onClick={(event) => {
+            releaseFocusAfterMouseClick(event);
+            toggleStar();
+          }}
+        >
+          {isStarred ? '★' : '☆'}
+        </button>
       </div>
 
-      {/* previous / next card buttons */}
+      {/* previous button, "2 / 4", next button */}
       <div className="flash-nav">
         <button
           type="button"
           className="flash-arrow"
           aria-label="Previous card"
-          onClick={() => go(-1)}
+          onClick={(event) => {
+            releaseFocusAfterMouseClick(event);
+            go(-1);
+          }}
           disabled={index === 0}
         >
           ←
         </button>
+        <span className="flash-count">
+          {index + 1} / {cards.length}
+        </span>
         <button
           type="button"
           className="flash-arrow"
           aria-label="Next card"
-          onClick={() => go(1)}
+          onClick={(event) => {
+            releaseFocusAfterMouseClick(event);
+            go(1);
+          }}
           disabled={index === last}
         >
           →
