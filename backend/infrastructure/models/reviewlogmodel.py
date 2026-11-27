@@ -1,18 +1,15 @@
 
-import uuid
-
-from datetime import datetime
-from enum import Enum
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from sqlalchemy import (
-    DateTime,
     Float,
+    DateTime,
     ForeignKey,
+    Index,
     Enum as SQLAlchemyEnum,
-    func,
-    Index
 )
-from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from infrastructure.database import Base
@@ -23,49 +20,57 @@ class ReviewLogModel(Base):
     __tablename__ = "review_logs"
 
     __table_args__ = (
-        Index("ix_review_logs_user_reviewed", "user_id", "reviewed_at"),
-        Index("ix_review_logs_card_reviewed", "card_id", "reviewed_at"),
+        Index(
+            "ix_review_logs_user_card_reviewed",
+            "user_id",
+            "card_id",
+            "reviewed_at"
+        ),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        SQLAlchemyUUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4
+        default=uuid4
     )
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        SQLAlchemyUUID(as_uuid=True),
+    user_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False
     )
 
-    card_id: Mapped[uuid.UUID] = mapped_column(
-        SQLAlchemyUUID(as_uuid=True),
+    card_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
         ForeignKey("cards.id", ondelete="CASCADE"),
         nullable=False
     )
 
     rating: Mapped[Rating] = mapped_column(
-        SQLAlchemyEnum(
-            Rating,
-            name="review_rating",
-            values_callable=lambda enum: [item.value for item in enum]
-        ),
+        SQLAlchemyEnum(Rating, name="review_rating"),
         nullable=False
     )
 
     reviewed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
     )
 
     previous_interval: Mapped[float] = mapped_column(
         Float,
-        nullable=False
+        nullable=False,
+        default=0.0
     )
 
     next_interval: Mapped[float] = mapped_column(
         Float,
-        nullable=False
+        nullable=False,
+        default=0.0
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
     )

@@ -1,58 +1,100 @@
-import uuid
-from datetime import datetime
+
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from sqlalchemy import (
-    String,
+    Float,
+    Integer,
     DateTime,
     ForeignKey,
-    func,
-    Enum as SAEnum
+    UniqueConstraint,
+    Index,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from infrastructure.database import Base
-from entity.deck import Visibility
 
 
-class DeckModel(Base):
-    __tablename__ = "decks"
+class ReviewStateModel(Base):
+    __tablename__ = "review_states"
 
-    id: Mapped[uuid.UUID] = mapped_column(
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "card_id",
+            name="uq_review_state_user_card"
+        ),
+        Index("ix_review_states_user_due", "user_id", "due_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        default=uuid4
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False
     )
 
-    card_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id",ondelete="CASCADE"), #very important need cascade when deleting decks
+    card_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("cards.id", ondelete="CASCADE"),
         nullable=False
     )
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id",ondelete="CASCADE"), #very important need cascade when deleting decks
-        nullable=False
+    repetitions: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0
+    )
+
+    ease_factor: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+        default=2.5
+    )
+
+    interval_days: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+        default=0.0
+    )
+
+    due_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+
+    last_reviewed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+
+    lapses: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0
+    )
+
+    learning_step: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
-    )
-
-    last_opened_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
-    )
-
-    visibility: Mapped[Visibility] = mapped_column(
-        SAEnum(
-            Visibility,
-            values_callable=lambda enum: [e.value for e in enum],
-            native_enum=False,
-            length=20
-        ),
         nullable=False,
-        default=Visibility.PRIVATE,
-        server_default=Visibility.PRIVATE.value
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
     )
