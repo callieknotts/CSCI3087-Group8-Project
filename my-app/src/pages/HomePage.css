@@ -198,3 +198,74 @@
     gap: 0.5rem;
   }
 }
+
+/* the "Flashcard mode" button in the top row: a smaller button, no wrapping */
+.library-flash-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* the panel that opens under the top row for picking what to study */
+.picker {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* its top row: the instruction, the Starred cards button and Close */
+.picker-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.picker-top p {
+  flex: 1 1 14rem;
+}
+
+/* the deck and subdeck lists inside the panel */
+.picker-list,
+.picker-subs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* one deck or subdeck: name on the left, button on the right */
+.picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+}
+
+.picker-row--sub {
+  padding-left: 1.5rem;
+}
+
+.picker-name {
+  flex: 1 1 8rem;
+  min-width: 0;
+  color: var(--text-h);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.picker-row--sub .picker-name {
+  font-weight: 500;
+}
+
+/* smaller buttons, no underline (they are links) */
+.picker .btn {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+}

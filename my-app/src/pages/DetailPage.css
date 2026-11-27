@@ -1,0 +1,154 @@
+/* styling for the deck page and the subdeck page (design tokens live in index.css) */
+
+/* the page's main box: centered, no wider than 960px, with space around it */
+.detail {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 1.5rem 1rem 4rem;
+  text-align: left;
+}
+
+/* the "back" link above the title */
+.detail-back {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+/* the title row: the name on the left, the flashcard button on the right */
+.detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.detail-head h1 {
+  font-size: 1.75rem;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+/* the flashcard buttons: Link buttons, so no underline, and a smaller size */
+.detail .btn {
+  padding: 0.45rem 1rem;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.detail-description {
+  margin-top: 0.5rem;
+}
+
+/* "12 cards · 3 subdecks" */
+.detail-meta {
+  margin: 0.5rem 0 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* centered messages: loading, errors, "no cards yet" */
+.detail-message {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+/* one subdeck (or the "no subdeck" group): a rounded box like the library's */
+.detail-section {
+  margin-bottom: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* the box's title row: the subdeck name and its flashcard button */
+.detail-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.detail-section-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.detail-section-head h2 a {
+  color: var(--text-h);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+}
+
+/* the list of cards */
+.card-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* one card: front and back side by side (stacked on narrow screens) */
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.card-side p {
+  color: var(--text-h);
+  white-space: pre-wrap; /* keeps line breaks the person typed */
+  overflow-wrap: anywhere;
+}
+
+/* the small "FRONT" / "BACK" labels */
+.card-side-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-list-empty {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* the page-level list (subdeck page) has no box around it, so give it one */
+.detail > .card-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.detail > .card-list .card-row:first-child {
+  border-top: none;
+}
+
+@media (max-width: 560px) {
+  .card-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}

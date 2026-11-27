@@ -2,7 +2,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from entity.deck import Deck
+from entity.deck import Deck, Visibility
 from infrastructure.models.usermodel import UserModel
 
 # Adjust this import to your actual repository filename.
@@ -34,7 +34,9 @@ def create_test_deck(user_id, deckname="Computer Science"):
         user_id=user_id,
         deckname=deckname,
         description="Test description",
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(timezone.utc),
+        last_opened_at=datetime.now(timezone.utc),
+        visibility=Visibility.PRIVATE
     )
 
 

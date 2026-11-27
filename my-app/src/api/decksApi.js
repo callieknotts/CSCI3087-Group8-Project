@@ -1,4 +1,3 @@
-
 const DECKS_URL = '/api/decks/';
 
 export class ApiError extends Error {
@@ -52,6 +51,12 @@ export function listDecks() {
   return request(DECKS_URL);
 }
 
+// One deck. NOTE: the backend answers 200 with an empty body (null) when the deck does
+// not exist, so callers must check for null.
+export function getDeck(deckId) {
+  return request(`${DECKS_URL}${deckId}`);
+}
+
 export function createDeck(deckname, description = null) {
   return request(DECKS_URL, {
     method: 'POST',
@@ -79,6 +84,11 @@ export function deleteDeck(deckId) {
 
 export function listSubdecks(deckId) {
   return request(`${DECKS_URL}${deckId}/subdecks/`);
+}
+
+// One subdeck. NOTE: the backend raises an error (HTTP 500) when the subdeck does not exist.
+export function getSubdeck(deckId, subdeckId) {
+  return request(`${DECKS_URL}${deckId}/subdecks/${subdeckId}`);
 }
 
 export function createSubdeck(deckId, subdeckname) {
@@ -109,6 +119,11 @@ export function deleteSubdeck(deckId, subdeckId) {
 
 // -------------------- CARDS --------------------
 
+// The cards of a deck. Without subdeckId this is EVERY card in the deck (the ones inside
+// its subdecks and the ones with no subdeck). With subdeckId it is only that subdeck's cards.
+// Each card looks like:
+//   { id, deck_id, subdeck_id, position,
+//     content: { front: { text, image_key }, back: { text, image_key } } }
 export function listCards(deckId, subdeckId = null) {
   let url = `${DECKS_URL}${deckId}/cards/`;
 

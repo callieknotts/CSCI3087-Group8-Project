@@ -1,0 +1,265 @@
+/* styling for flashcard mode. It uses the site's colors (design tokens in index.css),
+   so it follows the light and dark themes like every other page. */
+
+/* the page's main box: centered, no wider than 760px, with space around it */
+.flash {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 1.5rem 1rem 4rem;
+  text-align: left;
+}
+
+/* the "back" link above the title (same look as the deck pages) */
+.flash-back {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+/* the deck / subdeck name */
+.flash .flash-title {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+/* messages (loading, errors, no cards) */
+.flash-message {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.flash-message .btn {
+  display: inline-block;
+  margin: 0.5rem 0.25rem 0;
+  text-decoration: none;
+}
+
+/* the progress bar: a thin track with an accent-colored fill */
+.flash-progress {
+  height: 6px;
+  margin-bottom: 1.25rem;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.flash-progress span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.25s;
+}
+
+/* the 3D space the card spins in. "perspective" makes the spin look deep. */
+.flash-stage {
+  position: relative;
+  perspective: 1600px;
+}
+
+/* the card: both faces sit inside it, and flipping turns it half way around (180 degrees) */
+.flash-card {
+  position: relative;
+  height: clamp(18rem, 50vh, 26rem);
+  cursor: pointer;
+  user-select: none;
+  transform-style: preserve-3d; /* keeps both faces in 3D so the back is behind the front */
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+
+  &:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 24px;
+  }
+}
+
+/* flipped: turned around so the back face points at you */
+.flash-card--flipped {
+  transform: rotateY(180deg);
+}
+
+/* used for one moment when moving to another card, so it appears without spinning */
+.flash-card--instant {
+  transition: none;
+}
+
+/* one face of the card: fills the card, and hides itself when it faces away */
+.flash-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow-y: auto;
+}
+
+/* the back face starts turned around, so it points away until the card flips */
+.flash-face--back {
+  transform: rotateY(180deg);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+/* the small "Front" / "Back" label in the corner of each face */
+.flash-side {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* the back is labelled in the accent color, so flipping is easy to notice */
+.flash-face--back .flash-side {
+  color: var(--accent);
+}
+
+/* the text on the card, centered in the face */
+.flash-text {
+  margin: auto; /* centers it, and lets long text scroll from the top instead of being cut off */
+  padding: 1rem 0;
+  max-width: 100%;
+  color: var(--text-h);
+  font-size: 1.9rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-wrap; /* keeps line breaks the person typed */
+  overflow-wrap: anywhere; /* long words do not run out of the card */
+}
+
+/* the star button, on the card's top-right corner. A round button like the library's arrow. */
+.flash-star {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+
+  &:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* a starred card: the star button is filled in */
+.flash-star--on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* the row under the card: previous button, "2 / 4", next button */
+.flash-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.flash-count {
+  min-width: 4.5rem;
+  color: var(--text-h);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* the round previous / next buttons, in the same style as the library's arrow buttons */
+.flash-arrow {
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+
+  &:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* the small line of keyboard tips at the bottom */
+.flash-hint {
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* people who ask their computer for less motion get no spinning: the card just changes sides */
+@media (prefers-reduced-motion: reduce) {
+  .flash-card {
+    transition: none;
+  }
+}
+
+/* narrow screens: a bit smaller text and tighter spacing */
+@media (max-width: 560px) {
+  .flash-text {
+    font-size: 1.4rem;
+  }
+
+  .flash-face {
+    padding: 1rem;
+  }
+
+  .flash-nav {
+    gap: 1rem;
+  }
+}

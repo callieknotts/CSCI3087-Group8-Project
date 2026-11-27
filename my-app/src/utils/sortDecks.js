@@ -1,5 +1,5 @@
-// Sorting for the Library page. The backend's "get all decks" returns every deck in no
-// particular order and has no sort options, so the page sorts what it received.
+// Sorting for the Library page. The page sorts the decks it received itself, so the
+// dropdowns react instantly without asking the backend again.
 
 // key: 'created_at' | 'opened_at' | 'deckname'      order: 'asc' | 'desc'
 export function sortDecks(decks, key, order) {
@@ -9,9 +9,11 @@ export function sortDecks(decks, key, order) {
     if (key === 'deckname') {
       return deck.deckname.toLowerCase();
     }
-    // The backend has no "opened at" field yet, so it falls back to created_at.
-    // TODO: use the real opened-at value once the backend sends one.
-    // created_at is an ISO date string, which sorts correctly as plain text.
+    // "Opened at" uses the backend's last_opened_at, and falls back to created_at if a deck
+    // has none. Both are ISO date strings, which sort correctly as plain text.
+    if (key === 'opened_at') {
+      return deck.last_opened_at ?? deck.created_at ?? '';
+    }
     return deck.created_at ?? '';
   }
 
