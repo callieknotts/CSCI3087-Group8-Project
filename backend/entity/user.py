@@ -62,9 +62,9 @@ class User:
             email=email,
             name=name,
             password_hash=password_hash,
-            created_at=datetime.now(timezone),
+            created_at=datetime.now(timezone.utc),
             # wht does it need parathesizes? explain later
-            updated_at=datetime.now(timezone)
+            updated_at=datetime.now(timezone.utc)
         ))
 
     # def set_username(self, username: str):
