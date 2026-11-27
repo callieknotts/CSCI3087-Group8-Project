@@ -63,6 +63,22 @@ class PostgresCardRepository(CardRepository):
 
         if model is None:
             return None
+        model.deck_id = card.deck_id
+        model.subdeck_id = card.subdeck_id
+        model.position = card.position
+
+        model.front_text = card.content.front.text
+        model.front_image_key = card.content.front.image_key
+
+        model.back_text = card.content.back.text
+        model.back_image_key = card.content.back.image_key
+
+        model.updated_at = datetime.now(timezone.utc)
+
+        self.session.commit()
+        self.session.refresh(model)
+
+        return self._to_domain(model)      
 
     def delete(self, user_id: UUID, deck_id: UUID, card_id: UUID):
         stmt = (
