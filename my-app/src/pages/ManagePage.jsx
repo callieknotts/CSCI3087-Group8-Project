@@ -89,6 +89,51 @@ function getCardSideText(card, side) {
   return card.content?.[side]?.text ?? card[side] ?? '';
 }
 
+function getItemDescription(raw) {
+  return raw?.description ?? '';
+}
+
+function PencilIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+      <path d="m15 5 4 4" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
+
 function ModalDialog({ config, onClose }) {
   const [values, setValues] = useState(() =>
     (config.fields || []).map((field) => field.value || ''),
@@ -274,6 +319,7 @@ export default function ManagePage() {
       return {
         id: rootDeck.id,
         name: rootDeck.deckname,
+        description: getItemDescription(rootDeck),
         parentId: null,
         isSubdeck: false,
       };
@@ -285,6 +331,7 @@ export default function ManagePage() {
         return {
           id: sub.id,
           name: sub.subdeckname,
+          description: getItemDescription(sub),
           parentId,
           isSubdeck: true,
         };
@@ -298,6 +345,7 @@ export default function ManagePage() {
     return (subdecksByDeck[deckId] || []).map((s) => ({
       id: s.id,
       name: s.subdeckname,
+      description: getItemDescription(s),
       parentId: deckId,
       isSubdeck: true,
     }));
@@ -363,28 +411,42 @@ export default function ManagePage() {
     }
   }
 
-  function handleRenameSelected() {
+  function handleEditSelected() {
     const item = findItem(selectedDeckId);
     if (!item) return;
 
     setDialog({
-      title: item.isSubdeck ? 'Rename subdeck' : 'Rename deck',
-      fields: [{ label: 'Name', value: item.name }],
+      title: item.isSubdeck ? 'Edit subdeck' : 'Edit deck',
+      fields: [
+        { label: 'Name', value: item.name },
+        {
+          label: 'Description (optional)',
+          value: item.description,
+          multiline: true,
+          placeholder: 'What are you studying?',
+        },
+      ],
       ok: 'Save',
-      onSubmit: async ([nextName]) => {
-        const trimmed = (nextName || '').trim();
-        if (!trimmed) return;
+      onSubmit: async ([nextName, nextDescription]) => {
+        const trimmedName = (nextName || '').trim();
+        if (!trimmedName) return;
+        const trimmedDesc = (nextDescription || '').trim() || null;
+
         setSaving(true);
         try {
           if (item.isSubdeck) {
             await updateSubdeck(item.parentId, item.id, {
-              subdeckname: trimmed,
+              subdeckname: trimmedName,
+              description: trimmedDesc,
             });
           } else {
-            await updateDeck(item.id, { deckname: trimmed });
+            await updateDeck(item.id, {
+              deckname: trimmedName,
+              description: trimmedDesc,
+            });
           }
           await loadWorkspace(item.id);
-          showToast('Renamed');
+          showToast('Saved');
         } catch (err) {
           handleApiError(err);
         } finally {
@@ -601,6 +663,11 @@ export default function ManagePage() {
     : [];
   const totalInSelection = selectedItem ? getTotalCardCount(selectedItem.id) : 0;
 
+  const editLabel = selectedItem?.isSubdeck ? 'Edit subdeck' : 'Edit deck';
+  const deleteLabel = selectedItem?.isSubdeck
+    ? 'Delete subdeck'
+    : 'Delete deck';
+
   return (
     <div className="app manage-page">
       <aside>
@@ -742,22 +809,31 @@ export default function ManagePage() {
                 <button
                   type="button"
                   id="rename"
-                  onClick={handleRenameSelected}
+                  className="link"
+                  aria-label={editLabel}
+                  title={editLabel}
+                  onClick={handleEditSelected}
                   disabled={saving}
                 >
-                  Rename
+                  <PencilIcon />
                 </button>
                 <button
                   type="button"
                   id="delDeck"
                   className="link del"
+                  aria-label={deleteLabel}
+                  title={deleteLabel}
                   onClick={handleDeleteSelected}
                   disabled={saving}
                 >
-                  {selectedItem.isSubdeck ? 'Delete subdeck' : 'Delete deck'}
+                  <TrashIcon />
                 </button>
               </div>
             </div>
+
+            {selectedItem.description && (
+              <p className="desc">{selectedItem.description}</p>
+            )}
 
             <p className="hint">
               {displayedCards.length} card
@@ -893,18 +969,22 @@ export default function ManagePage() {
                     <button
                       type="button"
                       className="link"
+                      aria-label="Edit card"
+                      title="Edit"
                       disabled={saving}
                       onClick={() => handleEditCard(card)}
                     >
-                      Edit
+                      <PencilIcon />
                     </button>
                     <button
                       type="button"
                       className="link del"
+                      aria-label="Delete card"
+                      title="Delete"
                       disabled={saving}
                       onClick={() => handleDeleteCard(card.id)}
                     >
-                      Delete
+                      <TrashIcon />
                     </button>
                   </div>
                 </div>
