@@ -1,8 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
 import { ApiError, getDeck, getSubdeck, listCards } from '../api/decksApi';
 import CardList from '../components/CardList';
+import ModeMenu from '../components/ModeMenu';
 import { useLoad } from '../hooks/useLoad';
 import { paths } from '../routes';
+import { studyModes } from '../utils/studyModes';
 import './DetailPage.css';
 
 // Loads one subdeck, the deck it belongs to (for the back link) and the subdeck's cards.
@@ -59,9 +61,7 @@ export default function SubdeckPage() {
 
       <div className="detail-head">
         <h1>{subdeck.subdeckname}</h1>
-        <Link className="btn btn-type1" to={paths.subdeckFlashcards(deck.id, subdeck.id)}>
-          Flashcard mode
-        </Link>
+        <ModeMenu modes={studyModes(paths.subdeckFlashcards(deck.id, subdeck.id))} />
       </div>
       <p className="detail-meta">
         {cards.length} {cards.length === 1 ? 'card' : 'cards'}

@@ -1,4 +1,5 @@
 import {render, screen, within} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {MemoryRouter, Outlet, Route, Routes} from 'react-router-dom';
 import DeckPage from '../../my-app/src/pages/DeckPage';
 import SubdeckPage from '../../my-app/src/pages/SubdeckPage';
@@ -79,21 +80,43 @@ test('A deck page shows each subdeck with its cards, and the cards in no subdeck
     expect(within(loose).getByText('Loose front')).toBeInTheDocument();
 });
 
-test('A deck page has a Flashcard mode button for the deck and one for each subdeck', async () => {
+// the "Mode" dropdown: closed until clicked, then lists the modes as links
+async function openModes(user) {
+    await user.click(screen.getByRole('button', {name: /choose mode/i}));
+}
+
+test('A deck page has one Mode dropdown, for the whole deck, and none on each subdeck', async () => {
+    const user = userEvent.setup();
     fakeBackend();
     renderAt('/decks/b');
     await screen.findByRole('heading', {name: 'Biology', level: 1});
 
-    const deckButton = screen.getAllByRole('link', {name: 'Flashcard mode'});
-    expect(deckButton.map((a) => a.getAttribute('href'))).toEqual(['/decks/b/flashcards']);
-    expect(screen.getByRole('link', {name: 'Flashcard mode for subdeck Cells'})).toHaveAttribute(
-        'href',
-        '/decks/b/subdecks/s1/flashcards'
-    );
-    expect(screen.getByRole('link', {name: 'Flashcard mode for subdeck Zoology'})).toHaveAttribute(
-        'href',
-        '/decks/b/subdecks/s2/flashcards'
-    );
+    expect(screen.getAllByRole('button', {name: /choose mode/i})).toHaveLength(1);
+    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+
+    await openModes(user);
+    const items = screen.getAllByRole('menuitem', {name: 'Classic'});
+    expect(items.map((a) => a.getAttribute('href'))).toEqual(['/decks/b/flashcards']);
+
+    // Repetition is only a placeholder for now: listed, but disabled and not a link
+    const repetition = screen.getByRole('menuitem', {name: /repetition/i});
+    expect(repetition).toHaveAttribute('aria-disabled', 'true');
+    expect(repetition).not.toHaveAttribute('href');
+});
+
+test('The Mode dropdown closes with Escape and when a click lands elsewhere', async () => {
+    const user = userEvent.setup();
+    fakeBackend();
+    renderAt('/decks/b');
+    await screen.findByRole('heading', {name: 'Biology', level: 1});
+
+    await openModes(user);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+
+    await openModes(user);
+    await user.click(screen.getByRole('heading', {name: 'Biology', level: 1}));
+    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
 });
 
 test('A subdeck name on the deck page links to the subdeck page', async () => {
@@ -110,7 +133,8 @@ test('A deck with no subdecks lists its own cards (the 500 for no subdecks is no
 
     expect(await screen.findByText('Loose front')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', {name: 'Flashcard mode'})).toHaveAttribute('href', '/decks/b/flashcards');
+    await openModes(userEvent.setup());
+    expect(screen.getByRole('menuitem', {name: 'Classic'})).toHaveAttribute('href', '/decks/b/flashcards');
 });
 
 test('A deck that does not exist shows a message', async () => {
@@ -123,14 +147,15 @@ test('A deck that does not exist shows a message', async () => {
     expect(await screen.findByText('That deck could not be found.')).toBeInTheDocument();
 });
 
-test('A subdeck page shows only its cards and its own Flashcard mode button', async () => {
+test('A subdeck page shows only its cards and its own Mode dropdown', async () => {
     fakeBackend();
     renderAt('/decks/b/subdecks/s1');
 
     expect(await screen.findByRole('heading', {name: 'Cells', level: 1})).toBeInTheDocument();
     expect(screen.getByText('Nucleus?')).toBeInTheDocument();
     expect(screen.queryByText('Lion?')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', {name: 'Flashcard mode'})).toHaveAttribute(
+    await openModes(userEvent.setup());
+    expect(screen.getByRole('menuitem', {name: 'Classic'})).toHaveAttribute(
         'href',
         '/decks/b/subdecks/s1/flashcards'
     );

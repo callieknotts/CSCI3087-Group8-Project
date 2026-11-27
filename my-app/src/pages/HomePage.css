@@ -199,73 +199,38 @@
   }
 }
 
-/* the "Flashcard mode" button in the top row: a smaller button, no wrapping */
-.library-flash-btn {
+/* the "Starred cards" link in the top row: a smaller button, no underline, no wrapping */
+.library-starred-link {
   padding: 0.5rem 1rem;
   font-size: 0.95rem;
-  white-space: nowrap;
-}
-
-/* the panel that opens under the top row for picking what to study */
-.picker {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-}
-
-/* its top row: the instruction, the Starred cards button and Close */
-.picker-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.picker-top p {
-  flex: 1 1 14rem;
-}
-
-/* the deck and subdeck lists inside the panel */
-.picker-list,
-.picker-subs {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* one deck or subdeck: name on the left, button on the right */
-.picker-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.4rem 0;
-}
-
-.picker-row--sub {
-  padding-left: 1.5rem;
-}
-
-.picker-name {
-  flex: 1 1 8rem;
-  min-width: 0;
-  color: var(--text-h);
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-.picker-row--sub .picker-name {
-  font-weight: 500;
-}
-
-/* smaller buttons, no underline (they are links) */
-.picker .btn {
-  padding: 0.35rem 0.9rem;
-  font-size: 0.9rem;
   text-decoration: none;
   white-space: nowrap;
+}
+
+/* the two dropdowns: drop the browser's own look (it ignores our light/dark colors) and draw
+   our own arrow, which takes the text color so it matches in both themes */
+select.library-control {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.2rem;
+  cursor: pointer;
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+}
+
+/* the list that opens: use the page colors where the browser lets us */
+select.library-control option {
+  background: var(--surface);
+  color: var(--text-h);
 }

@@ -1,8 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
 import { ApiError, getDeck, listCards, listSubdecks } from '../api/decksApi';
 import CardList from '../components/CardList';
+import ModeMenu from '../components/ModeMenu';
 import { useLoad } from '../hooks/useLoad';
 import { paths } from '../routes';
+import { studyModes } from '../utils/studyModes';
 import { sortSubdecks } from '../utils/sortDecks';
 import './DetailPage.css';
 
@@ -69,12 +71,10 @@ export default function DeckPage() {
         ← Library
       </Link>
 
-      {/* deck name, with the flashcard button for the WHOLE deck at the top */}
+      {/* deck name, with the study-mode dropdown for the WHOLE deck at the top */}
       <div className="detail-head">
         <h1>{deck.deckname}</h1>
-        <Link className="btn btn-type1" to={paths.deckFlashcards(deck.id)}>
-          Flashcard mode
-        </Link>
+        <ModeMenu modes={studyModes(paths.deckFlashcards(deck.id))} />
       </div>
       {deck.description && <p className="detail-description">{deck.description}</p>}
       <p className="detail-meta">
@@ -82,20 +82,13 @@ export default function DeckPage() {
         {subdecks.length === 1 ? 'subdeck' : 'subdecks'}
       </p>
 
-      {/* one section per subdeck, each with its own flashcard button and its cards */}
+      {/* one section per subdeck with its cards (the subdeck's own page has its flashcard button) */}
       {subdecks.map((sub) => (
         <section key={sub.id} className="detail-section" aria-label={sub.subdeckname}>
           <div className="detail-section-head">
             <h2>
               <Link to={paths.subdeck(deck.id, sub.id)}>{sub.subdeckname}</Link>
             </h2>
-            <Link
-              className="btn btn-type2"
-              to={paths.subdeckFlashcards(deck.id, sub.id)}
-              aria-label={`Flashcard mode for subdeck ${sub.subdeckname}`}
-            >
-              Flashcard mode
-            </Link>
           </div>
           <CardList
             cards={cardsBySubdeck.get(sub.id)}
