@@ -159,3 +159,29 @@ export function deleteCard(deckId, cardId) {
     },
   );
 }
+
+// -------------------- REVIEWS (spaced repetition) --------------------
+
+const REVIEWS_URL = '/api/reviews/';
+
+// The logged-in user's review states, and what the rating buttons do for a new card:
+//   { states: [ { id, card_id, repetitions, ease_factor, interval_days, due_at,
+//                 last_reviewed_at, lapses, learning_step,
+//                 next_intervals: { again, hard, good, easy } } ],
+//     new_card_intervals: { again, hard, good, easy } }
+// There is one state per card that has been reviewed at least once. A card with no state here
+// has never been reviewed, so it is a "new" card. The intervals are in days and are worked out
+// by the backend: next_intervals says when the card returns for each rating.
+export function listReviewStates() {
+  return request(`${REVIEWS_URL}states`);
+}
+
+// Records one review. rating is 'again' | 'hard' | 'good' | 'easy'.
+// The backend answers with the card's updated review state (including its next due_at
+// and the new next_intervals).
+export function submitReview(cardId, rating) {
+  return request(`${REVIEWS_URL}${cardId}`, {
+    method: 'POST',
+    body: JSON.stringify({ rating }),
+  });
+}

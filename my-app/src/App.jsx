@@ -9,6 +9,7 @@ import NotBuiltPage from './pages/NotBuiltPage';
 import DeckPage from './pages/DeckPage';
 import SubdeckPage from './pages/SubdeckPage';
 import FlashcardPage from './pages/FlashcardPage';
+import RepetitionPage from './pages/RepetitionPage';
 import Layout from './components/Layout';
 import Profile from './pages/Profile';
 import './pages/LoginPage.css'; // for the loading screen's layout
@@ -62,6 +63,11 @@ export default function App() {
               element={<FlashcardPage />}
             />
             <Route path="flashcards/starred" element={<FlashcardPage />} />
+            <Route path="decks/:deckId/repetition" element={<RepetitionPage />} />
+            <Route
+              path="decks/:deckId/subdecks/:subdeckId/repetition"
+              element={<RepetitionPage />}
+            />
             <Route
               path="*"
               element={<NotBuiltPage title="Page not found" message="That page doesn't exist." />}

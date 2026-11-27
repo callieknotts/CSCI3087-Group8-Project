@@ -98,10 +98,9 @@ test('A deck page has one Mode dropdown, for the whole deck, and none on each su
     const items = screen.getAllByRole('menuitem', {name: 'Classic'});
     expect(items.map((a) => a.getAttribute('href'))).toEqual(['/decks/b/flashcards']);
 
-    // Repetition is only a placeholder for now: listed, but disabled and not a link
+    // Repetition is a link too, to the spaced repetition page of the same deck
     const repetition = screen.getByRole('menuitem', {name: /repetition/i});
-    expect(repetition).toHaveAttribute('aria-disabled', 'true');
-    expect(repetition).not.toHaveAttribute('href');
+    expect(repetition).toHaveAttribute('href', '/decks/b/repetition');
 });
 
 test('The Mode dropdown closes with Escape and when a click lands elsewhere', async () => {

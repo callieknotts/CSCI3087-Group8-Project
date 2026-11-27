@@ -11,4 +11,7 @@ export const paths = {
   deckFlashcards: (deckId) => `/decks/${deckId}/flashcards`,
   subdeckFlashcards: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/flashcards`,
   starredFlashcards: '/flashcards/starred',
+  // repetition mode (spaced repetition): a whole deck or one subdeck
+  deckRepetition: (deckId) => `/decks/${deckId}/repetition`,
+  subdeckRepetition: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/repetition`,
 };

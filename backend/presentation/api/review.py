@@ -1,4 +1,3 @@
-
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -25,7 +24,9 @@ from presentation.api.user import get_current_user
 
 from presentation.schemas.review import (
     SubmitReviewRequest,
+    NextIntervalsResponse,
     ReviewStateResponse,
+    ReviewStatesResponse,
     DueCardsResponse,
     ReviewLogResponse
 )
@@ -35,6 +36,31 @@ router = APIRouter(
     prefix="/reviews",
     tags=["Reviews"]
 )
+
+
+def to_intervals_response(state) -> NextIntervalsResponse:
+    """What each rating would do to this card (None = a new card)."""
+    intervals = ReviewScheduler.preview_intervals(state)
+
+    return NextIntervalsResponse(
+        **{rating.value: days for rating, days in intervals.items()}
+    )
+
+
+def to_state_response(state) -> ReviewStateResponse:
+    return ReviewStateResponse(
+        id=state.id,
+        user_id=state.user_id,
+        card_id=state.card_id,
+        repetitions=state.repetitions,
+        ease_factor=state.ease_factor,
+        interval_days=state.interval_days,
+        due_at=state.due_at,
+        last_reviewed_at=state.last_reviewed_at,
+        lapses=state.lapses,
+        learning_step=state.learning_step,
+        next_intervals=to_intervals_response(state)
+    )
 
 
 # 1. Submit a review
@@ -56,7 +82,7 @@ def review_card(
 
         db.commit()
 
-        return state
+        return to_state_response(state)
 
     except ValueError as error:
         db.rollback()
@@ -79,9 +105,29 @@ def get_due_cards(
     current_user=Depends(get_current_user)
 ):
 
-    cards = repository.get_due_cards(current_user.id)
+    states = repository.get_due_cards(current_user.id)
 
-    return DueCardsResponse(cards=cards)
+    return DueCardsResponse(
+        cards=[to_state_response(state) for state in states]
+    )
+
+
+# 2b. Get every review state of the current user (used by the frontend to tell
+# cards that were never reviewed apart from cards that are not due yet)
+@router.get("/states", response_model=ReviewStatesResponse)
+def get_review_states(
+    repository: CardReviewStateRepository = Depends(
+        get_card_review_state_repository
+    ),
+    current_user=Depends(get_current_user)
+):
+
+    states = repository.get_all(current_user.id)
+
+    return ReviewStatesResponse(
+        states=[to_state_response(state) for state in states],
+        new_card_intervals=to_intervals_response(None)
+    )
 
 
 # 3. Get review history for a specific card

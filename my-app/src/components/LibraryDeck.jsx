@@ -1,23 +1,22 @@
 import { Link } from 'react-router-dom';
-import { pseudoCounts } from '../pseudo/pseudoCounts';
 import { paths } from '../routes';
 import './Button.css';
 
-// New / Due / Review numbers. PSEUDO values for now (see pseudo/pseudoCounts.js).
+// The New / Learn / Due numbers: the cards Repetition mode would start with right now.
 function Counts({ counts }) {
   return (
-    <div className="counts" title="Placeholder numbers - not connected to the backend yet">
+    <div className="counts" title="Cards you would study now in Repetition mode">
       <div className="count">
         <b>{counts.new}</b>
         <span>New</span>
       </div>
       <div className="count">
-        <b>{counts.due}</b>
-        <span>Due</span>
+        <b>{counts.learn}</b>
+        <span>Learn</span>
       </div>
       <div className="count">
-        <b>{counts.review}</b>
-        <span>Review</span>
+        <b>{counts.due}</b>
+        <span>Due</span>
       </div>
     </div>
   );
@@ -47,7 +46,7 @@ export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
         )}
 
         <h2 className="library-name">{deck.deckname}</h2>
-        <Counts counts={pseudoCounts(deck.id)} />
+        <Counts counts={deck.counts} />
         <Link className="btn btn-type2" to={paths.deck(deck.id)}>
           See Deck
         </Link>
@@ -58,7 +57,7 @@ export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
           {subdecks.map((sub) => (
             <li key={sub.id} className="library-row library-row--sub">
               <span className="library-name library-name--sub">– {sub.subdeckname}</span>
-              <Counts counts={pseudoCounts(sub.id)} />
+              <Counts counts={sub.counts} />
               <Link className="btn btn-type2" to={paths.subdeck(deck.id, sub.id)}>
                 See Subdeck
               </Link>
