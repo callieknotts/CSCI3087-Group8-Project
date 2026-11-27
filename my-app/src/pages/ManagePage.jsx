@@ -89,6 +89,10 @@ function getCardSideText(card, side) {
   return card.content?.[side]?.text ?? card[side] ?? '';
 }
 
+function getItemDescription(raw) {
+  return raw?.description ?? '';
+}
+
 function ModalDialog({ config, onClose }) {
   const [values, setValues] = useState(() =>
     (config.fields || []).map((field) => field.value || ''),
@@ -135,11 +139,13 @@ function ModalDialog({ config, onClose }) {
             {field.label}
             {field.multiline ? (
               <textarea
+                placeholder={field.placeholder || ''}
                 value={values[index] ?? ''}
                 onChange={(e) => handleChange(index, e.target.value)}
               />
             ) : (
               <input
+                placeholder={field.placeholder || ''}
                 value={values[index] ?? ''}
                 onChange={(e) => handleChange(index, e.target.value)}
               />
@@ -176,7 +182,9 @@ export default function ManagePage() {
   const [openDecks, setOpenDecks] = useState({});
 
   const [newDeckName, setNewDeckName] = useState('');
+  const [newDeckDescription, setNewDeckDescription] = useState('');
   const [subdeckName, setSubdeckName] = useState('');
+  const [subdeckDescription, setSubdeckDescription] = useState('');
   const [frontText, setFrontText] = useState('');
   const [backText, setBackText] = useState('');
 
@@ -271,6 +279,7 @@ export default function ManagePage() {
       return {
         id: rootDeck.id,
         name: rootDeck.deckname,
+        description: getItemDescription(rootDeck),
         parentId: null,
         isSubdeck: false,
       };
@@ -282,6 +291,7 @@ export default function ManagePage() {
         return {
           id: sub.id,
           name: sub.subdeckname,
+          description: getItemDescription(sub),
           parentId,
           isSubdeck: true,
         };
@@ -295,6 +305,7 @@ export default function ManagePage() {
     return (subdecksByDeck[deckId] || []).map((s) => ({
       id: s.id,
       name: s.subdeckname,
+      description: getItemDescription(s),
       parentId: deckId,
       isSubdeck: true,
     }));
@@ -327,12 +338,14 @@ export default function ManagePage() {
   async function handleCreateDeck(e) {
     e.preventDefault();
     const trimmed = newDeckName.trim();
+    const desc = newDeckDescription.trim() || null;
     if (!trimmed || saving) return;
 
     setSaving(true);
     try {
-      const created = await createDeck(trimmed, null);
+      const created = await createDeck(trimmed, desc);
       setNewDeckName('');
+      setNewDeckDescription('');
       await loadWorkspace(created.id);
       showToast('Deck created');
     } catch (err) {
@@ -342,13 +355,14 @@ export default function ManagePage() {
     }
   }
 
-  async function handleAddSubdeck(parentId, name) {
+  async function handleAddSubdeck(parentId, name, description = '') {
     const trimmed = (name || '').trim();
+    const desc = (description || '').trim() || null;
     if (!trimmed || !parentId || saving) return;
 
     setSaving(true);
     try {
-      const created = await createSubdeck(parentId, trimmed);
+      const created = await createSubdeck(parentId, trimmed, desc);
       setOpenDecks((prev) => ({ ...prev, [parentId]: true }));
       await loadWorkspace(created.id);
       showToast('Subdeck added');
@@ -359,28 +373,41 @@ export default function ManagePage() {
     }
   }
 
-  function handleRenameSelected() {
+  function handleEditSelected() {
     const item = findItem(selectedDeckId);
     if (!item) return;
 
     setDialog({
-      title: item.isSubdeck ? 'Rename subdeck' : 'Rename deck',
-      fields: [{ label: 'Name', value: item.name }],
+      title: item.isSubdeck ? 'Edit subdeck' : 'Edit deck',
+      fields: [
+        { label: 'Name', value: item.name },
+        {
+          label: 'Description (optional)',
+          value: item.description,
+          multiline: true,
+          placeholder: 'Optional description',
+        },
+      ],
       ok: 'Save',
-      onSubmit: async ([nextName]) => {
-        const trimmed = (nextName || '').trim();
-        if (!trimmed) return;
+      onSubmit: async ([nextName, nextDescription]) => {
+        const trimmedName = (nextName || '').trim();
+        if (!trimmedName) return;
+        const trimmedDesc = (nextDescription || '').trim() || null;
         setSaving(true);
         try {
           if (item.isSubdeck) {
             await updateSubdeck(item.parentId, item.id, {
-              subdeckname: trimmed,
+              subdeckname: trimmedName,
+              description: trimmedDesc,
             });
           } else {
-            await updateDeck(item.id, { deckname: trimmed });
+            await updateDeck(item.id, {
+              deckname: trimmedName,
+              description: trimmedDesc,
+            });
           }
           await loadWorkspace(item.id);
-          showToast('Renamed');
+          showToast('Saved');
         } catch (err) {
           handleApiError(err);
         } finally {
@@ -540,7 +567,7 @@ export default function ManagePage() {
               (s) => s.subdeckname.toLowerCase() === seg.toLowerCase(),
             );
             if (!match) {
-              match = await createSubdeck(rootDeckId, seg);
+              match = await createSubdeck(rootDeckId, seg, null);
               currentSubs.push(match);
             }
             targetSubdeckId = match.id;
@@ -601,18 +628,28 @@ export default function ManagePage() {
     <div className="app manage-page">
       <aside>
         <h1>Decks</h1>
-        <form id="newDeck" className="row" onSubmit={handleCreateDeck}>
+        <form id="newDeck" className="stack" onSubmit={handleCreateDeck}>
+          <div className="row">
+            <input
+              id="newDeckName"
+              placeholder="New deck name"
+              aria-label="New deck name"
+              value={newDeckName}
+              onChange={(e) => setNewDeckName(e.target.value)}
+              disabled={saving}
+            />
+            <button className="primary" type="submit" disabled={saving}>
+              Add
+            </button>
+          </div>
           <input
-            id="newDeckName"
-            placeholder="New deck name"
-            aria-label="New deck name"
-            value={newDeckName}
-            onChange={(e) => setNewDeckName(e.target.value)}
+            id="newDeckDescription"
+            placeholder="Description (optional)"
+            aria-label="New deck description"
+            value={newDeckDescription}
+            onChange={(e) => setNewDeckDescription(e.target.value)}
             disabled={saving}
           />
-          <button className="primary" type="submit" disabled={saving}>
-            Add
-          </button>
         </form>
 
         <div className="tree" id="tree">
@@ -653,10 +690,17 @@ export default function ManagePage() {
                           e.stopPropagation();
                           setDialog({
                             title: 'New subdeck',
-                            fields: [{ label: 'Name' }],
+                            fields: [
+                              { label: 'Name' },
+                              {
+                                label: 'Description (optional)',
+                                multiline: true,
+                                placeholder: 'Optional description',
+                              },
+                            ],
                             ok: 'Add subdeck',
-                            onSubmit: ([name]) =>
-                              handleAddSubdeck(deck.id, name),
+                            onSubmit: ([name, desc]) =>
+                              handleAddSubdeck(deck.id, name, desc),
                           });
                         }}
                       >
@@ -725,10 +769,10 @@ export default function ManagePage() {
                 <button
                   type="button"
                   id="rename"
-                  onClick={handleRenameSelected}
+                  onClick={handleEditSelected}
                   disabled={saving}
                 >
-                  Rename
+                  Edit
                 </button>
                 <button
                   type="button"
@@ -741,6 +785,10 @@ export default function ManagePage() {
                 </button>
               </div>
             </div>
+
+            {selectedItem.description && (
+              <p className="desc">{selectedItem.description}</p>
+            )}
 
             <p className="hint">
               {displayedCards.length} card
@@ -758,6 +806,7 @@ export default function ManagePage() {
                         type="button"
                         key={sub.id}
                         className="sub"
+                        title={sub.description || undefined}
                         onClick={() => {
                           setSelectedDeckId(sub.id);
                           setOpenDecks((prev) => ({
@@ -774,24 +823,39 @@ export default function ManagePage() {
                 )}
                 <form
                   id="subForm"
-                  className="row subdeck-form"
+                  className="stack subdeck-form"
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    await handleAddSubdeck(selectedItem.id, subdeckName);
+                    await handleAddSubdeck(
+                      selectedItem.id,
+                      subdeckName,
+                      subdeckDescription,
+                    );
                     setSubdeckName('');
+                    setSubdeckDescription('');
                   }}
                 >
+                  <div className="row">
+                    <input
+                      id="subName"
+                      placeholder="New subdeck name"
+                      aria-label="New subdeck name"
+                      value={subdeckName}
+                      onChange={(e) => setSubdeckName(e.target.value)}
+                      disabled={saving}
+                    />
+                    <button className="primary" type="submit" disabled={saving}>
+                      Add subdeck
+                    </button>
+                  </div>
                   <input
-                    id="subName"
-                    placeholder="New subdeck name"
-                    aria-label="New subdeck name"
-                    value={subdeckName}
-                    onChange={(e) => setSubdeckName(e.target.value)}
+                    id="subDescription"
+                    placeholder="Description (optional)"
+                    aria-label="New subdeck description"
+                    value={subdeckDescription}
+                    onChange={(e) => setSubdeckDescription(e.target.value)}
                     disabled={saving}
                   />
-                  <button className="primary" type="submit" disabled={saving}>
-                    Add subdeck
-                  </button>
                 </form>
               </>
             )}

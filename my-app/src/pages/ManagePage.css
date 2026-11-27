@@ -385,3 +385,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+.manage-page .stack {
+  display: grid;
+  gap: 8px;
+}
+
+.manage-page .desc {
+  margin: 8px 0 0;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
