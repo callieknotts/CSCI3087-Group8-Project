@@ -193,13 +193,13 @@ test('Each deck and subdeck shows how many cards are new, to learn and due', asy
     expect(countsOf(screen.getByRole('heading', {name: 'Art'}))).toEqual({New: '0', Learn: '0', Due: '0'});
 });
 
-test('A deck shows at most 20 new cards, like a Repetition session starts with', async () => {
+test('A deck counts every never-reviewed card as new (no cap by default)', async () => {
     const manyNewCards = Array.from({length: 25}, (_, i) => card(`n${i}`, 'c'));
     fakeBackend({cards: {...CARDS, c: manyNewCards}});
     renderHome();
     await screen.findByRole('heading', {name: 'Chemistry'});
 
-    expect(countsOf(screen.getByRole('heading', {name: 'Chemistry'})).New).toBe('20');
+    expect(countsOf(screen.getByRole('heading', {name: 'Chemistry'})).New).toBe('25');
 });
 
 test('Cards the user has reviewed are not counted as new', async () => {

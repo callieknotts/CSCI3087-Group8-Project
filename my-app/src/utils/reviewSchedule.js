@@ -12,8 +12,10 @@ export const RATINGS = [
   { value: 'easy', label: 'Easy', key: '4' },
 ];
 
-// how many never-reviewed cards one session starts with (a per-day limit can replace this later)
-export const NEW_CARD_LIMIT = 20;
+// how many never-reviewed cards one session starts with. By default there is no cap: every
+// never-reviewed card is included. Pass a number as newLimit to buildQueue / countCards for
+// a per-day limit later.
+export const NEW_CARD_LIMIT = Infinity;
 
 const DAY_MS = 86_400_000;
 
