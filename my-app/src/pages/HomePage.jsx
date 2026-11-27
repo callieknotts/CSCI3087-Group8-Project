@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { listDecks, listSubdecks } from '../api/decksApi';
 import { sortDecks, sortSubdecks } from '../utils/sortDecks';
 import LibraryDeck from '../components/LibraryDeck';
-import FlashcardPicker from '../components/FlashcardPicker';
+import { paths } from '../routes';
 import './HomePage.css';
 
 const SORT_OPTIONS = [
@@ -48,7 +48,6 @@ export default function HomePage() {
   const [sortKey, setSortKey] = useState('created_at');
   const [order, setOrder] = useState('asc');
   const [openIds, setOpenIds] = useState(() => new Set());
-  const [pickerOpen, setPickerOpen] = useState(false); // the "Flashcard mode" deck picker
 
   // Keep the latest onUnauthorized without making the loading effect depend on it.
   const onUnauthorizedRef = useRef(onUnauthorized);
@@ -102,16 +101,11 @@ export default function HomePage() {
       <div className="library-head">
         <h1>Library</h1>
 
-        {/* opens the panel for picking a whole deck or one subdeck to study */}
-        <button
-          type="button"
-          className="btn btn-type1 library-flash-btn"
-          aria-expanded={pickerOpen}
-          aria-controls="flashcard-picker"
-          onClick={() => setPickerOpen((open) => !open)}
-        >
-          Flashcard mode
-        </button>
+        {/* the only way to reach the cards the user starred (flashcard mode for a deck or
+            subdeck lives on that deck's or subdeck's own page) */}
+        <Link className="btn btn-type2 library-starred-link" to={paths.starredFlashcards}>
+          ★ Starred cards
+        </Link>
 
         <input
           type="search"
@@ -145,10 +139,6 @@ export default function HomePage() {
           <option value="desc">Desc</option>
         </select>
       </div>
-
-      {pickerOpen && (
-        <FlashcardPicker decks={sortedDecks} onClose={() => setPickerOpen(false)} />
-      )}
 
       {loadError && (
         <div className="library-message" role="alert">

@@ -1,4 +1,4 @@
-import {render, screen, within} from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter, Outlet, Route, Routes} from 'react-router-dom';
 import HomePage from '../../my-app/src/pages/HomePage';
@@ -149,46 +149,24 @@ test('A 401 from the server calls onUnauthorized', async () => {
     await vi.waitFor(() => expect(onUnauthorized).toHaveBeenCalled());
 });
 
-// every deck and subdeck row has its own Flashcard mode button
-test('Each deck and each shown subdeck has a Flashcard mode button', async () => {
+// flashcard mode lives inside each deck and subdeck page, not on the homepage
+test('The homepage has no Flashcard mode buttons, even with subdecks open', async () => {
     const user = userEvent.setup();
     fakeBackend();
     renderHome();
     await screen.findByRole('heading', {name: 'Biology'});
-
-    expect(screen.getByRole('link', {name: 'Flashcard mode for Biology'})).toHaveAttribute('href', '/decks/b/flashcards');
-    expect(screen.getByRole('link', {name: 'Flashcard mode for Art'})).toHaveAttribute('href', '/decks/a/flashcards');
-    expect(screen.queryByRole('link', {name: /Flashcard mode for subdeck/})).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', {name: 'Show subdecks of Biology'}));
 
-    expect(screen.getByRole('link', {name: 'Flashcard mode for subdeck Cells'})).toHaveAttribute(
-        'href',
-        '/decks/b/subdecks/s1/flashcards'
-    );
+    expect(screen.queryByRole('link', {name: /flashcard/i})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: /flashcard/i})).not.toBeInTheDocument();
 });
 
-// the top button opens a picker: whole deck, one subdeck, or starred cards
-test('The Flashcard mode button opens a picker for a whole deck, a subdeck or starred cards', async () => {
-    const user = userEvent.setup();
+// the only way to reach the starred cards is this link
+test('The homepage has a Starred cards link', async () => {
     fakeBackend();
     renderHome();
     await screen.findByRole('heading', {name: 'Biology'});
 
-    expect(screen.queryByRole('region', {name: 'Choose what to study'})).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', {name: 'Flashcard mode'}));
-
-    const picker = screen.getByRole('region', {name: 'Choose what to study'});
-    expect(within(picker).getByRole('link', {name: 'Flashcard mode for all of Biology'})).toHaveAttribute(
-        'href',
-        '/decks/b/flashcards'
-    );
-    expect(
-        within(picker).getByRole('link', {name: 'Flashcard mode for subdeck Cells in Biology'})
-    ).toHaveAttribute('href', '/decks/b/subdecks/s1/flashcards');
-    expect(within(picker).getByRole('link', {name: /Starred cards/})).toHaveAttribute('href', '/flashcards/starred');
-
-    await user.click(within(picker).getByRole('button', {name: 'Close'}));
-    expect(screen.queryByRole('region', {name: 'Choose what to study'})).not.toBeInTheDocument();
+    expect(screen.getByRole('link', {name: /Starred cards/})).toHaveAttribute('href', '/flashcards/starred');
 });

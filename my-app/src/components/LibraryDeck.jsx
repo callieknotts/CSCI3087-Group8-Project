@@ -48,14 +48,6 @@ export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
 
         <h2 className="library-name">{deck.deckname}</h2>
         <Counts counts={pseudoCounts(deck.id)} />
-        {/* flashcard mode for the whole deck (every subdeck's cards) */}
-        <Link
-          className="btn btn-type1"
-          to={paths.deckFlashcards(deck.id)}
-          aria-label={`Flashcard mode for ${deck.deckname}`}
-        >
-          Flashcard mode
-        </Link>
         <Link className="btn btn-type2" to={paths.deck(deck.id)}>
           See Deck
         </Link>
@@ -67,14 +59,6 @@ export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
             <li key={sub.id} className="library-row library-row--sub">
               <span className="library-name library-name--sub">– {sub.subdeckname}</span>
               <Counts counts={pseudoCounts(sub.id)} />
-              {/* flashcard mode for just this subdeck */}
-              <Link
-                className="btn btn-type1"
-                to={paths.subdeckFlashcards(deck.id, sub.id)}
-                aria-label={`Flashcard mode for subdeck ${sub.subdeckname}`}
-              >
-                Flashcard mode
-              </Link>
               <Link className="btn btn-type2" to={paths.subdeck(deck.id, sub.id)}>
                 See Subdeck
               </Link>
