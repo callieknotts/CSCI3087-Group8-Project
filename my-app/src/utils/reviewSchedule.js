@@ -64,6 +64,18 @@ export function countQueue(queue, states) {
   return counts;
 }
 
+// The kinds a Repetition session can be limited to: /decks/:deckId/repetition?show=due
+export const SHOW_KINDS = ['new', 'learn', 'due'];
+
+// Keeps only one kind of card ('new', 'learn' or 'due') in a queue. No kind keeps them all.
+export function filterByShow(queue, states, show) {
+  if (!show) return queue;
+  return queue.filter((card) => {
+    const kind = cardKind(states.get(card.id));
+    return (kind === 'review' ? 'due' : kind) === show;
+  });
+}
+
 // The numbers shown for a deck or subdeck in the library: what Repetition mode would
 // start with if it was opened now.
 export function countCards(cards, states, now = Date.now(), newLimit = NEW_CARD_LIMIT) {

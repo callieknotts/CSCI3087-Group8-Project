@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useOutletContext, useParams } from 'react-router-dom';
+import { Link, useLocation, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { listReviewStates, submitReview } from '../api/decksApi';
 import { useLoad } from '../hooks/useLoad';
 import { paths } from '../routes';
@@ -7,8 +7,10 @@ import { sideText } from '../utils/cardText';
 import { loadFlashcardSet } from '../utils/loadFlashcardSet';
 import {
   RATINGS,
+  SHOW_KINDS,
   buildQueue,
   countQueue,
+  filterByShow,
   formatInterval,
   nextDueText,
 } from '../utils/reviewSchedule';
@@ -18,11 +20,16 @@ import './RepetitionPage.css';
 // Repetition mode (spaced repetition). Routes:
 //   /decks/:deckId/repetition                 the deck (all its subdecks)
 //   /decks/:deckId/subdecks/:sid/repetition   one subdeck
+// Either can end in ?show=new, ?show=learn or ?show=due to study only that kind of card (the
+// New / Learn / Due numbers in the library link to these).
 // The page loads the cards plus the user's review states, studies the cards that are due and
 // the new ones, and sends each rating to the backend, which schedules the card's next review.
 export default function RepetitionPage() {
   const { deckId, subdeckId } = useParams();
   const { user } = useOutletContext();
+  const [searchParams] = useSearchParams();
+  const requested = searchParams.get('show');
+  const show = SHOW_KINDS.includes(requested) ? requested : null; // anything else studies everything
 
   const state = useLoad(async () => {
     const [set, reviews] = await Promise.all([
@@ -76,6 +83,8 @@ export default function RepetitionPage() {
 
   return (
     <Review
+      key={show ?? 'all'} // a different ?show= starts a fresh session
+      show={show}
       title={title}
       backTo={backTo}
       backLabel={backLabel}
@@ -87,10 +96,16 @@ export default function RepetitionPage() {
 }
 
 // The study screen: one card at a time. Flip it, then say how well you knew it.
-function Review({ title, backTo, backLabel, cards, initialStates, newCardIntervals }) {
+// how the ?show= kinds are named in the note above the card
+const SHOW_WORDS = { new: 'new', learn: 'learning', due: 'due' };
+
+function Review({ show, title, backTo, backLabel, cards, initialStates, newCardIntervals }) {
   const { onUnauthorized } = useOutletContext();
+  const { pathname } = useLocation(); // the same page without ?show=, for "Study everything"
   const [states, setStates] = useState(initialStates); // card id -> review state, kept up to date
-  const [queue, setQueue] = useState(() => buildQueue(cards, initialStates));
+  const [queue, setQueue] = useState(() =>
+    filterByShow(buildQueue(cards, initialStates), initialStates, show),
+  );
   const [flipped, setFlipped] = useState(false);
   const [instant, setInstant] = useState(false); // true for one frame: change cards without the flip animation
   const [submitting, setSubmitting] = useState(false);
@@ -195,6 +210,11 @@ function Review({ title, backTo, backLabel, cards, initialStates, newCardInterva
             </p>
           )}
           <p>{next ? `Next card due ${next}.` : 'No cards are scheduled yet.'}</p>
+          {show && (
+            <p>
+              <Link to={pathname}>Study everything</Link>
+            </p>
+          )}
         </div>
       </main>
     );
@@ -232,6 +252,11 @@ function Review({ title, backTo, backLabel, cards, initialStates, newCardInterva
         <span className="rep-count rep-count--learn">Learn {counts.learn}</span>
         <span className="rep-count rep-count--review">Due {counts.due}</span>
       </div>
+      {show && (
+        <p className="rep-filter">
+          Only {SHOW_WORDS[show]} cards · <Link to={pathname}>Study everything</Link>
+        </p>
+      )}
 
       <div className="flash-stage">
         <div

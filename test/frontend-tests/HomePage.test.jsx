@@ -193,6 +193,26 @@ test('Each deck and subdeck shows how many cards are new, to learn and due', asy
     expect(countsOf(screen.getByRole('heading', {name: 'Art'}))).toEqual({New: '0', Learn: '0', Due: '0'});
 });
 
+// the numbers are links: each opens Repetition mode for that deck or subdeck with only that kind of card
+test('The New, Learn and Due numbers link to Repetition mode for just those cards', async () => {
+    const user = userEvent.setup();
+    fakeBackend();
+    renderHome();
+    await screen.findByRole('heading', {name: 'Biology'});
+    await user.click(screen.getByRole('button', {name: 'Show subdecks of Biology'}));
+
+    const href = (name) => screen.getByRole('link', {name}).getAttribute('href');
+    expect(href('Study 2 new cards in Biology')).toBe('/decks/b/repetition?show=new');
+    expect(href('Study 1 learning card in Biology')).toBe('/decks/b/repetition?show=learn');
+    expect(href('Study 1 due card in Biology')).toBe('/decks/b/repetition?show=due');
+    expect(href('Study 1 new card in Cells')).toBe('/decks/b/subdecks/s1/repetition?show=new');
+    expect(href('Study 1 learning card in Zoology')).toBe('/decks/b/subdecks/s2/repetition?show=learn');
+
+    // a number of 0 is plain text, not a link: there would be nothing to study
+    expect(screen.queryByRole('link', {name: /in Art$/})).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', {name: 'Study 0 due cards in Chemistry'})).not.toBeInTheDocument();
+});
+
 test('A deck counts every never-reviewed card as new (no cap by default)', async () => {
     const manyNewCards = Array.from({length: 25}, (_, i) => card(`n${i}`, 'c'));
     fakeBackend({cards: {...CARDS, c: manyNewCards}});

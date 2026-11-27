@@ -46,6 +46,13 @@
   color: var(--good);
 }
 
+/* "Only due cards · Study everything": shown when the session was opened from a library number */
+.rep-filter {
+  margin: -0.5rem 0 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
 /* the "Show answer" button under the card */
 .rep-reveal {
   display: flex;

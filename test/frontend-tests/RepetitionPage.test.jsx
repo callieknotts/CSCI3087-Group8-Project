@@ -106,6 +106,37 @@ test('Studies the due cards first, then the new ones, and leaves out cards due l
     expect(screen.queryByRole('button', {name: /Good/})).not.toBeInTheDocument();
 });
 
+test('?show=due studies only the due cards and offers a way back to everything', async () => {
+    fakeBackend();
+    renderAt('/decks/b/repetition?show=due');
+
+    expect(await screen.findByText('Front two')).toBeInTheDocument();
+    expect(screen.getByText('Due 1')).toBeInTheDocument();
+    expect(screen.getByText('New 0')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuemax', '1');
+    expect(screen.getByText(/Only due cards/)).toBeInTheDocument();
+    expect(screen.getByRole('link', {name: 'Study everything'})).toHaveAttribute('href', '/decks/b/repetition');
+});
+
+test('?show=new studies only the new cards', async () => {
+    fakeBackend();
+    renderAt('/decks/b/repetition?show=new');
+
+    expect(await screen.findByText('Front one')).toBeInTheDocument();
+    expect(screen.getByText('New 1')).toBeInTheDocument();
+    expect(screen.getByText('Due 0')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuemax', '1');
+});
+
+test('An unknown ?show= value studies everything', async () => {
+    fakeBackend();
+    renderAt('/decks/b/repetition?show=whatever');
+
+    expect(await screen.findByText('Front two')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuemax', '2');
+    expect(screen.queryByText(/Only .* cards/)).not.toBeInTheDocument();
+});
+
 test('Show answer turns the card over and shows each rating with when the card returns', async () => {
     const user = userEvent.setup();
     fakeBackend();
