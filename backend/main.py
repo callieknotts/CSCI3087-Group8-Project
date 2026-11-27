@@ -5,6 +5,7 @@ from presentation.api.deck import router as deck_router
 from presentation.api.subdeck import router as sub_deck_router
 from presentation.api.card import router as card_router
 from presentation.api.profile import router as profile_router
+from presentation.api.review import router as review_router
 from infrastructure.database import Base, engine
 from starlette.middleware.sessions import SessionMiddleware
 import os
@@ -27,3 +28,4 @@ app.include_router(sub_deck_router)
 app.include_router(card_router)
 
 app.include_router(profile_router)
+app.include_router(review_router)

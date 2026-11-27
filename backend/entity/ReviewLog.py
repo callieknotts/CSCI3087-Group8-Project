@@ -13,7 +13,7 @@ class Rating(Enum):
 
 
 @dataclass
-class CardReviewState:
+class ReviewLog:
     id: UUID
     user_id: UUID
     card_id: UUID
@@ -31,7 +31,7 @@ class CardReviewState:
         previous_interval: float,
         next_interval: float,
         reviewed_at: datetime | None = None
-    ) -> "CardReviewState":
+    ) -> "ReviewLog":
 
         return cls(
             id=uuid4(),
