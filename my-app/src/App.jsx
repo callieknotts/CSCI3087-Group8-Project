@@ -6,6 +6,9 @@ import HomePage from './pages/HomePage';
 import ManagePage from './pages/ManagePage';
 import SearchPage from './pages/SearchPage';
 import NotBuiltPage from './pages/NotBuiltPage';
+import DeckPage from './pages/DeckPage';
+import SubdeckPage from './pages/SubdeckPage';
+import FlashcardPage from './pages/FlashcardPage';
 import Layout from './components/Layout';
 import Profile from './pages/Profile';
 import './pages/LoginPage.css'; // for the loading screen's layout
@@ -51,11 +54,14 @@ export default function App() {
             <Route path="manage" element={<ManagePage />} />
             <Route path="profile" element={<Profile />} />            
             <Route path="search" element={<SearchPage />} />
-            <Route path="decks/:deckId" element={<NotBuiltPage title="Deck" />} />
+            <Route path="decks/:deckId" element={<DeckPage />} />
+            <Route path="decks/:deckId/flashcards" element={<FlashcardPage />} />
+            <Route path="decks/:deckId/subdecks/:subdeckId" element={<SubdeckPage />} />
             <Route
-              path="decks/:deckId/subdecks/:subdeckId"
-              element={<NotBuiltPage title="Subdeck" />}
+              path="decks/:deckId/subdecks/:subdeckId/flashcards"
+              element={<FlashcardPage />}
             />
+            <Route path="flashcards/starred" element={<FlashcardPage />} />
             <Route
               path="*"
               element={<NotBuiltPage title="Page not found" message="That page doesn't exist." />}

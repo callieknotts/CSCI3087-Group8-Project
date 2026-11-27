@@ -1,0 +1,225 @@
+/* styling for flashcard mode: a dark navy study screen, the same in light and dark themes */
+
+/* the whole study screen: a dark panel with the card in the middle */
+.flash {
+  --flash-bg: #0a0a29;
+  --flash-card: #313a55;
+  --flash-soft: #4a5578;
+  --flash-text: #fff;
+  --flash-muted: #aab3cc;
+
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 960px;
+  min-height: 34rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 1.5rem;
+  border-radius: 16px;
+  background: var(--flash-bg);
+  color: var(--flash-text);
+  text-align: left;
+  overflow: hidden; /* keeps the progress bar inside the rounded corners */
+}
+
+/* the thin progress bar along the top edge */
+.flash-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+}
+
+.flash-progress span {
+  display: block;
+  height: 100%;
+  background: #6366f1;
+  transition: width 0.2s;
+}
+
+/* back link and the deck / subdeck name above the card */
+.flash-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.flash-back {
+  color: var(--flash-muted);
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover {
+    color: var(--flash-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #a5b4fc;
+    outline-offset: 2px;
+  }
+}
+
+.flash .flash-title {
+  margin: 0;
+  color: var(--flash-text);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* messages (loading, errors, no cards) */
+.flash-message {
+  margin: 2rem 0;
+  color: var(--flash-text);
+  text-align: center;
+}
+
+.flash-message .btn {
+  margin: 0.5rem 0.25rem 0;
+  color: var(--flash-text);
+  border-color: var(--flash-text);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.flash-message .btn:hover:not(:disabled) {
+  background: var(--flash-text);
+  color: var(--flash-bg);
+}
+
+/* the card itself: big, rounded, centered text. Clicking it flips it. */
+.flash-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 22rem;
+  padding: 1.25rem 1.5rem 2rem;
+  border-radius: 20px;
+  background: var(--flash-card);
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 3px solid #a5b4fc;
+    outline-offset: 3px;
+  }
+}
+
+/* the row inside the card: "Front"/"Back" on the left, the count and star on the right */
+.flash-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--flash-muted);
+  font-size: 0.95rem;
+}
+
+.flash-side {
+  margin-right: auto; /* pushes the count and star to the right */
+  font-weight: 600;
+}
+
+.flash-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* the star button */
+.flash-star {
+  border: none;
+  background: transparent;
+  color: var(--flash-muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--flash-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #a5b4fc;
+    outline-offset: 2px;
+  }
+}
+
+/* a starred card: the star turns gold */
+.flash-star--on {
+  color: #facc15;
+}
+
+/* the text on the card, in the middle of the space under the top row */
+.flash-text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 1rem 0 0;
+  font-size: 2rem;
+  line-height: 1.6;
+  white-space: pre-wrap; /* keeps line breaks the person typed */
+  overflow-wrap: anywhere; /* long words do not run out of the card */
+}
+
+/* the two round arrow buttons under the card */
+.flash-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.flash-arrow {
+  width: 5rem;
+  height: 3.25rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--flash-card);
+  color: var(--flash-text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--flash-soft);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #a5b4fc;
+    outline-offset: 2px;
+  }
+}
+
+/* the small line of keyboard tips at the bottom */
+.flash-hint {
+  margin-top: 1rem;
+  color: var(--flash-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* narrow screens: less padding and smaller card text */
+@media (max-width: 560px) {
+  .flash {
+    padding: 1.5rem 0.75rem 1rem;
+  }
+
+  .flash-card {
+    min-height: 18rem;
+    padding: 1rem 1rem 1.5rem;
+  }
+
+  .flash-text {
+    font-size: 1.4rem;
+  }
+}

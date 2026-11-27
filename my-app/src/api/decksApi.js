@@ -55,6 +55,12 @@ export function listDecks() {
   return request(DECKS_URL);
 }
 
+// One deck. NOTE: the backend answers 200 with an empty body (null) when the deck does
+// not exist, so callers must check for null.
+export function getDeck(deckId) {
+  return request(`${DECKS_URL}${deckId}`);
+}
+
 export function createDeck(deckname, description) {
   return request(DECKS_URL, {
     method: 'POST',
@@ -76,6 +82,21 @@ export function listSubdecks(deckId) {
   return request(`${DECKS_URL}${deckId}/subdecks/`);
 }
 
+// One subdeck. NOTE: the backend raises an error (HTTP 500) when the subdeck does not exist.
+export function getSubdeck(deckId, subdeckId) {
+  return request(`${DECKS_URL}${deckId}/subdecks/${subdeckId}`);
+}
+
 export function deleteDeck(deckId) {
   return request(`${DECKS_URL}${deckId}`, { method: 'DELETE' });
+}
+
+// The cards of a deck. Without subdeckId this is EVERY card in the deck (the ones inside
+// its subdecks and the ones with no subdeck). With subdeckId it is only that subdeck's cards.
+// Each card looks like:
+//   { id, deck_id, subdeck_id, position,
+//     content: { front: { text, image_key }, back: { text, image_key } } }
+export function listCards(deckId, subdeckId) {
+  const query = subdeckId ? `?subdeck_id=${encodeURIComponent(subdeckId)}` : '';
+  return request(`${DECKS_URL}${deckId}/cards/${query}`);
 }
