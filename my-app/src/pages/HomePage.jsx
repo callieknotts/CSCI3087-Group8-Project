@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
-import { listDecks, listSubdecks } from '../api/decksApi';
+import { listDecks, listSubdecks, listCards, listReviewStates } from '../api/decksApi';
 import { sortDecks, sortSubdecks } from '../utils/sortDecks';
+import { countCards } from '../utils/reviewSchedule';
 import LibraryDeck from '../components/LibraryDeck';
 import { paths } from '../routes';
 import './HomePage.css';
@@ -12,23 +13,39 @@ const SORT_OPTIONS = [
   { value: 'deckname', label: 'Deck name' },
 ];
 
-// Loads the user's decks, then the subdecks of each deck.
+// Loads the user's decks, then the subdecks of each deck, plus the New / Learn / Due counts
+// (what Repetition mode would start with) for every deck and subdeck.
 // The backend answers "this deck has no subdecks" with an error (HTTP 500) instead of an
 // empty list, so a 500 here is treated as "no subdecks". Anything else is a real error.
 async function loadLibrary() {
-  const decks = await listDecks();
+  const [decks, review] = await Promise.all([listDecks(), listReviewStates()]);
+  const states = new Map(review.states.map((s) => [s.card_id, s]));
 
   return Promise.all(
     decks.map(async (deck) => {
+      let subdecks = [];
       try {
-        const subdecks = await listSubdecks(deck.id);
-        return { ...deck, subdecks: sortSubdecks(subdecks) };
+        subdecks = await listSubdecks(deck.id);
       } catch (err) {
-        if (err.status === 500) {
-          return { ...deck, subdecks: [] };
-        }
-        throw err;
+        if (err.status !== 500) throw err;
       }
+
+      // one request per deck: it returns the cards of every subdeck too, so each subdeck's
+      // numbers come from the cards that belong to it
+      const cards = await listCards(deck.id);
+      const subsWithCounts = subdecks.map((sub) => ({
+        ...sub,
+        counts: countCards(
+          cards.filter((card) => card.subdeck_id === sub.id),
+          states,
+        ),
+      }));
+
+      return {
+        ...deck,
+        counts: countCards(cards, states),
+        subdecks: sortSubdecks(subsWithCounts),
+      };
     }),
   );
 }

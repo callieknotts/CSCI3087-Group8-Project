@@ -3,7 +3,9 @@ import { paths } from '../routes';
 import './Button.css';
 
 // The New / Learn / Due numbers: the cards Repetition mode would start with right now.
-function Counts({ counts }) {
+const NO_COUNTS = { new: 0, learn: 0, due: 0 };
+
+function Counts({ counts = NO_COUNTS }) {
   return (
     <div className="counts" title="Cards you would study now in Repetition mode">
       <div className="count">

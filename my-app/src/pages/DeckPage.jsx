@@ -74,7 +74,7 @@ export default function DeckPage() {
       {/* deck name, with the study-mode dropdown for the WHOLE deck at the top */}
       <div className="detail-head">
         <h1>{deck.deckname}</h1>
-        <ModeMenu modes={studyModes(paths.deckFlashcards(deck.id))} />
+        <ModeMenu modes={studyModes(paths.deckFlashcards(deck.id), paths.deckRepetition(deck.id))} />
       </div>
       {deck.description && <p className="detail-description">{deck.description}</p>}
       <p className="detail-meta">
