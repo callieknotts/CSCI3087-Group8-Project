@@ -391,6 +391,10 @@
   gap: 8px;
 }
 
+.manage-page .stack label.hint {
+  margin: 2px 0 0;
+}
+
 .manage-page .desc {
   margin: 8px 0 0;
   color: var(--text);

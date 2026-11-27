@@ -89,10 +89,6 @@ function getCardSideText(card, side) {
   return card.content?.[side]?.text ?? card[side] ?? '';
 }
 
-function getItemDescription(raw) {
-  return raw?.description ?? '';
-}
-
 function ModalDialog({ config, onClose }) {
   const [values, setValues] = useState(() =>
     (config.fields || []).map((field) => field.value || ''),
@@ -182,9 +178,8 @@ export default function ManagePage() {
   const [openDecks, setOpenDecks] = useState({});
 
   const [newDeckName, setNewDeckName] = useState('');
-  const [newDeckDescription, setNewDeckDescription] = useState('');
+  const [deckDescription, setDeckDescription] = useState('');
   const [subdeckName, setSubdeckName] = useState('');
-  const [subdeckDescription, setSubdeckDescription] = useState('');
   const [frontText, setFrontText] = useState('');
   const [backText, setBackText] = useState('');
 
@@ -279,7 +274,6 @@ export default function ManagePage() {
       return {
         id: rootDeck.id,
         name: rootDeck.deckname,
-        description: getItemDescription(rootDeck),
         parentId: null,
         isSubdeck: false,
       };
@@ -291,7 +285,6 @@ export default function ManagePage() {
         return {
           id: sub.id,
           name: sub.subdeckname,
-          description: getItemDescription(sub),
           parentId,
           isSubdeck: true,
         };
@@ -305,7 +298,6 @@ export default function ManagePage() {
     return (subdecksByDeck[deckId] || []).map((s) => ({
       id: s.id,
       name: s.subdeckname,
-      description: getItemDescription(s),
       parentId: deckId,
       isSubdeck: true,
     }));
@@ -338,14 +330,13 @@ export default function ManagePage() {
   async function handleCreateDeck(e) {
     e.preventDefault();
     const trimmed = newDeckName.trim();
-    const desc = newDeckDescription.trim() || null;
     if (!trimmed || saving) return;
 
     setSaving(true);
     try {
-      const created = await createDeck(trimmed, desc);
+      const created = await createDeck(trimmed, deckDescription.trim() || null);
       setNewDeckName('');
-      setNewDeckDescription('');
+      setDeckDescription('');
       await loadWorkspace(created.id);
       showToast('Deck created');
     } catch (err) {
@@ -355,14 +346,13 @@ export default function ManagePage() {
     }
   }
 
-  async function handleAddSubdeck(parentId, name, description = '') {
+  async function handleAddSubdeck(parentId, name) {
     const trimmed = (name || '').trim();
-    const desc = (description || '').trim() || null;
     if (!trimmed || !parentId || saving) return;
 
     setSaving(true);
     try {
-      const created = await createSubdeck(parentId, trimmed, desc);
+      const created = await createSubdeck(parentId, trimmed);
       setOpenDecks((prev) => ({ ...prev, [parentId]: true }));
       await loadWorkspace(created.id);
       showToast('Subdeck added');
@@ -373,41 +363,28 @@ export default function ManagePage() {
     }
   }
 
-  function handleEditSelected() {
+  function handleRenameSelected() {
     const item = findItem(selectedDeckId);
     if (!item) return;
 
     setDialog({
-      title: item.isSubdeck ? 'Edit subdeck' : 'Edit deck',
-      fields: [
-        { label: 'Name', value: item.name },
-        {
-          label: 'Description (optional)',
-          value: item.description,
-          multiline: true,
-          placeholder: 'Optional description',
-        },
-      ],
+      title: item.isSubdeck ? 'Rename subdeck' : 'Rename deck',
+      fields: [{ label: 'Name', value: item.name }],
       ok: 'Save',
-      onSubmit: async ([nextName, nextDescription]) => {
-        const trimmedName = (nextName || '').trim();
-        if (!trimmedName) return;
-        const trimmedDesc = (nextDescription || '').trim() || null;
+      onSubmit: async ([nextName]) => {
+        const trimmed = (nextName || '').trim();
+        if (!trimmed) return;
         setSaving(true);
         try {
           if (item.isSubdeck) {
             await updateSubdeck(item.parentId, item.id, {
-              subdeckname: trimmedName,
-              description: trimmedDesc,
+              subdeckname: trimmed,
             });
           } else {
-            await updateDeck(item.id, {
-              deckname: trimmedName,
-              description: trimmedDesc,
-            });
+            await updateDeck(item.id, { deckname: trimmed });
           }
           await loadWorkspace(item.id);
-          showToast('Saved');
+          showToast('Renamed');
         } catch (err) {
           handleApiError(err);
         } finally {
@@ -567,7 +544,7 @@ export default function ManagePage() {
               (s) => s.subdeckname.toLowerCase() === seg.toLowerCase(),
             );
             if (!match) {
-              match = await createSubdeck(rootDeckId, seg, null);
+              match = await createSubdeck(rootDeckId, seg);
               currentSubs.push(match);
             }
             targetSubdeckId = match.id;
@@ -642,12 +619,15 @@ export default function ManagePage() {
               Add
             </button>
           </div>
-          <input
-            id="newDeckDescription"
-            placeholder="Description (optional)"
-            aria-label="New deck description"
-            value={newDeckDescription}
-            onChange={(e) => setNewDeckDescription(e.target.value)}
+          <label htmlFor="deck-description" className="hint">
+            Description (optional)
+          </label>
+          <textarea
+            id="deck-description"
+            value={deckDescription}
+            onChange={(e) => setDeckDescription(e.target.value)}
+            placeholder="What are you studying?"
+            rows={3}
             disabled={saving}
           />
         </form>
@@ -690,17 +670,10 @@ export default function ManagePage() {
                           e.stopPropagation();
                           setDialog({
                             title: 'New subdeck',
-                            fields: [
-                              { label: 'Name' },
-                              {
-                                label: 'Description (optional)',
-                                multiline: true,
-                                placeholder: 'Optional description',
-                              },
-                            ],
+                            fields: [{ label: 'Name' }],
                             ok: 'Add subdeck',
-                            onSubmit: ([name, desc]) =>
-                              handleAddSubdeck(deck.id, name, desc),
+                            onSubmit: ([name]) =>
+                              handleAddSubdeck(deck.id, name),
                           });
                         }}
                       >
@@ -769,10 +742,10 @@ export default function ManagePage() {
                 <button
                   type="button"
                   id="rename"
-                  onClick={handleEditSelected}
+                  onClick={handleRenameSelected}
                   disabled={saving}
                 >
-                  Edit
+                  Rename
                 </button>
                 <button
                   type="button"
@@ -785,10 +758,6 @@ export default function ManagePage() {
                 </button>
               </div>
             </div>
-
-            {selectedItem.description && (
-              <p className="desc">{selectedItem.description}</p>
-            )}
 
             <p className="hint">
               {displayedCards.length} card
@@ -806,7 +775,6 @@ export default function ManagePage() {
                         type="button"
                         key={sub.id}
                         className="sub"
-                        title={sub.description || undefined}
                         onClick={() => {
                           setSelectedDeckId(sub.id);
                           setOpenDecks((prev) => ({
@@ -823,39 +791,24 @@ export default function ManagePage() {
                 )}
                 <form
                   id="subForm"
-                  className="stack subdeck-form"
+                  className="row subdeck-form"
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    await handleAddSubdeck(
-                      selectedItem.id,
-                      subdeckName,
-                      subdeckDescription,
-                    );
+                    await handleAddSubdeck(selectedItem.id, subdeckName);
                     setSubdeckName('');
-                    setSubdeckDescription('');
                   }}
                 >
-                  <div className="row">
-                    <input
-                      id="subName"
-                      placeholder="New subdeck name"
-                      aria-label="New subdeck name"
-                      value={subdeckName}
-                      onChange={(e) => setSubdeckName(e.target.value)}
-                      disabled={saving}
-                    />
-                    <button className="primary" type="submit" disabled={saving}>
-                      Add subdeck
-                    </button>
-                  </div>
                   <input
-                    id="subDescription"
-                    placeholder="Description (optional)"
-                    aria-label="New subdeck description"
-                    value={subdeckDescription}
-                    onChange={(e) => setSubdeckDescription(e.target.value)}
+                    id="subName"
+                    placeholder="New subdeck name"
+                    aria-label="New subdeck name"
+                    value={subdeckName}
+                    onChange={(e) => setSubdeckName(e.target.value)}
                     disabled={saving}
                   />
+                  <button className="primary" type="submit" disabled={saving}>
+                    Add subdeck
+                  </button>
                 </form>
               </>
             )}
