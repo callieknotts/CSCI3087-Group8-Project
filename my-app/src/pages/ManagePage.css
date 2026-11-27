@@ -1,0 +1,174 @@
+
+.manage-page {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.manage-header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.manage-header h1 {
+  font-size: 2.25rem;
+}
+
+.manage-header p {
+  color: var(--text);
+}
+
+.manage-section {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.manage-section h2 {
+  margin: 0;
+}
+
+.manage-form {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.manage-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.manage-field label,
+.manage-import label {
+  color: var(--text-h);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.manage-field textarea,
+.manage-field select,
+.manage-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.manage-field textarea {
+  resize: vertical;
+}
+
+.manage-field textarea:focus-visible,
+.manage-field select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.manage-inline-form {
+  display: flex;
+  align-items: end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.manage-inline-form .field {
+  flex: 1;
+  min-width: 180px;
+}
+
+.manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.manage-message {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.manage-error {
+  color: var(--text-h);
+  border-color: #b91c1c;
+}
+
+.manage-success {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.manage-import {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.manage-import input {
+  color: var(--text);
+  font: inherit;
+}
+
+.manage-import p {
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.manage-card-list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.manage-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.manage-card-content {
+  display: grid;
+  gap: 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.manage-card-content strong {
+  color: var(--text-h);
+}
+
+.manage-card-content p {
+  color: var(--text);
+}
+
+@media (max-width: 600px) {
+  .manage-section {
+    padding: 1rem;
+  }
+
+  .manage-inline-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .manage-inline-form .field {
+    width: 100%;
+  }
+
+  .manage-header h1 {
+    font-size: 1.8rem;
+  }
+}
