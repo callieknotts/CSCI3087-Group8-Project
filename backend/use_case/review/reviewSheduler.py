@@ -82,6 +82,26 @@ class ReviewScheduler:
         return state
 
     @staticmethod
+    def preview_intervals(
+        state: CardReviewState | None
+    ) -> dict[Rating, float]:
+        """Days until the card comes back for each rating button.
+
+        state=None means a card that was never reviewed. Nothing is saved
+        or changed; this uses the same calculation as review(), so the
+        buttons always promise what a review really does.
+        """
+
+        if state is None:
+            # a new card is scheduled like a fresh review state
+            state = CardReviewState.create(user_id=None, card_id=None)
+
+        return {
+            rating: ReviewScheduler._calculate_interval(state, rating)
+            for rating in Rating
+        }
+
+    @staticmethod
     def _calculate_interval(
         state: CardReviewState,
         rating: Rating
