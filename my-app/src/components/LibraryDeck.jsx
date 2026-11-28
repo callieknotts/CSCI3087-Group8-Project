@@ -5,7 +5,9 @@ import './Button.css';
 // The New / Learn / Due numbers: the cards Repetition mode would start with right now.
 // A number above 0 is a link that opens Repetition mode with just those cards; a 0 is plain
 // text, because there would be nothing to study.
-const NO_COUNTS = { new: 0, learn: 0, due: 0 };
+// Next to them sits a star with the number of starred cards. It links to the starred cards
+// page for this deck or subdeck (a 0 is plain text, same as the others).
+const NO_COUNTS = { new: 0, learn: 0, due: 0, starred: 0 };
 
 const KINDS = [
   { key: 'new', label: 'New', word: 'new' },
@@ -13,8 +15,17 @@ const KINDS = [
   { key: 'due', label: 'Due', word: 'due' },
 ];
 
-// studyPath(kind) is the Repetition page for this deck or subdeck, limited to that kind
-function Counts({ counts = NO_COUNTS, studyPath, name }) {
+// studyPath(kind) is the Repetition page for this deck or subdeck, limited to that kind;
+// starredPath is its starred cards page
+function Counts({ counts = NO_COUNTS, studyPath, starredPath, name }) {
+  const starred = counts.starred ?? 0;
+  const starInside = (
+    <>
+      <b>{starred}</b>
+      <span>★ Star</span>
+    </>
+  );
+
   return (
     <div className="counts" title="Click a number to study just those cards in Repetition mode">
       {KINDS.map(({ key, label, word }) => {
@@ -45,6 +56,21 @@ function Counts({ counts = NO_COUNTS, studyPath, name }) {
           </Link>
         );
       })}
+
+      {starred ? (
+        <Link
+          className="count count--star count--link"
+          to={starredPath}
+          title="See the starred cards"
+          aria-label={`See ${starred} starred ${starred === 1 ? 'card' : 'cards'} in ${name}`}
+        >
+          {starInside}
+        </Link>
+      ) : (
+        <div className="count count--star" title="No starred cards yet">
+          {starInside}
+        </div>
+      )}
     </div>
   );
 }
@@ -77,6 +103,7 @@ export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
           counts={deck.counts}
           name={deck.deckname}
           studyPath={(show) => paths.deckRepetition(deck.id, show)}
+          starredPath={paths.deckStarred(deck.id)}
         />
         <Link className="btn btn-type2" to={paths.deck(deck.id)}>
           See Deck
@@ -92,6 +119,7 @@ export default function LibraryDeck({ deck, subdecks, open, onToggle }) {
                 counts={sub.counts}
                 name={sub.subdeckname}
                 studyPath={(show) => paths.subdeckRepetition(deck.id, sub.id, show)}
+                starredPath={paths.subdeckStarred(deck.id, sub.id)}
               />
               <Link className="btn btn-type2" to={paths.subdeck(deck.id, sub.id)}>
                 See Subdeck

@@ -61,9 +61,10 @@ const CARDS = {
 };
 const STATES = [state('c2', 5, -1), state('c3', 10 / 1440, -0.01), state('c4', 5, 3)];
 
-function fakeBackend({decks = DECKS, cards = CARDS, states = STATES} = {}) {
+function fakeBackend({decks = DECKS, cards = CARDS, states = STATES, stars = []} = {}) {
     return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
         if (url === '/api/decks/') return reply(200, decks);
+        if (url === '/api/stars/') return reply(200, {card_ids: stars});
         if (url === '/api/decks/b/subdecks/') {
             return reply(200, [
                 {id: 's2', deck_id: 'b', subdeckname: 'Zoology'},
@@ -166,10 +167,11 @@ test('Decks and subdecks have See buttons with paths and show counts', async () 
 });
 
 // the three numbers of the row that a name belongs to, for example {New: '2', Learn: '1', Due: '0'}
+// (the star count next to them is tested on its own, so it is left out here)
 function countsOf(nameElement) {
     const row = nameElement.closest('.library-row');
     return Object.fromEntries(
-        [...row.querySelectorAll('.count')].map((count) => [
+        [...row.querySelectorAll('.count:not(.count--star)')].map((count) => [
             count.querySelector('span').textContent,
             count.querySelector('b').textContent,
         ])
@@ -285,11 +287,51 @@ test('The homepage has no Flashcard mode buttons, even with subdecks open', asyn
     expect(screen.queryByRole('button', {name: /flashcard/i})).not.toBeInTheDocument();
 });
 
-// the only way to reach the starred cards is this link
+// the link in the top row opens the starred cards page for every deck
 test('The homepage has a Starred cards link', async () => {
     fakeBackend();
     renderHome();
     await screen.findByRole('heading', {name: 'Biology'});
 
-    expect(screen.getByRole('link', {name: /Starred cards/})).toHaveAttribute('href', '/flashcards/starred');
+    expect(screen.getByRole('link', {name: /Starred cards/})).toHaveAttribute('href', '/starred');
+});
+
+// next to New / Learn / Due, each deck and subdeck shows how many of its cards are starred
+test('Each deck shows its number of starred cards and links to its starred page', async () => {
+    // Biology has c1 (in Cells) and c3 (in Zoology) starred, Chemistry has c6, Art has none
+    fakeBackend({stars: ['c1', 'c3', 'c6']});
+    renderHome();
+    await screen.findByRole('heading', {name: 'Biology'});
+
+    expect(screen.getByRole('link', {name: 'See 2 starred cards in Biology'})).toHaveAttribute('href', '/decks/b/starred');
+    expect(screen.getByRole('link', {name: 'See 1 starred card in Chemistry'})).toHaveAttribute('href', '/decks/c/starred');
+});
+
+test('A deck with no starred cards shows 0 and is not a link', async () => {
+    fakeBackend({stars: ['c1']});
+    renderHome();
+    await screen.findByRole('heading', {name: 'Biology'});
+
+    expect(screen.queryByRole('link', {name: /starred cards? in Art/})).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', {name: /starred cards? in Chemistry/})).not.toBeInTheDocument();
+});
+
+test('Each subdeck shows its own number of starred cards', async () => {
+    const user = userEvent.setup();
+    fakeBackend({stars: ['c1', 'c2', 'c3']});
+    renderHome();
+    await screen.findByRole('heading', {name: 'Biology'});
+
+    await user.click(screen.getByRole('button', {name: 'Show subdecks of Biology'}));
+
+    expect(screen.getByRole('link', {name: 'See 2 starred cards in Cells'})).toHaveAttribute('href', '/decks/b/subdecks/s1/starred');
+    expect(screen.getByRole('link', {name: 'See 1 starred card in Zoology'})).toHaveAttribute('href', '/decks/b/subdecks/s2/starred');
+});
+
+test('A star on a card that no longer exists is not counted', async () => {
+    fakeBackend({stars: ['deleted-card']});
+    renderHome();
+    await screen.findByRole('heading', {name: 'Biology'});
+
+    expect(screen.queryByRole('link', {name: /starred cards? in/})).not.toBeInTheDocument();
 });

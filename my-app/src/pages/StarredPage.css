@@ -1,0 +1,58 @@
+/* the starred cards page reuses the deck page's look (DetailPage.css); this is only what is new */
+
+/* a card row with a third column for the star button (the first two are front and back) */
+.starred-row {
+  grid-template-columns: 1fr 1fr auto;
+  align-items: start;
+}
+
+/* the star on each row: a round, accent-tinted button like the library's arrow button;
+   filled in while the card is starred */
+.starred-toggle {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+
+  &:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.starred-toggle--on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* narrow screens: front and back stack, and the star stays in the top-right corner */
+@media (max-width: 560px) {
+  .starred-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .starred-row .card-side {
+    grid-column: 1;
+  }
+
+  .starred-row .starred-toggle {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

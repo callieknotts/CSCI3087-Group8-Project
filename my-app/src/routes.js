@@ -15,6 +15,11 @@ export const paths = {
   deckFlashcards: (deckId) => `/decks/${deckId}/flashcards`,
   subdeckFlashcards: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/flashcards`,
   starredFlashcards: '/flashcards/starred',
+  // the starred cards page (a list you can browse and un-star): every starred card, or only
+  // the ones in one deck or one subdeck
+  starred: '/starred',
+  deckStarred: (deckId) => `/decks/${deckId}/starred`,
+  subdeckStarred: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/starred`,
   // repetition mode (spaced repetition): a whole deck or one subdeck
   deckRepetition: (deckId, show) => `/decks/${deckId}/repetition${showQuery(show)}`,
   subdeckRepetition: (deckId, subdeckId, show) =>

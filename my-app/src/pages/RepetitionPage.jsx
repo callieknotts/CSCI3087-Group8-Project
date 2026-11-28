@@ -26,14 +26,13 @@ import './RepetitionPage.css';
 // the new ones, and sends each rating to the backend, which schedules the card's next review.
 export default function RepetitionPage() {
   const { deckId, subdeckId } = useParams();
-  const { user } = useOutletContext();
   const [searchParams] = useSearchParams();
   const requested = searchParams.get('show');
   const show = SHOW_KINDS.includes(requested) ? requested : null; // anything else studies everything
 
   const state = useLoad(async () => {
     const [set, reviews] = await Promise.all([
-      loadFlashcardSet(deckId, subdeckId, user?.id),
+      loadFlashcardSet(deckId, subdeckId),
       listReviewStates(),
     ]);
     return {

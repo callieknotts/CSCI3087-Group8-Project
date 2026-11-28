@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
-import { listDecks, listSubdecks, listCards, listReviewStates } from '../api/decksApi';
+import {
+  listDecks,
+  listSubdecks,
+  listCards,
+  listReviewStates,
+  listStarredCardIds,
+} from '../api/decksApi';
 import { sortDecks, sortSubdecks } from '../utils/sortDecks';
 import { countCards } from '../utils/reviewSchedule';
+import { countStarred } from '../utils/starredCards';
 import LibraryDeck from '../components/LibraryDeck';
 import { paths } from '../routes';
 import './HomePage.css';
@@ -14,11 +21,16 @@ const SORT_OPTIONS = [
 ];
 
 // Loads the user's decks, then the subdecks of each deck, plus the New / Learn / Due counts
-// (what Repetition mode would start with) for every deck and subdeck.
+// (what Repetition mode would start with) and the number of starred cards for every deck
+// and subdeck.
 // The backend answers "this deck has no subdecks" with an error (HTTP 500) instead of an
 // empty list, so a 500 here is treated as "no subdecks". Anything else is a real error.
 async function loadLibrary() {
-  const [decks, review] = await Promise.all([listDecks(), listReviewStates()]);
+  const [decks, review, starred] = await Promise.all([
+    listDecks(),
+    listReviewStates(),
+    listStarredCardIds(),
+  ]);
   const states = new Map(review.states.map((s) => [s.card_id, s]));
 
   return Promise.all(
@@ -33,17 +45,17 @@ async function loadLibrary() {
       // one request per deck: it returns the cards of every subdeck too, so each subdeck's
       // numbers come from the cards that belong to it
       const cards = await listCards(deck.id);
-      const subsWithCounts = subdecks.map((sub) => ({
-        ...sub,
-        counts: countCards(
-          cards.filter((card) => card.subdeck_id === sub.id),
-          states,
-        ),
-      }));
+      const subsWithCounts = subdecks.map((sub) => {
+        const subCards = cards.filter((card) => card.subdeck_id === sub.id);
+        return {
+          ...sub,
+          counts: { ...countCards(subCards, states), starred: countStarred(subCards, starred) },
+        };
+      });
 
       return {
         ...deck,
-        counts: countCards(cards, states),
+        counts: { ...countCards(cards, states), starred: countStarred(cards, starred) },
         subdecks: sortSubdecks(subsWithCounts),
       };
     }),
@@ -118,9 +130,9 @@ export default function HomePage() {
       <div className="library-head">
         <h1>Library</h1>
 
-        {/* the only way to reach the cards the user starred (flashcard mode for a deck or
-            subdeck lives on that deck's or subdeck's own page) */}
-        <Link className="btn btn-type2 library-starred-link" to={paths.starredFlashcards}>
+        {/* every card the user starred, from all decks. The star next to each deck's New /
+            Learn / Due numbers opens the same page for just that deck or subdeck. */}
+        <Link className="btn btn-type2 library-starred-link" to={paths.starred}>
           ★ Starred cards
         </Link>
 

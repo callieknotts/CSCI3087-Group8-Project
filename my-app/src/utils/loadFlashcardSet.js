@@ -1,16 +1,14 @@
-import { ApiError, getDeck, getSubdeck, listCards, listDecks } from '../api/decksApi';
+import { ApiError, getDeck, getSubdeck, listCards, listDecks, listStarredCardIds } from '../api/decksApi';
 import { paths } from '../routes';
-import { loadStarred } from './starredCards';
 
 // Gets the cards to study, a title, and where the "back" link goes. There are three kinds:
 //   /decks/:deckId/flashcards                  every card in the deck (all its subdecks)
 //   /decks/:deckId/subdecks/:sid/flashcards    only that subdeck's cards
 //   /flashcards/starred                        every card the user starred, from all decks
-export async function loadFlashcardSet(deckId, subdeckId, userId) {
+export async function loadFlashcardSet(deckId, subdeckId) {
   // starred cards: look through every deck and keep only the starred ones
   if (!deckId) {
-    const starred = loadStarred(userId);
-    const decks = await listDecks();
+    const [starred, decks] = await Promise.all([listStarredCardIds(), listDecks()]);
     const lists = await Promise.all(decks.map((deck) => listCards(deck.id)));
     return {
       title: 'Starred cards',

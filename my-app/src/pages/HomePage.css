@@ -180,6 +180,20 @@
   }
 }
 
+/* the star count sits after New / Learn / Due, set apart by a thin line. Its star is in the
+   accent color so it reads as a different kind of number. */
+.counts .count--star {
+  margin-left: 0.2rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--border);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.counts .count--star span {
+  color: var(--accent);
+  white-space: nowrap;
+}
+
 /* the number in each count: on its own line, bold, in the heading color */
 .count b {
   display: block;

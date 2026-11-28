@@ -160,6 +160,27 @@ export function deleteCard(deckId, cardId) {
   );
 }
 
+// -------------------- STARS --------------------
+
+const STARS_URL = '/api/stars/';
+
+// The ids of every card the logged-in user has starred, as a Set (the cards themselves come
+// from listCards). Stars belong to the user, so they are the same on every device.
+export async function listStarredCardIds() {
+  const body = await request(STARS_URL);
+  return new Set(body?.card_ids ?? []);
+}
+
+// Star a card. Safe to repeat. The backend answers 404 for a card that is not the user's.
+export function starCard(cardId) {
+  return request(`${STARS_URL}${cardId}`, { method: 'PUT' });
+}
+
+// Remove the star from a card. Safe to repeat.
+export function unstarCard(cardId) {
+  return request(`${STARS_URL}${cardId}`, { method: 'DELETE' });
+}
+
 // -------------------- REVIEWS (spaced repetition) --------------------
 
 const REVIEWS_URL = '/api/reviews/';
