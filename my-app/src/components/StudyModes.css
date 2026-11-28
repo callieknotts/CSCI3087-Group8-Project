@@ -72,34 +72,6 @@
   box-shadow: var(--shadow);
 }
 
-/* Front & back: both sides on one card, front on top and back (in the accent color) under it */
-.fb-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.fb-side {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  min-height: clamp(8rem, 22vh, 12rem);
-  padding: 1.25rem 1.5rem 1rem;
-}
-
-.fb-side--back {
-  border-top: 1px dashed var(--accent-border);
-  background: var(--accent-bg);
-}
-
-.fb-side--back .flash-side {
-  color: var(--accent);
-}
-
 /* Quiz: the four answer buttons */
 .quiz-choices {
   display: grid;
@@ -238,4 +210,14 @@
   .quiz-choices {
     grid-template-columns: 1fr;
   }
+}
+
+/* Front & back: "Front → Back" / "Back → Front" above the card */
+.fb-direction {
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
 }

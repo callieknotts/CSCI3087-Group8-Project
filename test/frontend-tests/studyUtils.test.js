@@ -1,6 +1,7 @@
 import {test, expect} from 'vitest';
 import {shuffle, reshuffle} from '../../my-app/src/utils/shuffle';
 import {buildQuiz, canQuiz, quizzableCards} from '../../my-app/src/utils/quiz';
+import {buildSides, spreadPairs} from '../../my-app/src/utils/frontBack';
 import {checkAnswer, isSingleWord, typeableCards} from '../../my-app/src/utils/typeIt';
 
 // a card the way the backend sends it
@@ -106,4 +107,21 @@ test('checkAnswer ignores capitals, spaces and punctuation around the word', () 
 test('checkAnswer tells the right word with the wrong accents apart', () => {
     expect(checkAnswer('cafe', 'café')).toBe('accent');
     expect(checkAnswer('café', 'café')).toBe('correct');
+});
+
+// ---------- front & back ----------
+
+test('front & back asks every card twice: all front-first, then all back-first', () => {
+    const sides = buildSides(FIVE.slice(0, 3));
+    expect(sides.map((s) => `${s.card.id}:${s.side}`)).toEqual(['1:front', '2:front', '3:front', '1:back', '2:back', '3:back']);
+    expect(new Set(sides.map((s) => s.key)).size).toBe(6);
+});
+
+test('spreadPairs keeps the two questions about one card apart', () => {
+    const sides = buildSides(FIVE);
+    const bunched = [sides[0], sides[5], sides[1], sides[6], sides[2], sides[7], sides[3], sides[8], sides[4], sides[9]];
+    const result = spreadPairs(bunched);
+    expect(result).toHaveLength(10);
+    for (let i = 1; i < result.length; i++) expect(result[i].card.id).not.toBe(result[i - 1].card.id);
+    expect(new Set(result.map((s) => s.key)).size).toBe(10);
 });

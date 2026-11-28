@@ -169,50 +169,70 @@ test('Type it out: says so when no card has a one-word back', async () => {
 
 // ---------- Front & back ----------
 
-test('Front & back: shows the front and the back at the same time', async () => {
+// the text on the face of the card that is showing (the other face is turned away, aria-hidden)
+function shownText() {
+    return document.querySelector('.flash-face[aria-hidden="false"] .flash-text').textContent;
+}
+
+test('Front & back: every card is asked twice, so 5 cards make 10 questions', async () => {
     fakeBackend();
     renderAt('/decks/b/front-and-back');
-    expect(await screen.findByText('Front one')).toBeInTheDocument();
-    expect(screen.getByText('Back one')).toBeInTheDocument();
+    expect(await screen.findByText('1 / 10')).toBeInTheDocument();
+    expect(screen.getByText('Front → Back')).toBeInTheDocument();
+    expect(shownText()).toBe('Front one');
 });
 
-test('Front & back: next and previous move between cards, and the star saves', async () => {
+test('Front & back: the second half asks from the back and shows the front when flipped', async () => {
+    fakeBackend();
+    const user = userEvent.setup();
+    renderAt('/decks/b/front-and-back');
+    await screen.findByText('1 / 10');
+
+    for (let i = 0; i < 5; i++) await user.click(screen.getByRole('button', {name: 'Next question'}));
+    expect(screen.getByText('6 / 10')).toBeInTheDocument();
+    expect(screen.getByText('Back → Front')).toBeInTheDocument();
+    expect(shownText()).toBe('Back one'); // asked from the back
+
+    await user.click(screen.getByRole('button', {name: /Click to flip/}));
+    expect(shownText()).toBe('Front one'); // the answer is the front
+});
+
+test('Front & back: the star saves and belongs to the card, not the direction', async () => {
     const spy = fakeBackend();
     const user = userEvent.setup();
     renderAt('/decks/b/front-and-back');
-    await screen.findByText('Front one');
-
-    await user.click(screen.getByRole('button', {name: 'Next card'}));
-    expect(screen.getByText('Front two')).toBeInTheDocument();
-    expect(screen.getByText('Back two')).toBeInTheDocument();
+    await screen.findByText('1 / 10');
 
     await user.click(screen.getByRole('button', {name: 'Star this card'}));
-    await waitFor(() => expect(starCalls(spy)).toEqual([['PUT', '/api/stars/c2']]));
+    await waitFor(() => expect(starCalls(spy)).toEqual([['PUT', '/api/stars/c1']]));
 
-    await user.click(screen.getByRole('button', {name: 'Previous card'}));
-    expect(screen.getByText('Front one')).toBeInTheDocument();
+    for (let i = 0; i < 5; i++) await user.click(screen.getByRole('button', {name: 'Next question'}));
+    // question 6 is card c1 asked from its back: it is already starred
+    expect(screen.getByRole('button', {name: 'Remove star from this card'})).toBeInTheDocument();
 });
 
-test('Front & back: Shuffle keeps all the cards and Original order puts them back', async () => {
+test('Front & back: Shuffle keeps all 10 questions, and Original order puts them back', async () => {
     fakeBackend();
     const user = userEvent.setup();
     renderAt('/decks/b/front-and-back');
-    await screen.findByText('Front one');
+    await screen.findByText('1 / 10');
 
     await user.click(screen.getByRole('button', {name: /Shuffle/}));
-    expect(screen.getByText('1 / 5')).toBeInTheDocument(); // starts again from the first card
+    expect(screen.getByText('1 / 10')).toBeInTheDocument(); // starts again from the first question
 
-    // walk through every card: each one is there exactly once
     const seen = [];
-    for (let i = 0; i < 5; i++) {
-        seen.push(document.querySelector('.fb-side:not(.fb-side--back) .flash-text').textContent);
-        if (i < 4) await user.click(screen.getByRole('button', {name: 'Next card'}));
+    for (let i = 0; i < 10; i++) {
+        seen.push(screen.getByText(/→/).textContent + ' ' + shownText());
+        if (i < 9) await user.click(screen.getByRole('button', {name: 'Next question'}));
     }
-    expect([...seen].sort()).toEqual(FIVE.map((c) => c.content.front.text).sort());
+    const expected = FIVE.flatMap((c) => [
+        'Front → Back ' + c.content.front.text,
+        'Back → Front ' + c.content.back.text,
+    ]);
+    expect([...seen].sort()).toEqual(expected.sort());
 
     await user.click(screen.getByRole('button', {name: 'Original order'}));
-    expect(screen.getByText('Front one')).toBeInTheDocument();
-    expect(screen.getByText('1 / 5')).toBeInTheDocument();
+    expect(shownText()).toBe('Front one');
 });
 
 // ---------- Classic and Repetition ----------

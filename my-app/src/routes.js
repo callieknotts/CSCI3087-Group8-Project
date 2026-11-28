@@ -21,7 +21,8 @@ export const paths = {
   deckStarred: (deckId) => `/decks/${deckId}/starred`,
   subdeckStarred: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/starred`,
   // the three extra review modes. Each has a whole deck, one subdeck, and every starred card:
-  //   quiz (multiple choice), type-it-out (type single-word answers), front & back (both sides)
+  //   quiz (multiple choice), type-it-out (type single-word answers), front & back (every card
+  // asked twice: from its front and from its back)
   deckQuiz: (deckId) => `/decks/${deckId}/quiz`,
   subdeckQuiz: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/quiz`,
   starredQuiz: '/flashcards/starred/quiz',

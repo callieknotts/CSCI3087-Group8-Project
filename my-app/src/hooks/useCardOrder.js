@@ -9,16 +9,18 @@ import { reshuffle, shuffle } from '../utils/shuffle';
 //   shuffleNow  shuffle the cards again (the order always changes)
 //   reset       go back to the original order
 // startShuffled: begin already shuffled (Quiz mode does this)
-export function useCardOrder(cards, { startShuffled = false } = {}) {
+// arrange: optional function that tidies a shuffled list (Front & back uses it to keep the two
+//          questions about one card apart)
+export function useCardOrder(cards, { startShuffled = false, arrange = (list) => list } = {}) {
   const [shuffled, setShuffled] = useState(startShuffled);
-  const [order, setOrder] = useState(() => (startShuffled ? shuffle(cards) : cards));
+  const [order, setOrder] = useState(() => (startShuffled ? arrange(shuffle(cards)) : cards));
   const [round, setRound] = useState(0);
 
   const shuffleNow = useCallback(() => {
-    setOrder((current) => reshuffle(current));
+    setOrder((current) => arrange(reshuffle(current)));
     setShuffled(true);
     setRound((n) => n + 1);
-  }, []);
+  }, [arrange]);
 
   const reset = useCallback(() => {
     setOrder(cards);
