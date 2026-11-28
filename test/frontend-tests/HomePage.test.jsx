@@ -127,7 +127,8 @@ test('Sorting by deck name puts the decks in alphabetical order', async () => {
     renderHome();
     await screen.findByRole('heading', {name: 'Biology'});
 
-    await user.selectOptions(screen.getByLabelText('Sort by'), 'deckname');
+    await user.click(screen.getByRole('button', {name: /sort by created at/i}));
+    await user.click(screen.getByRole('menuitemradio', {name: /deck name/i}));
 
     expect(deckOrder()).toEqual(['Art', 'Biology', 'Chemistry']);
 });

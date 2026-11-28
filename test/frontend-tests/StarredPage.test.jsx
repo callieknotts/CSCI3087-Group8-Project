@@ -87,12 +87,16 @@ test('Lists the starred cards from every deck, grouped by deck', async () => {
     expect(screen.getByText(/2 starred cards/)).toBeInTheDocument();
 });
 
-test('The page for every deck has a button that studies the starred cards as flashcards', async () => {
+test('The all-decks starred page has a review-mode menu for studying starred cards', async () => {
+    const user = userEvent.setup();
     fakeBackend(['c1']);
     renderAt('/starred');
     await screen.findByText('Cell front');
 
-    expect(screen.getByRole('link', {name: 'Study as flashcards'})).toHaveAttribute('href', '/flashcards/starred');
+    await user.click(screen.getByRole('button', {name: /review mode classic/i}));
+
+    expect(screen.getByRole('menuitem', {name: 'Classic'})).toHaveAttribute('href', '/flashcards/starred');
+    expect(screen.getByRole('menuitem', {name: 'Repetition'})).toHaveAttribute('href', '/flashcards/starred/repetition');
 });
 
 test('Explains when nothing is starred', async () => {
@@ -100,7 +104,7 @@ test('Explains when nothing is starred', async () => {
     renderAt('/starred');
 
     expect(await screen.findByText(/haven't starred any cards yet/i)).toBeInTheDocument();
-    expect(screen.queryByRole('link', {name: 'Study as flashcards'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', {name: /review mode classic/i})).not.toBeInTheDocument();
 });
 
 test('A deck page shows only that deck\'s starred cards', async () => {
@@ -112,7 +116,7 @@ test('A deck page shows only that deck\'s starred cards', async () => {
     expect(screen.queryByText('Paint front')).not.toBeInTheDocument(); // starred, but in Art
     expect(screen.getByText(/in Biology · 2 starred cards/)).toBeInTheDocument();
     expect(screen.getByRole('link', {name: /← Biology/})).toHaveAttribute('href', '/decks/b');
-    expect(screen.queryByRole('link', {name: 'Study as flashcards'})).not.toBeInTheDocument();
+    expect(screen.getByRole('button', {name: /review mode classic/i})).toBeInTheDocument();
 });
 
 test('A subdeck page asks the backend only for that subdeck', async () => {

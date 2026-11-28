@@ -46,7 +46,7 @@ test('Home and + buttons link to the homepage and the manage page', () => {
     renderLayout();
 
     expect(screen.getByRole('link', {name: 'Back to homepage'})).toHaveAttribute('href', '/');
-    expect(screen.getByRole('link', {name: 'Create deck'})).toHaveAttribute('href', '/manage');
+    expect(screen.getByRole('link', {name: 'Add or edit decks'})).toHaveAttribute('href', '/manage');
 });
 
 // pseudo search path: submitting goes to /search?q=text
