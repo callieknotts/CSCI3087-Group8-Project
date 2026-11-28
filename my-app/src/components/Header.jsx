@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { paths } from '../routes';
 import './Header.css';
 
-// The website header: home button, search, "+" button and the profile menu.
+// The website header: home button, search, deck management button and profile menu.
 // It only shows things and sends the user to other pages. Logging out is done by
 // the Layout, which passes it in as onLogout.
 export default function Header({ onLogout, loggingOut = false }) {
@@ -106,10 +106,14 @@ export default function Header({ onLogout, loggingOut = false }) {
           <Link
             to={paths.manage}
             className="icon-btn"
-            aria-label="Create deck"
-            title="Create deck"
+            aria-label="Add or edit decks"
+            title="Add or edit decks"
           >
-            +
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="5" y="4" width="12" height="15" rx="2" />
+              <path d="M9 8h4M9 12h4M9 16h2" />
+              <path d="M9 2h10a2 2 0 0 1 2 2v14" />
+            </svg>
           </Link>
 
           <div className="profile-menu" ref={menuRef}>

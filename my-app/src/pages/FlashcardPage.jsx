@@ -1,27 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useOutletContext, useParams } from 'react-router-dom';
-import { ApiError, getDeck, getSubdeck, listCards, listDecks } from '../api/decksApi';
+import { Link, useParams } from 'react-router-dom';
+import {
+  ApiError,
+  getDeck,
+  getSubdeck,
+  listCards,
+  listDecks,
+  listStarredCardIds,
+} from '../api/decksApi';
 import { useLoad } from '../hooks/useLoad';
+import { useStarred } from '../hooks/useStarred';
 import { paths } from '../routes';
 import { sideText } from '../utils/cardText';
-import { loadStarred, saveStarred } from '../utils/starredCards';
 import './FlashcardPage.css';
 
 // Gets the cards to study, a title, and where the "back" link goes. There are three kinds:
 //   /decks/:deckId/flashcards                  every card in the deck (all its subdecks)
 //   /decks/:deckId/subdecks/:sid/flashcards    only that subdeck's cards
 //   /flashcards/starred                        every card the user starred, from all decks
-async function loadFlashcardSet(deckId, subdeckId, userId) {
-  // starred cards: look through every deck and keep only the starred ones
+async function loadCards(deckId, subdeckId) {
+  // starred cards: look through every deck (loadFlashcardSet keeps only the starred ones)
   if (!deckId) {
-    const starred = loadStarred(userId);
     const decks = await listDecks();
     const lists = await Promise.all(decks.map((deck) => listCards(deck.id)));
     return {
       title: 'Starred cards',
       backTo: paths.home,
       backLabel: 'Library',
-      cards: lists.flat().filter((card) => starred.has(card.id)),
+      cards: lists.flat(),
     };
   }
 
@@ -49,13 +55,22 @@ async function loadFlashcardSet(deckId, subdeckId, userId) {
   return { title: deck.deckname, backTo: paths.deck(deckId), backLabel: 'Deck', cards };
 }
 
+// Loads the cards and the user's stars together, so each card's star starts out right.
+async function loadFlashcardSet(deckId, subdeckId) {
+  const [set, starred] = await Promise.all([loadCards(deckId, subdeckId), listStarredCardIds()]);
+  return {
+    ...set,
+    starred,
+    cards: deckId ? set.cards : set.cards.filter((card) => starred.has(card.id)),
+  };
+}
+
 // The page: loads the cards, then shows the study screen (or a message if it cannot).
 export default function FlashcardPage() {
   const { deckId, subdeckId } = useParams();
-  const { user } = useOutletContext();
 
   const state = useLoad(
-    () => loadFlashcardSet(deckId, subdeckId, user?.id),
+    () => loadFlashcardSet(deckId, subdeckId),
     `${deckId ?? 'starred'}/${subdeckId ?? ''}`,
   );
 
@@ -83,7 +98,7 @@ export default function FlashcardPage() {
     );
   }
 
-  const { title, backTo, backLabel, cards } = state.data;
+  const { title, backTo, backLabel, cards, starred } = state.data;
 
   if (cards.length === 0) {
     return (
@@ -102,15 +117,21 @@ export default function FlashcardPage() {
   }
 
   return (
-    <Flashcards title={title} backTo={backTo} backLabel={backLabel} cards={cards} userId={user?.id} />
+    <Flashcards
+      title={title}
+      backTo={backTo}
+      backLabel={backLabel}
+      cards={cards}
+      initialStarred={starred}
+    />
   );
 }
 
 // The study screen: one card at a time, flip it, move between cards, star it.
-function Flashcards({ title, backTo, backLabel, cards, userId }) {
+function Flashcards({ title, backTo, backLabel, cards, initialStarred }) {
   const [index, setIndex] = useState(0); // which card is showing
   const [flipped, setFlipped] = useState(false); // false = front, true = back
-  const [starred, setStarred] = useState(() => loadStarred(userId));
+  const { starred, toggle, error: starError } = useStarred(initialStarred);
   const [instant, setInstant] = useState(false); // true for one frame: change cards without the flip animation
 
   const card = cards[index];
@@ -139,13 +160,9 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
     return () => cancelAnimationFrame(frame);
   }, [instant]);
 
-  // Star or un-star the current card, and remember it.
+  // Star or un-star the current card (the backend remembers it).
   function toggleStar() {
-    const next = new Set(starred);
-    if (next.has(card.id)) next.delete(card.id);
-    else next.add(card.id);
-    setStarred(next);
-    saveStarred(userId, next);
+    toggle(card);
   }
 
   // After a mouse click on a button, take focus off it. Otherwise the space bar would press
@@ -242,6 +259,13 @@ function Flashcards({ title, backTo, backLabel, cards, userId }) {
           {isStarred ? '★' : '☆'}
         </button>
       </div>
+
+      {/* shown only when the backend refused to save a star (the star went back) */}
+      {starError && (
+        <p className="flash-message" role="alert">
+          {starError}
+        </p>
+      )}
 
       {/* previous button, "2 / 4", next button */}
       <div className="flash-nav">

@@ -2,11 +2,7 @@ import {render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter, Outlet, Route, Routes} from 'react-router-dom';
 import FlashcardPage from '../../my-app/src/pages/FlashcardPage';
-import {vi, afterEach, beforeEach, test, expect} from 'vitest';
-
-beforeEach(() => {
-    localStorage.clear();
-});
+import {vi, afterEach, test, expect} from 'vitest';
 
 // undoes fake fetches so tests don't affect each other
 afterEach(() => {
@@ -31,9 +27,21 @@ function card(id, front, back, subdeckId = null) {
 
 const CARDS = [card('c1', 'Front one', 'Back one'), card('c2', 'Front two', 'Back two'), card('c3', 'Front three', 'Back three')];
 
-// answers the requests the flashcard page makes; returns the spy so tests can read the calls
-function fakeBackend(cards = CARDS) {
-    return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+// answers the requests the flashcard page makes; returns the spy so tests can read the calls.
+// starredIds are the cards the user has already starred. The fake remembers stars the page
+// adds or removes. failStarring makes the backend refuse to save a star.
+function fakeBackend(cards = CARDS, starredIds = [], {failStarring = false} = {}) {
+    const starred = new Set(starredIds);
+    return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, options) => {
+        if (url === '/api/stars/') return reply(200, {card_ids: [...starred]});
+        const star = url.match(/^\/api\/stars\/(\w+)$/);
+        if (star) {
+            if (failStarring) return reply(404, {detail: 'Card not found'});
+            const adding = options?.method === 'PUT';
+            if (adding) starred.add(star[1]);
+            else starred.delete(star[1]);
+            return reply(200, {card_id: star[1], starred: adding});
+        }
         if (url === '/api/decks/b') return reply(200, {id: 'b', deckname: 'Biology'});
         if (url === '/api/decks/b/subdecks/s1') return reply(200, {id: 's1', deck_id: 'b', subdeckname: 'Cells'});
         if (url.startsWith('/api/decks/b/cards/')) return reply(200, cards);
@@ -55,6 +63,13 @@ function renderAt(address) {
             </Routes>
         </MemoryRouter>
     );
+}
+
+// the star requests the page made, as [method, url] pairs
+function starCalls(spy) {
+    return spy.mock.calls
+        .filter(([url]) => /^\/api\/stars\/\w/.test(url))
+        .map(([url, options]) => [options.method, url]);
 }
 
 // the text on the face of the card that is showing (the other face is turned away, aria-hidden)
@@ -189,9 +204,9 @@ test('Previous is disabled on the first card and Next on the last', async () => 
     expect(screen.getByRole('button', {name: 'Next card'})).toBeDisabled();
 });
 
-test('Starring a card is remembered and does not flip the card', async () => {
+test('Starring a card is saved in the backend and does not flip the card', async () => {
     const user = userEvent.setup();
-    fakeBackend();
+    const spy = fakeBackend();
     renderAt('/decks/b/flashcards');
     await screen.findByText('Front one');
 
@@ -199,10 +214,31 @@ test('Starring a card is remembered and does not flip the card', async () => {
 
     expect(cardText()).toBe('Front one'); // the click on the star did not flip the card
     expect(screen.getByRole('button', {name: 'Remove star from this card'})).toHaveAttribute('aria-pressed', 'true');
-    expect(JSON.parse(localStorage.getItem('rebelreview:starred:u1'))).toEqual(['c1']);
+    await waitFor(() => expect(starCalls(spy)).toEqual([['PUT', '/api/stars/c1']]));
 
     await user.click(screen.getByRole('button', {name: 'Remove star from this card'}));
-    expect(JSON.parse(localStorage.getItem('rebelreview:starred:u1'))).toEqual([]);
+    expect(screen.getByRole('button', {name: 'Star this card'})).toHaveAttribute('aria-pressed', 'false');
+    await waitFor(() => expect(starCalls(spy)).toEqual([['PUT', '/api/stars/c1'], ['DELETE', '/api/stars/c1']]));
+});
+
+test('A card the user already starred shows its star filled in', async () => {
+    fakeBackend(CARDS, ['c1']);
+    renderAt('/decks/b/flashcards');
+    await screen.findByText('Front one');
+
+    expect(screen.getByRole('button', {name: 'Remove star from this card'})).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('If the backend cannot save a star, the star goes back and says why', async () => {
+    const user = userEvent.setup();
+    fakeBackend(CARDS, [], {failStarring: true});
+    renderAt('/decks/b/flashcards');
+    await screen.findByText('Front one');
+
+    await user.click(screen.getByRole('button', {name: 'Star this card'}));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Card not found');
+    expect(screen.getByRole('button', {name: 'Star this card'})).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('After clicking the star or a nav button, the space bar still flips the card', async () => {
@@ -243,8 +279,7 @@ test('A subdeck asks the backend only for that subdeck and shows its name', asyn
 });
 
 test('Starred cards mode shows only starred cards from the decks', async () => {
-    localStorage.setItem('rebelreview:starred:u1', JSON.stringify(['c2']));
-    fakeBackend();
+    fakeBackend(CARDS, ['c2']);
     renderAt('/flashcards/starred');
 
     expect(await screen.findByText('Front two')).toBeInTheDocument();

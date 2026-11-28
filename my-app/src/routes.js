@@ -1,5 +1,9 @@
 // Every page address in one place, so the header, the library and the pages that
 // other teammates build all link to the same paths.
+// `show` ('new' | 'learn' | 'due') is optional: it makes a Repetition session study only that kind
+// of card (the New / Learn / Due numbers in the library link to it)
+const showQuery = (show) => (show ? `?show=${show}` : '');
+
 export const paths = {
   home: '/',
   manage: '/manage', // the "+" page: create / edit decks, subdecks and cards
@@ -11,4 +15,13 @@ export const paths = {
   deckFlashcards: (deckId) => `/decks/${deckId}/flashcards`,
   subdeckFlashcards: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/flashcards`,
   starredFlashcards: '/flashcards/starred',
+  // the starred cards page (a list you can browse and un-star): every starred card, or only
+  // the ones in one deck or one subdeck
+  starred: '/starred',
+  deckStarred: (deckId) => `/decks/${deckId}/starred`,
+  subdeckStarred: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/starred`,
+  // repetition mode (spaced repetition): a whole deck or one subdeck
+  deckRepetition: (deckId, show) => `/decks/${deckId}/repetition${showQuery(show)}`,
+  subdeckRepetition: (deckId, subdeckId, show) =>
+    `/decks/${deckId}/subdecks/${subdeckId}/repetition${showQuery(show)}`,
 };

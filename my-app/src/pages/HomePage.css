@@ -151,9 +151,47 @@
 /* the New / Due / Review group: three counts side by side, centered, with aligned digits */
 .counts {
   display: flex;
-  gap: 1rem;
+  gap: 0.4rem;
   text-align: center;
   font-variant-numeric: tabular-nums;
+}
+
+/* each count has a little padding so a number that is a link has room for its hover background;
+   a 0 (plain text) gets the same padding so the three stay lined up */
+.counts .count {
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.5rem;
+}
+
+/* a count above 0 is a link to Repetition mode for just those cards */
+.counts .count--link {
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--accent-bg);
+  }
+
+  &:hover b,
+  &:focus-visible b {
+    color: var(--accent);
+  }
+}
+
+/* the star count sits after New / Learn / Due, set apart by a thin line. Its star is in the
+   accent color so it reads as a different kind of number. */
+.counts .count--star {
+  margin-left: 0.2rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--border);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.counts .count--star span {
+  color: var(--accent);
+  white-space: nowrap;
 }
 
 /* the number in each count: on its own line, bold, in the heading color */
@@ -195,7 +233,7 @@
 
   /* tighter spacing between the three counts */
   .counts {
-    gap: 0.5rem;
+    gap: 0;
   }
 }
 

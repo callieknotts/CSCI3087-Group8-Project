@@ -159,3 +159,50 @@ export function deleteCard(deckId, cardId) {
     },
   );
 }
+
+// -------------------- STARS --------------------
+
+const STARS_URL = '/api/stars/';
+
+// The ids of every card the logged-in user has starred, as a Set (the cards themselves come
+// from listCards). Stars belong to the user, so they are the same on every device.
+export async function listStarredCardIds() {
+  const body = await request(STARS_URL);
+  return new Set(body?.card_ids ?? []);
+}
+
+// Star a card. Safe to repeat. The backend answers 404 for a card that is not the user's.
+export function starCard(cardId) {
+  return request(`${STARS_URL}${cardId}`, { method: 'PUT' });
+}
+
+// Remove the star from a card. Safe to repeat.
+export function unstarCard(cardId) {
+  return request(`${STARS_URL}${cardId}`, { method: 'DELETE' });
+}
+
+// -------------------- REVIEWS (spaced repetition) --------------------
+
+const REVIEWS_URL = '/api/reviews/';
+
+// The logged-in user's review states, and what the rating buttons do for a new card:
+//   { states: [ { id, card_id, repetitions, ease_factor, interval_days, due_at,
+//                 last_reviewed_at, lapses, learning_step,
+//                 next_intervals: { again, hard, good, easy } } ],
+//     new_card_intervals: { again, hard, good, easy } }
+// There is one state per card that has been reviewed at least once. A card with no state here
+// has never been reviewed, so it is a "new" card. The intervals are in days and are worked out
+// by the backend: next_intervals says when the card returns for each rating.
+export function listReviewStates() {
+  return request(`${REVIEWS_URL}states`);
+}
+
+// Records one review. rating is 'again' | 'hard' | 'good' | 'easy'.
+// The backend answers with the card's updated review state (including its next due_at
+// and the new next_intervals).
+export function submitReview(cardId, rating) {
+  return request(`${REVIEWS_URL}${cardId}`, {
+    method: 'POST',
+    body: JSON.stringify({ rating }),
+  });
+}

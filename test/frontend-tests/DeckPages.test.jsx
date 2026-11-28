@@ -82,7 +82,7 @@ test('A deck page shows each subdeck with its cards, and the cards in no subdeck
 
 // the "Mode" dropdown: closed until clicked, then lists the modes as links
 async function openModes(user) {
-    await user.click(screen.getByRole('button', {name: /choose mode/i}));
+    await user.click(screen.getByRole('button', {name: /mode classic/i}));
 }
 
 test('A deck page has one Mode dropdown, for the whole deck, and none on each subdeck', async () => {
@@ -91,17 +91,16 @@ test('A deck page has one Mode dropdown, for the whole deck, and none on each su
     renderAt('/decks/b');
     await screen.findByRole('heading', {name: 'Biology', level: 1});
 
-    expect(screen.getAllByRole('button', {name: /choose mode/i})).toHaveLength(1);
+    expect(screen.getAllByRole('button', {name: /mode classic/i})).toHaveLength(1);
     expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
 
     await openModes(user);
     const items = screen.getAllByRole('menuitem', {name: 'Classic'});
     expect(items.map((a) => a.getAttribute('href'))).toEqual(['/decks/b/flashcards']);
 
-    // Repetition is only a placeholder for now: listed, but disabled and not a link
+    // Repetition is a link too, to the spaced repetition page of the same deck
     const repetition = screen.getByRole('menuitem', {name: /repetition/i});
-    expect(repetition).toHaveAttribute('aria-disabled', 'true');
-    expect(repetition).not.toHaveAttribute('href');
+    expect(repetition).toHaveAttribute('href', '/decks/b/repetition');
 });
 
 test('The Mode dropdown closes with Escape and when a click lands elsewhere', async () => {

@@ -22,6 +22,9 @@ from infrastructure.postgres_repositories.cardReviewStateRepo import (
 from infrastructure.postgres_repositories.reviewLogRepo import (
     PostgresReviewLogRepository
 )
+from infrastructure.postgres_repositories.starredCardRepo import (
+    PostgresStarredCardRepository
+)
 
 from use_case.review.reviewSheduler import ReviewScheduler
 
@@ -52,6 +55,12 @@ def get_review_log_repository(
     db: Session = Depends(get_db)
 ):
     return PostgresReviewLogRepository(db)
+
+
+def get_starred_card_repository(
+    db: Session = Depends(get_db)
+):
+    return PostgresStarredCardRepository(db)
 
 
 def get_review_scheduler(

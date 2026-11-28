@@ -1,0 +1,135 @@
+/* extra styling for repetition mode. The card, progress bar and page layout come from
+   FlashcardPage.css; colors come from the light and dark tokens in index.css. */
+
+/* the four rating colors (the accent doubles as "Good"), with brighter versions for dark mode */
+.rep {
+  --again: #b42318;
+  --hard: #b54708;
+  --good: var(--accent);
+  --easy: #175cd3;
+}
+
+:root[data-theme='dark'] .rep {
+  --again: #f97066;
+  --hard: #fdb022;
+  --easy: #84adff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) .rep {
+    --again: #f97066;
+    --hard: #fdb022;
+    --easy: #84adff;
+  }
+}
+
+/* "New 3  Learn 1  Due 5" above the card */
+.rep-counts {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.rep-count--new {
+  color: var(--easy);
+}
+
+.rep-count--learn {
+  color: var(--again);
+}
+
+.rep-count--review {
+  color: var(--good);
+}
+
+/* "Only due cards · Study everything": shown when the session was opened from a library number */
+.rep-filter {
+  margin: -0.5rem 0 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+/* the "Show answer" button under the card */
+.rep-reveal {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+/* the four rating buttons: Again, Hard, Good, Easy, each with the time until the card returns */
+.rep-rate {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.rep-rate-button {
+  padding: 0.65rem 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-h);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+
+  &:hover:not(:disabled) {
+    border-color: currentColor;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.rep-rate-button small {
+  display: block;
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.rep-rate-button--again {
+  color: var(--again);
+}
+
+.rep-rate-button--hard {
+  color: var(--hard);
+}
+
+.rep-rate-button--good {
+  color: var(--good);
+}
+
+.rep-rate-button--easy {
+  color: var(--easy);
+}
+
+/* a rating could not be saved */
+.rep-error {
+  margin-top: 1rem;
+  color: var(--again);
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .rep-rate {
+    gap: 0.35rem;
+  }
+}

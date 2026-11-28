@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
-import { listDecks, listSubdecks } from '../api/decksApi';
+import {
+  listDecks,
+  listSubdecks,
+  listCards,
+  listReviewStates,
+  listStarredCardIds,
+} from '../api/decksApi';
 import { sortDecks, sortSubdecks } from '../utils/sortDecks';
+import { countCards } from '../utils/reviewSchedule';
+import { countStarred } from '../utils/starredCards';
 import LibraryDeck from '../components/LibraryDeck';
+import SortMenu from '../components/SortMenu';
 import { paths } from '../routes';
 import './HomePage.css';
 
@@ -12,23 +21,44 @@ const SORT_OPTIONS = [
   { value: 'deckname', label: 'Deck name' },
 ];
 
-// Loads the user's decks, then the subdecks of each deck.
+// Loads the user's decks, then the subdecks of each deck, plus the New / Learn / Due counts
+// (what Repetition mode would start with) and the number of starred cards for every deck
+// and subdeck.
 // The backend answers "this deck has no subdecks" with an error (HTTP 500) instead of an
 // empty list, so a 500 here is treated as "no subdecks". Anything else is a real error.
 async function loadLibrary() {
-  const decks = await listDecks();
+  const [decks, review, starred] = await Promise.all([
+    listDecks(),
+    listReviewStates(),
+    listStarredCardIds(),
+  ]);
+  const states = new Map(review.states.map((s) => [s.card_id, s]));
 
   return Promise.all(
     decks.map(async (deck) => {
+      let subdecks = [];
       try {
-        const subdecks = await listSubdecks(deck.id);
-        return { ...deck, subdecks: sortSubdecks(subdecks) };
+        subdecks = await listSubdecks(deck.id);
       } catch (err) {
-        if (err.status === 500) {
-          return { ...deck, subdecks: [] };
-        }
-        throw err;
+        if (err.status !== 500) throw err;
       }
+
+      // one request per deck: it returns the cards of every subdeck too, so each subdeck's
+      // numbers come from the cards that belong to it
+      const cards = await listCards(deck.id);
+      const subsWithCounts = subdecks.map((sub) => {
+        const subCards = cards.filter((card) => card.subdeck_id === sub.id);
+        return {
+          ...sub,
+          counts: { ...countCards(subCards, states), starred: countStarred(subCards, starred) },
+        };
+      });
+
+      return {
+        ...deck,
+        counts: { ...countCards(cards, states), starred: countStarred(cards, starred) },
+        subdecks: sortSubdecks(subsWithCounts),
+      };
     }),
   );
 }
@@ -101,9 +131,9 @@ export default function HomePage() {
       <div className="library-head">
         <h1>Library</h1>
 
-        {/* the only way to reach the cards the user starred (flashcard mode for a deck or
-            subdeck lives on that deck's or subdeck's own page) */}
-        <Link className="btn btn-type2 library-starred-link" to={paths.starredFlashcards}>
+        {/* every card the user starred, from all decks. The star next to each deck's New /
+            Learn / Due numbers opens the same page for just that deck or subdeck. */}
+        <Link className="btn btn-type2 library-starred-link" to={paths.starred}>
           ★ Starred cards
         </Link>
 
@@ -116,18 +146,7 @@ export default function HomePage() {
           onChange={(e) => setSearchText(e.target.value)}
         />
 
-        <select
-          className="library-control"
-          aria-label="Sort by"
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value)}
-        >
-          {SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <SortMenu options={SORT_OPTIONS} value={sortKey} onChange={setSortKey} />
 
         <select
           className="library-control"
@@ -155,7 +174,7 @@ export default function HomePage() {
 
       {!loadError && library !== null && library.length === 0 && (
         <p className="library-message">
-          You don't have any decks yet. Use the + button at the top to create one.
+          You don't have any decks yet. Use the deck button at the top to add or edit decks.
         </p>
       )}
 
