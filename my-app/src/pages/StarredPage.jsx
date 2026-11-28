@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ApiError, getDeck, getSubdeck, listCards, listDecks, listStarredCardIds } from '../api/decksApi';
 import { useLoad } from '../hooks/useLoad';
 import { useStarred } from '../hooks/useStarred';
+import ModeMenu from '../components/ModeMenu';
 import { paths } from '../routes';
 import { sideText } from '../utils/cardText';
 import './DetailPage.css'; // the page frame, back link and card boxes are shared with the deck page
@@ -128,10 +129,14 @@ function StarredCards({ data }) {
 
       <div className="detail-head">
         <h1>★ Starred cards</h1>
-        {studyTo && shown > 0 && (
-          <Link className="btn btn-type2" to={studyTo}>
-            Study as flashcards
-          </Link>
+        {shown > 0 && (
+          <ModeMenu
+            label="Review mode"
+            modes={[
+              { label: 'Classic', to: studyTo || paths.starredFlashcards },
+              { label: 'Repetition', to="/flashcards/starred/repetition" },
+            ]}
+          />
         )}
       </div>
       <p className="detail-meta">

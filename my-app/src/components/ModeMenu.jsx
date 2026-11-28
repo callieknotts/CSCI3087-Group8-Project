@@ -61,7 +61,7 @@ export default function ModeMenu({ modes, label = 'Mode' }) {
         id={`${menuId}-button`}
         onClick={() => setOpen((value) => !value)}
       >
-        Choose mode
+        {modes.find((mode) => !mode.disabled)?.label ?? 'Mode'}
         <span className="mode-menu-chevron" aria-hidden="true" />
       </button>
 

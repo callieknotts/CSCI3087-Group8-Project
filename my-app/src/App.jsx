@@ -64,6 +64,7 @@ export default function App() {
               element={<FlashcardPage />}
             />
             <Route path="flashcards/starred" element={<FlashcardPage />} />
+            <Route path="flashcards/starred/repetition" element={<RepetitionPage />} />
             <Route path="starred" element={<StarredPage />} />
             <Route path="decks/:deckId/starred" element={<StarredPage />} />
             <Route path="decks/:deckId/subdecks/:subdeckId/starred" element={<StarredPage />} />

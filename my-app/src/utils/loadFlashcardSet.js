@@ -12,8 +12,8 @@ export async function loadFlashcardSet(deckId, subdeckId) {
     const lists = await Promise.all(decks.map((deck) => listCards(deck.id)));
     return {
       title: 'Starred cards',
-      backTo: paths.home,
-      backLabel: 'Library',
+      backTo: paths.starred,
+      backLabel: 'Starred cards',
       cards: lists.flat().filter((card) => starred.has(card.id)),
     };
   }
