@@ -11,6 +11,7 @@ import { sortDecks, sortSubdecks } from '../utils/sortDecks';
 import { countCards } from '../utils/reviewSchedule';
 import { countStarred } from '../utils/starredCards';
 import LibraryDeck from '../components/LibraryDeck';
+import SortMenu from '../components/SortMenu';
 import { paths } from '../routes';
 import './HomePage.css';
 
@@ -145,18 +146,7 @@ export default function HomePage() {
           onChange={(e) => setSearchText(e.target.value)}
         />
 
-        <select
-          className="library-control"
-          aria-label="Sort by"
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value)}
-        >
-          {SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <SortMenu options={SORT_OPTIONS} value={sortKey} onChange={setSortKey} />
 
         <select
           className="library-control"

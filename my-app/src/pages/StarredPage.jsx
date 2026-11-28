@@ -134,7 +134,7 @@ function StarredCards({ data }) {
             label="Review mode"
             modes={[
               { label: 'Classic', to: studyTo || paths.starredFlashcards },
-              { label: 'Repetition', to:"/flashcards/starred/repetition" },
+              { label: 'Repetition', to: "/flashcards/starred/repetition" },
             ]}
           />
         )}

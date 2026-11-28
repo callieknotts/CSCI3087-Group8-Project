@@ -96,3 +96,18 @@
   border-radius: 999px;
   font-size: 0.7rem;
 }
+
+/* The sort menu shares the mode menu's dropdown, but its choices are buttons. */
+.sort-menu-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sort-menu-item--selected {
+  color: var(--accent);
+  font-weight: 600;
+}
