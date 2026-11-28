@@ -23,7 +23,7 @@
   margin-right: auto;
 }
 
-/* round buttons: home, "+", profile, and floating action buttons */
+/* round buttons: home, deck management, profile, and floating action buttons */
 .icon-btn {
   display: grid;
   place-items: center;
@@ -75,7 +75,7 @@
   border-color: var(--accent-border);
 }
 
-/* the house, person, arrow, and theme icons: drawn as thin lines in the button's text color */
+/* the house, flashcard, person, arrow, and theme icons: drawn as thin lines in the button's text color */
 .icon-btn svg {
   width: 1.15rem;
   height: 1.15rem;

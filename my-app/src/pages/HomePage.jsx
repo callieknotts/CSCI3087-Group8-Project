@@ -174,7 +174,7 @@ export default function HomePage() {
 
       {!loadError && library !== null && library.length === 0 && (
         <p className="library-message">
-          You don't have any decks yet. Use the + button at the top to create one.
+          You don't have any decks yet. Use the deck button at the top to add or edit decks.
         </p>
       )}
 

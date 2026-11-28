@@ -22,7 +22,7 @@ function Counts({ counts = NO_COUNTS, studyPath, starredPath, name }) {
   const starInside = (
     <>
       <b>{starred}</b>
-      <span>★ Star</span>
+      <span>★</span>
     </>
   );
 
