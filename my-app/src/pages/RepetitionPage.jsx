@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { listReviewStates, submitReview } from '../api/decksApi';
+import ShuffleControls from '../components/ShuffleControls';
+import StarButton from '../components/StarButton';
 import { useLoad } from '../hooks/useLoad';
+import { useStarred } from '../hooks/useStarred';
 import { paths } from '../routes';
 import { sideText } from '../utils/cardText';
 import { loadFlashcardSet } from '../utils/loadFlashcardSet';
+import { reshuffle } from '../utils/shuffle';
 import {
   RATINGS,
   SHOW_KINDS,
@@ -16,6 +20,7 @@ import {
 } from '../utils/reviewSchedule';
 import './FlashcardPage.css'; // the card, progress bar and page layout are the same as Classic mode
 import './RepetitionPage.css';
+import '../components/StudyModes.css'; // the Shuffle button and the row it sits in
 
 // Repetition mode (spaced repetition). Routes:
 //   /decks/:deckId/repetition                 the deck (all its subdecks)
@@ -66,7 +71,7 @@ export default function RepetitionPage() {
     );
   }
 
-  const { title, backTo, backLabel, cards, states, newCardIntervals } = state.data;
+  const { title, backTo, backLabel, cards, states, newCardIntervals, starred } = state.data;
 
   if (cards.length === 0) {
     return (
@@ -90,6 +95,7 @@ export default function RepetitionPage() {
       cards={cards}
       initialStates={states}
       newCardIntervals={newCardIntervals}
+      initialStarred={starred}
     />
   );
 }
@@ -98,8 +104,18 @@ export default function RepetitionPage() {
 // how the ?show= kinds are named in the note above the card
 const SHOW_WORDS = { new: 'new', learn: 'learning', due: 'due' };
 
-function Review({ show, title, backTo, backLabel, cards, initialStates, newCardIntervals }) {
+function Review({
+  show,
+  title,
+  backTo,
+  backLabel,
+  cards,
+  initialStates,
+  newCardIntervals,
+  initialStarred,
+}) {
   const { onUnauthorized } = useOutletContext();
+  const { starred, toggle: toggleStar, error: starError } = useStarred(initialStarred);
   const { pathname } = useLocation(); // the same page without ?show=, for "Study everything"
   const [states, setStates] = useState(initialStates); // card id -> review state, kept up to date
   const [queue, setQueue] = useState(() =>
@@ -144,6 +160,14 @@ function Review({ show, title, backTo, backLabel, cards, initialStates, newCardI
     },
     [card, flipped, submitting, onUnauthorized],
   );
+
+  // Shuffle the cards that are left. The card on screen may change, so it starts on its front again.
+  function shuffleQueue() {
+    if (submitting) return;
+    setInstant(true);
+    setFlipped(false);
+    setQueue((current) => reshuffle(current));
+  }
 
   // Turn the flip animation back on after the new card has been drawn.
   useEffect(() => {
@@ -233,6 +257,11 @@ function Review({ show, title, backTo, backLabel, cards, initialStates, newCardI
       </Link>
       <h1 className="flash-title">{title}</h1>
 
+      <div className="study-bar">
+        <span className="study-mode">Repetition</span>
+        <ShuffleControls shuffled={false} onShuffle={shuffleQueue} disabled={queue.length < 2 || submitting} />
+      </div>
+
       {/* bar showing how far through this session you are */}
       <div
         className="flash-progress"
@@ -277,7 +306,17 @@ function Review({ show, title, backTo, backLabel, cards, initialStates, newCardI
             <p className="flash-text">{sideText(card.content?.back)}</p>
           </div>
         </div>
+
+        {/* the star sits on the card's corner but is not part of the spinning card */}
+        <StarButton starred={starred.has(card.id)} onToggle={() => toggleStar(card)} />
       </div>
+
+      {/* shown only when the backend refused to save a star (the star went back) */}
+      {starError && (
+        <p className="rep-error" role="alert">
+          {starError}
+        </p>
+      )}
 
       {error && (
         <p className="rep-error" role="alert">

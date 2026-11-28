@@ -1,0 +1,241 @@
+/* styling for the extra study modes (Quiz, Type it out, Front & back) and the Shuffle button.
+   The card, progress bar, star and page layout come from FlashcardPage.css; colors come from the
+   light and dark tokens in index.css. */
+
+.study {
+  --right: #067647;
+  --wrong: #b42318;
+}
+
+:root[data-theme='dark'] .study {
+  --right: #47cd89;
+  --wrong: #f97066;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) .study {
+    --right: #47cd89;
+    --wrong: #f97066;
+  }
+}
+
+/* the row under the title: the mode's name on the left, Shuffle on the right */
+.study-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: -0.5rem 0 1rem;
+}
+
+.study-mode {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.study-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.study-tool {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+/* the box that says Type it out is single-word only */
+.study-note {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: var(--accent-bg);
+  font-size: 0.9rem;
+}
+
+/* a card that doesn't flip: the question in Quiz mode and Type it out */
+.study-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: clamp(11rem, 28vh, 16rem);
+  padding: 1.25rem 1.5rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+/* Front & back: both sides on one card, front on top and back (in the accent color) under it */
+.fb-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.fb-side {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: clamp(8rem, 22vh, 12rem);
+  padding: 1.25rem 1.5rem 1rem;
+}
+
+.fb-side--back {
+  border-top: 1px dashed var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.fb-side--back .flash-side {
+  color: var(--accent);
+}
+
+/* Quiz: the four answer buttons */
+.quiz-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.quiz-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-h);
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.quiz-choice-key {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4rem;
+  text-align: center;
+}
+
+.quiz-choice--right {
+  border-color: var(--right);
+  color: var(--right);
+  font-weight: 600;
+}
+
+.quiz-choice--wrong {
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
+.quiz-choice--dim {
+  opacity: 0.55;
+}
+
+/* Type it out: the box and its label */
+.type-form {
+  margin-top: 1.25rem;
+}
+
+.type-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.type-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 1.25rem;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+  }
+}
+
+.type-input--right {
+  border-color: var(--right);
+}
+
+.type-input--wrong {
+  border-color: var(--wrong);
+}
+
+.type-warning {
+  margin: 0.4rem 0 0;
+  color: var(--wrong);
+  font-size: 0.85rem;
+}
+
+/* right/wrong message under the answer, and the row with the buttons */
+.study-feedback {
+  min-height: 1.5em;
+  margin: 1rem 0 0;
+  font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.study-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.study-score {
+  margin-right: auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .quiz-choices {
+    grid-template-columns: 1fr;
+  }
+}

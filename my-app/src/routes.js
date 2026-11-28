@@ -20,6 +20,18 @@ export const paths = {
   starred: '/starred',
   deckStarred: (deckId) => `/decks/${deckId}/starred`,
   subdeckStarred: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/starred`,
+  // the three extra review modes. Each has a whole deck, one subdeck, and every starred card:
+  //   quiz (multiple choice), type-it-out (type single-word answers), front & back (both sides)
+  deckQuiz: (deckId) => `/decks/${deckId}/quiz`,
+  subdeckQuiz: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/quiz`,
+  starredQuiz: '/flashcards/starred/quiz',
+  deckTypeIt: (deckId) => `/decks/${deckId}/type-it-out`,
+  subdeckTypeIt: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/type-it-out`,
+  starredTypeIt: '/flashcards/starred/type-it-out',
+  deckFrontBack: (deckId) => `/decks/${deckId}/front-and-back`,
+  subdeckFrontBack: (deckId, subdeckId) => `/decks/${deckId}/subdecks/${subdeckId}/front-and-back`,
+  starredFrontBack: '/flashcards/starred/front-and-back',
+  starredRepetition: '/flashcards/starred/repetition',
   // repetition mode (spaced repetition): a whole deck or one subdeck
   deckRepetition: (deckId, show) => `/decks/${deckId}/repetition${showQuery(show)}`,
   subdeckRepetition: (deckId, subdeckId, show) =>

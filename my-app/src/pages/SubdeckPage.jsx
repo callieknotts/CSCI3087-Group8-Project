@@ -61,10 +61,7 @@ export default function SubdeckPage() {
 
       <div className="detail-head">
         <h1>{subdeck.subdeckname}</h1>
-        <ModeMenu modes={studyModes(
-            paths.subdeckFlashcards(deck.id, subdeck.id),
-            paths.subdeckRepetition(deck.id, subdeck.id),
-          )} />
+        <ModeMenu modes={studyModes(deck.id, subdeck.id)} />
       </div>
       <p className="detail-meta">
         {cards.length} {cards.length === 1 ? 'card' : 'cards'}

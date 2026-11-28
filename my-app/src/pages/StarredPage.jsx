@@ -3,6 +3,7 @@ import { ApiError, getDeck, getSubdeck, listCards, listDecks, listStarredCardIds
 import { useLoad } from '../hooks/useLoad';
 import { useStarred } from '../hooks/useStarred';
 import ModeMenu from '../components/ModeMenu';
+import { starredStudyModes } from '../utils/studyModes';
 import { paths } from '../routes';
 import { sideText } from '../utils/cardText';
 import './DetailPage.css'; // the page frame, back link and card boxes are shared with the deck page
@@ -51,7 +52,6 @@ async function loadScope(deckId, subdeckId) {
     scopeName: null,
     backTo: paths.home,
     backLabel: 'Library',
-    studyTo: paths.starredFlashcards, // flashcard mode only knows "all starred cards"
     groups: decks.map((deck, i) => ({
       key: deck.id,
       title: deck.deckname,
@@ -112,7 +112,7 @@ export default function StarredPage() {
 // The list itself. Un-starring a card keeps it on the page (with an empty star) so a slip of
 // the mouse can be undone; it is gone the next time the page is opened.
 function StarredCards({ data }) {
-  const { scopeName, backTo, backLabel, studyTo, groups } = data;
+  const { scopeName, backTo, backLabel, groups } = data;
   const { starred, toggle, error } = useStarred(data.starred);
 
   const shown = groups.reduce((total, group) => total + group.cards.length, 0);
@@ -132,10 +132,7 @@ function StarredCards({ data }) {
         {shown > 0 && (
           <ModeMenu
             label="Review mode"
-            modes={[
-              { label: 'Classic', to: studyTo || paths.starredFlashcards },
-              { label: 'Repetition', to: "/flashcards/starred/repetition" },
-            ]}
+            modes={starredStudyModes()}
           />
         )}
       </div>

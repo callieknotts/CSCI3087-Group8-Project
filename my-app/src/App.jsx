@@ -11,6 +11,9 @@ import SubdeckPage from './pages/SubdeckPage';
 import FlashcardPage from './pages/FlashcardPage';
 import StarredPage from './pages/StarredPage';
 import RepetitionPage from './pages/RepetitionPage';
+import QuizPage from './pages/QuizPage';
+import TypeItOutPage from './pages/TypeItOutPage';
+import FrontBackPage from './pages/FrontBackPage';
 import Layout from './components/Layout';
 import Profile from './pages/Profile';
 import './pages/LoginPage.css'; // for the loading screen's layout
@@ -65,6 +68,15 @@ export default function App() {
             />
             <Route path="flashcards/starred" element={<FlashcardPage />} />
             <Route path="flashcards/starred/repetition" element={<RepetitionPage />} />
+            <Route path="flashcards/starred/quiz" element={<QuizPage />} />
+            <Route path="flashcards/starred/type-it-out" element={<TypeItOutPage />} />
+            <Route path="flashcards/starred/front-and-back" element={<FrontBackPage />} />
+            <Route path="decks/:deckId/quiz" element={<QuizPage />} />
+            <Route path="decks/:deckId/type-it-out" element={<TypeItOutPage />} />
+            <Route path="decks/:deckId/front-and-back" element={<FrontBackPage />} />
+            <Route path="decks/:deckId/subdecks/:subdeckId/quiz" element={<QuizPage />} />
+            <Route path="decks/:deckId/subdecks/:subdeckId/type-it-out" element={<TypeItOutPage />} />
+            <Route path="decks/:deckId/subdecks/:subdeckId/front-and-back" element={<FrontBackPage />} />
             <Route path="starred" element={<StarredPage />} />
             <Route path="decks/:deckId/starred" element={<StarredPage />} />
             <Route path="decks/:deckId/subdecks/:subdeckId/starred" element={<StarredPage />} />

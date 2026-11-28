@@ -5,6 +5,18 @@ import { paths } from '../routes';
 //   /decks/:deckId/flashcards                  every card in the deck (all its subdecks)
 //   /decks/:deckId/subdecks/:sid/flashcards    only that subdeck's cards
 //   /flashcards/starred                        every card the user starred, from all decks
+//
+// It also returns `starred` (a Set of the card ids the user starred) so a page can show each
+// card's star. If only the stars fail to load, studying still works (they just start empty).
+async function loadStars() {
+  try {
+    return await listStarredCardIds();
+  } catch (err) {
+    if (err.status === 401) throw err; // an expired session still goes to login
+    return new Set();
+  }
+}
+
 export async function loadFlashcardSet(deckId, subdeckId) {
   // starred cards: look through every deck and keep only the starred ones
   if (!deckId) {
@@ -15,29 +27,32 @@ export async function loadFlashcardSet(deckId, subdeckId) {
       backTo: paths.starred,
       backLabel: 'Starred cards',
       cards: lists.flat().filter((card) => starred.has(card.id)),
+      starred,
     };
   }
 
   // one subdeck. The backend answers a missing subdeck with a 500, so say "not found" instead.
   if (subdeckId) {
-    const [subdeck, cards] = await Promise.all([
+    const [subdeck, cards, starred] = await Promise.all([
       getSubdeck(deckId, subdeckId).catch((err) => {
         if (err.status === 500) throw new ApiError(404, 'That subdeck could not be found.');
         throw err;
       }),
       listCards(deckId, subdeckId),
+      loadStars(),
     ]);
     return {
       title: subdeck.subdeckname,
       backTo: paths.subdeck(deckId, subdeckId),
       backLabel: 'Subdeck',
       cards,
+      starred,
     };
   }
 
   // a whole deck: the backend returns the cards of every subdeck, or just the deck's own
   // cards when it has no subdecks, so one request covers both cases
-  const [deck, cards] = await Promise.all([getDeck(deckId), listCards(deckId)]);
+  const [deck, cards, starred] = await Promise.all([getDeck(deckId), listCards(deckId), loadStars()]);
   if (!deck) throw new ApiError(404, 'That deck could not be found.');
-  return { title: deck.deckname, backTo: paths.deck(deckId), backLabel: 'Deck', cards };
+  return { title: deck.deckname, backTo: paths.deck(deckId), backLabel: 'Deck', cards, starred };
 }

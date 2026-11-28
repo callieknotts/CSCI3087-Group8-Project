@@ -8,6 +8,8 @@ import {
   listDecks,
   listStarredCardIds,
 } from '../api/decksApi';
+import ShuffleControls from '../components/ShuffleControls';
+import { useCardOrder } from '../hooks/useCardOrder';
 import { useLoad } from '../hooks/useLoad';
 import { useStarred } from '../hooks/useStarred';
 import { paths } from '../routes';
@@ -128,7 +130,9 @@ export default function FlashcardPage() {
 }
 
 // The study screen: one card at a time, flip it, move between cards, star it.
-function Flashcards({ title, backTo, backLabel, cards, initialStarred }) {
+function Flashcards({ title, backTo, backLabel, cards: originalCards, initialStarred }) {
+  // the cards in the order they are studied: the deck's own order, or shuffled
+  const { order: cards, shuffled, shuffleNow, reset } = useCardOrder(originalCards);
   const [index, setIndex] = useState(0); // which card is showing
   const [flipped, setFlipped] = useState(false); // false = front, true = back
   const { starred, toggle, error: starError } = useStarred(initialStarred);
@@ -159,6 +163,14 @@ function Flashcards({ title, backTo, backLabel, cards, initialStarred }) {
     const frame = requestAnimationFrame(() => setInstant(false));
     return () => cancelAnimationFrame(frame);
   }, [instant]);
+
+  // Shuffle (or go back to the original order) and start again from the first card.
+  function reorder(change) {
+    setInstant(true); // the first card appears on its front straight away, without spinning
+    setIndex(0);
+    setFlipped(false);
+    change();
+  }
 
   // Star or un-star the current card (the backend remembers it).
   function toggleStar() {
@@ -209,6 +221,17 @@ function Flashcards({ title, backTo, backLabel, cards, initialStarred }) {
         ← {backLabel}
       </Link>
       <h1 className="flash-title">{title}</h1>
+
+      {cards.length > 1 && (
+        <div className="study-bar">
+          <span className="study-mode">Classic</span>
+          <ShuffleControls
+            shuffled={shuffled}
+            onShuffle={() => reorder(shuffleNow)}
+            onReset={() => reorder(reset)}
+          />
+        </div>
+      )}
 
       {/* bar showing how far through the cards you are */}
       <div
