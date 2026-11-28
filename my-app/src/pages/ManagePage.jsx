@@ -270,8 +270,14 @@ export default function ManagePage() {
       const subMap = Object.fromEntries(subEntries);
       setSubdecksByDeck(subMap);
 
+      // listCards(deckId) returns EVERY card in the deck, the ones inside its subdecks too. Keep
+      // only the deck's own cards here (no subdeck). The subdecks' cards are loaded separately
+      // below, so keeping them here would count them twice.
       const rootCardEntries = await Promise.all(
-        deckList.map(async (deck) => [deck.id, await listCards(deck.id, null)]),
+        deckList.map(async (deck) => [
+          deck.id,
+          (await listCards(deck.id, null)).filter((card) => !card.subdeck_id),
+        ]),
       );
       setRootCardsByDeck(Object.fromEntries(rootCardEntries));
 
